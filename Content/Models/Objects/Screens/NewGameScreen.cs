@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Screens;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {

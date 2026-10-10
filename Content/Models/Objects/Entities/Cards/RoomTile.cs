@@ -1,4 +1,5 @@
 ﻿using dragon_hoard.Content.Models.Enums;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
     /*
       
         Small data container class to represent a room tile being drawn from the RoomTile-stack.
-        Set Room-values such as number of exits and type of room.
+        Assigns certain values to a Room object such as number of exits and type of room.
 
         :: TODO ---------------------------
 
@@ -37,12 +38,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public bool[] Doors { get; private set; }           // Determine what exits have a door.
 
-        public Direction EnteredFrom {  get; private set; }   // Determine direction of room's initial entrace
+        public Direction EnteredFrom {  get; private set; }   // Direction Player entered from initially
 
         public int DoorValue { get; private set; }          // Value that determines which directions have exits
 
+        // FUNCTIONAL
+        public int Row { get; set; }                        // Row-position on gamemap grid
+
+        public int Col { get; set; }                        // Column-position on gamemap grid
+
         // GRAPHICS
-        public Texture2D TileImage { get; private set; }
+        public Texture2D TileImage { get; private set; }    // Tile visual representation on gamemap
+
+        public Rectangle LargeSquare { get; private set; }  // Tile representation on gamemap
+
+        public Rectangle MiniSquare { get; private set; }   // Tile representation on minimap
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public RoomTile(int tileId, RoomType roomType, int doorValue, bool[] doors)

@@ -84,7 +84,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             
             CreateRoomDoors(_nrDoors);
 
-
         }// End -----------------------------------------------------------------------------------------------------
 
 

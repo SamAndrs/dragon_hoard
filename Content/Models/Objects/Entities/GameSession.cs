@@ -29,6 +29,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public PlayerCharacter PlayerCharacter { get; private set; }
 
+        public int PlayerMove { get; set; }
+
         public IEnumerable<Room> ExploredRooms { get; private set; }
 
         public Room CurrentPlayerRoom { get; private set; }
@@ -44,6 +46,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             // DEBUG: Create a default player character for testing purposes.
             PlayerCharacter = new PlayerCharacter("Svend",10, 6, 7,8,10);
             CurrentPCHealth = 8; // DEBUG: Set default health for testing purposes.
+            PlayerMove = 1;
         }
 
         public void SetCurrentRoom(Room room) => CurrentPlayerRoom = room;

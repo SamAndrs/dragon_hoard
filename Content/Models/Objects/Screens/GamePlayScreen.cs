@@ -1,5 +1,7 @@
-﻿using dragon_hoard.Content.Models.Managers;
+﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities;
+using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -11,7 +13,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
        
     :: TODO ---------------------------
-        
+        v.001b (10/09) Implementation of player movement and corresponding minimap updates.
        
     :: DONE ---------------------------
         (2026)
@@ -46,11 +48,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private Room _activeRoom;
 
         // FUNCTIONALITY
+        private ClickButton _goUp;
+        private ClickButton _goDown;
+        private ClickButton _goLeft;
+        private ClickButton _goRight;
 
         // GRAPHICS
         private Vector2 _mapPosition; // Position of the map on the screen
 
-
+        // DEBUG
+        private Room _gameSessionRoom;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui, GameSession gameSession) : base(game, screenManager, ui)
@@ -86,14 +93,18 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _healthbar.Load();
             _healthbar.Initialize(_character.Health, _gameSession.CurrentPCHealth, 20);
 
-            IsContentLoaded = true;
-
 
             // DEBUG
             _gameSession.SetCurrentRoom(_map.MiniMap[0, 2]);
+            _gameSessionRoom = _gameSession.CurrentPlayerRoom;
             _activeRoom = _map.MiniMap[1, 2];
-            _activeRoom.SetTestValues(Enums.RoomType.Empty, true);
-           _activeRoom.Initialize(_gameSession);
+            _activeRoom.SetTestValues(RoomType.Empty, true);
+            _activeRoom.Initialize(_gameSession);
+            CreateTestButtons();
+
+
+            IsContentLoaded = true;
+
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -110,6 +121,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             {
                 _map.Update(gameTime);
                 _healthbar.Update(_gameSession.CurrentPCHealth);
+
+                // DEBUG
+                UpdateTestButtons(gameTime);
+
+                //_goUp.ResetButton();
+                //_goDown.ResetButton();
+                //_goLeft.ResetButton();
+                //_goRight.ResetButton();
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -122,10 +141,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         public override void Draw(SpriteBatch spriteBatch)
         {
-            
-
             if (IsActive)
             {
+                _game.GraphicsDevice.Clear(Color.Black);
+
                 _map.Draw(spriteBatch);
                 _healthbar.Draw(spriteBatch);
 
@@ -138,6 +157,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                     spriteBatch.DrawString(_ui.DebugText, $"ERROR! {ex.ToString()}", new Vector2(_game.CenterX, _game.CenterY), Color.Red);
                 }
 
+                DrawTestButtons(spriteBatch); // DEBUG
             }
 
             base.Draw(spriteBatch);
@@ -153,13 +173,123 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         {
             bool showContentLoaded = false;
 
+            bool showCurrentRoom = true;
+
             if (showContentLoaded)
             {
                 spriteBatch.DrawString(_ui.DebugText, $"Content loaded: {IsContentLoaded}",
                    new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 100), Color.White);
             }
+
+            if (showCurrentRoom)
+            {
+                spriteBatch.DrawString(_ui.DebugText, $"ActiveRoom: [{_activeRoom.RoomRow}, {_activeRoom.RoomColumn}]",
+                   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 130), Color.Green);
+
+                spriteBatch.DrawString(_ui.DebugText, $"SessionRoom: [{_gameSessionRoom.RoomRow}, {_gameSessionRoom.RoomColumn}]",
+                   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 100), Color.LightBlue);
+
+                spriteBatch.DrawString(_ui.DebugText, $"PlayerMove: {_gameSession.PlayerMove}",
+                   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 80), Color.Orange);
+            }
+
+           
         }// End -----------------------------------------------------------------------------------------------------
 
+
+        private void PlayerExitRoom(Direction direction)
+        {
+            _gameSession.SetCurrentRoom(_activeRoom);
+            _gameSessionRoom = _gameSession.CurrentPlayerRoom;
+            
+            if (direction == Direction.Up) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow - 1, _gameSessionRoom.RoomColumn];
+            else if(direction == Direction.Down) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow + 1, _gameSessionRoom.RoomColumn];
+
+            else if(direction == Direction.Right) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn + 1];
+            else if(direction == Direction.Left) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn - 1];
+
+            _activeRoom.SetTestValues(RoomType.Empty, true);
+            _activeRoom.Initialize(_gameSession);
+
+            //_gameSession.PlayerMove = 1;
+        }
+
+
+        private void CreateTestButtons()
+        {
+            int size = 50;
+
+            Point center = new Point((int)_game.CenterX, (int)_game.CenterY);
+
+            _goUp = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80, size, size),true);
+            _goUp.Initialize(Color.White, "U", Color.White, Vector2.Zero, true, 0);
+
+            _goDown = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80 + (size * 2), size, size), true);
+            _goDown.Initialize(Color.White, "D", Color.White, Vector2.Zero, true, 0);
+
+            _goLeft = new ClickButton(_ui, new Rectangle(center.X - size, center.Y + (80 + size), size, size), true);
+            _goLeft.Initialize(Color.White, "L", Color.White, Vector2.Zero, true, 0);
+
+            _goRight = new ClickButton(_ui, new Rectangle(center.X + size, center.Y + (80 + size), size, size), true);
+            _goRight.Initialize(Color.White, "R", Color.White, Vector2.Zero, true, 0);
+        }
+
+        private void UpdateTestButtons(GameTime gameTime)
+        {
+            _goUp.Update(gameTime);
+            _goDown.Update(gameTime);
+            _goLeft.Update(gameTime);
+            _goRight.Update(gameTime);
+
+            if (_goUp.Clicked && _gameSession.PlayerMove == 1)
+            {
+                _goUp.BackgroundColor = Color.Yellow;
+                PlayerExitRoom(Direction.Up);
+                _gameSession.PlayerMove--;
+            }
+            else _goUp.BackgroundColor = Color.White;
+            
+            if (_goDown.Clicked && _gameSession.PlayerMove == 1)
+            {
+                _goDown.BackgroundColor = Color.Yellow;
+                PlayerExitRoom(Direction.Down);
+                _gameSession.PlayerMove--;
+            }
+            else _goDown.BackgroundColor = Color.White;
+
+            if (_goRight.Clicked && _gameSession.PlayerMove == 1)
+            {
+                _goRight.BackgroundColor = Color.Yellow;
+                PlayerExitRoom(Direction.Right);
+                _gameSession.PlayerMove--;
+            }
+            else _goRight.BackgroundColor = Color.White;
+
+
+            if (_goLeft.Clicked && _gameSession.PlayerMove == 1)
+            {
+                _goLeft.BackgroundColor = Color.Yellow;
+                PlayerExitRoom(Direction.Left);
+                _gameSession.PlayerMove--;
+            }
+            else _goLeft.BackgroundColor = Color.White;
+        }
+
+
+        private void DrawTestButtons(SpriteBatch spriteBatch)
+        {
+            _goUp.Draw(spriteBatch);
+            spriteBatch.DrawString(_ui.DebugText, $"{_goUp.Clicked}", new Vector2(_goUp.BoundingBox.X, _goUp.BoundingBox.Top - 10), Color.White);
+            
+            _goDown.Draw(spriteBatch);
+            spriteBatch.DrawString(_ui.DebugText, $"{_goDown.Clicked}", new Vector2(_goDown.BoundingBox.X, _goDown.BoundingBox.Bottom + 10), Color.White);
+
+            _goLeft.Draw(spriteBatch);
+            spriteBatch.DrawString(_ui.DebugText, $"{_goLeft.Clicked}", new Vector2(_goLeft.BoundingBox.Left - 40, _goLeft.BoundingBox.Y), Color.White);
+
+            _goRight.Draw(spriteBatch);
+            spriteBatch.DrawString(_ui.DebugText, $"{_goRight.Clicked}", new Vector2(_goRight.BoundingBox.Right + 10, _goRight.BoundingBox.Y), Color.White);
+        }
 
         #endregion
     }
