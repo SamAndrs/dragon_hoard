@@ -77,25 +77,30 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private bool _animDone;                // Flag for animation being done or not.
 
 
-
-        
-
-        // UI OBJECTS
+        // FUNCTIONAL
         private Rectangle _sidebar;
         //private Texture2D _sidebarTexture;
 
         private ClickButton btn_pilgrim;
-        private Texture2D img_pilgrim;
 
         private ClickButton btn_knight;
-        private Texture2D img_knight;
 
         private ClickButton btn_viking;
-        private Texture2D img_viking;
 
         private ClickButton btn_archer;
+
+        private ClickButton btn_startGame;
+        
+
+        // GRAPHICS
+        //private Texture2D _sidebarTexture;
+        private Texture2D img_pilgrim;
+
+        private Texture2D img_knight;
+
+        private Texture2D img_viking;
+
         private Texture2D img_archer;
-                                            
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public NewGameScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)
@@ -144,13 +149,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             btn_archer = new ClickButton(_ui, new Rectangle(btn_viking.BoundingBox.Right + 10, row1Pos, buttonWidth, buttonHeight), true);
 
+            btn_startGame = new ClickButton(_ui, new Rectangle(_sidebar.X + 10, 500, buttonWidth, 35), true);
+
             InitializeButtons();
 
             SetDefaultHeroStats();
 
             _equipment = _charGear[0];
 
-            ScreenUi = new UiElement[] { btn_pilgrim, btn_knight, btn_viking, btn_archer };
+            ScreenUi = new UiElement[] { btn_pilgrim, btn_knight, btn_viking, btn_archer, btn_startGame };
 
             IsContentLoaded = true;
 
@@ -170,39 +177,51 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         {
             if (IsActive)
             {
+                btn_pilgrim.Update(gameTime);
+                btn_knight.Update(gameTime);
+                btn_viking.Update(gameTime);
+                btn_archer.Update(gameTime);
+                btn_startGame.Update(gameTime);
+
 
                 if(btn_pilgrim.Clicked)
                 {
                     SetHeroStats("pilgrim");
-                    btn_pilgrim.ResetButton();
+                    //btn_pilgrim.ResetButton();
                 }
 
                 if (btn_knight.Clicked)
                 {
                     SetHeroStats("knight");
-                    btn_knight.ResetButton();
+                    //btn_knight.ResetButton();
                 }
 
                 if (btn_viking.Clicked)
                 {
                     SetHeroStats("viking");
-                    btn_viking.ResetButton();
+                    //btn_viking.ResetButton();
                 }
 
                 if (btn_archer.Clicked)
                 {
                     SetHeroStats("archer");
-                    btn_archer.ResetButton();
+                    //btn_archer.ResetButton();
+                }
+
+                if (btn_startGame.Clicked)
+                {
+                    CreateNewGameSession();
+                    //LoadNextScreen(_screenManager.GamePlay);
                 }
 
                 // Update the UI if there are any elements in the array
-                if (ScreenUi.Length > 0)
-                {
-                    for (int i = 0; i < ScreenUi.Length; i++)
-                    {
-                        ScreenUi[i].Update(gameTime);
-                    }
-                }
+                //if (ScreenUi.Length > 0)
+                //{
+                //    for (int i = 0; i < ScreenUi.Length; i++)
+                //    {
+                //        ScreenUi[i].Update(gameTime);
+                //    }
+                //}
             }
 
 
@@ -308,6 +327,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             btn_archer.Initialize(Color.Blue, "", Color.White, Vector2.Zero, true, 0);
             btn_archer.Background = img_archer;
+
+            btn_startGame.Initialize(Color.LimeGreen, "Start Game", Color.Black, new Vector2(btn_startGame.BoundingBox.Left + 25,
+                btn_startGame.BoundingBox.Top + 10), true, 0);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -424,13 +446,24 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         private void CreateNewGameSession()
         {
+            // Create a new game session
+            _game.StartGameSession();
             _gameSession = _game.GameSession;
-            //_character = new PlayerCharacter(_pcName, _pcStats[0], _pcStats[1], _pcStats[2], _pcStats[3], _pcStats[4], _equipment);
+            // Create new character based on the choosen one.
+            _character = new PlayerCharacter(_pcName, _pcStats[0], _pcStats[1], _pcStats[2], _pcStats[3], _pcStats[4]);
             
-            // Assign the player character to the game session
-            // _gameSession.PlayerCharacter = _character;
+            // DEBUG
+            _character.CurrentHealth = _character.MaxHealth - 2;
+
+            // Assign the player character to the game session and initialize the session.
+            _gameSession.Initialize(_character);
+
+            LoadNextScreen(_screenManager.GamePlay);
+
+
         }// End -----------------------------------------------------------------------------------------------------
 
         #endregion
+       
     }
 }

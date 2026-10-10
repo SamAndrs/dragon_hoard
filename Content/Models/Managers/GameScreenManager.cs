@@ -109,7 +109,7 @@ namespace dragon_hoard.Content.Models.Managers
 
             NewGame = new NewGameScreen(_game, this, _ui);
 
-            GamePlay = new GamePlayScreen(_game, this, _ui, _game.GameSession);
+            GamePlay = new GamePlayScreen(_game, this, _ui);
 
             // Push Splashscreen onto stack, load content & set to active
             //_gameScreens.Push(MainMenu);
@@ -124,16 +124,16 @@ namespace dragon_hoard.Content.Models.Managers
 
 
             // NEWGAME DEBUG
-            //_gameScreens.Push(NewGame);
-            //NewGame.LoadContent();
-            //NewGame.SetActive();
-            //ScreensInStack.Add(NewGame.Description);
+            _gameScreens.Push(NewGame);
+            NewGame.LoadContent();
+            NewGame.SetActive();
+            ScreensInStack.Add(NewGame.Description);
 
             // GAMEPLAY DEBUG
-            _gameScreens.Push(GamePlay);
-            GamePlay.LoadContent();
-            GamePlay.SetActive();
-            ScreensInStack.Add(GamePlay.Description);
+            //_gameScreens.Push(GamePlay);
+            //GamePlay.LoadContent();
+            //GamePlay.SetActive();
+            //ScreensInStack.Add(GamePlay.Description);
 
 
 

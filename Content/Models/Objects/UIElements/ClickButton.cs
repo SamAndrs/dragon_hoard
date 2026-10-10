@@ -103,7 +103,8 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
         {
             if(IsClickable)
             {
-                if (BoundingBox.Contains(_ui.MousePos) && _ui.Mouse.LeftButton == ButtonState.Pressed)
+                if (BoundingBox.Contains(_ui.MousePos) && _ui.Mouse.LeftButton == ButtonState.Released
+                    && _ui.PrevMouse.LeftButton == ButtonState.Pressed)
                 {
                     Clicked = true;
                 }

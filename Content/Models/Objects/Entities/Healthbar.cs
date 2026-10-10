@@ -67,10 +67,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < _currentHealth; i++)
+            for (int i = 0; i < _maxHealth; i++)
             {
+
                 //spriteBatch.Draw(_barImage, _healthBoxes[i], Color.Red);
-                spriteBatch.Draw(_barImage, new Rectangle((int)Position.X, (int)Position.Y + i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
+                spriteBatch.Draw(_barImage, new Rectangle((int)Position.X, (int)Position.Y - i * (_healthBoxSize + 3), _healthBoxSize, _healthBoxSize), Color.DarkBlue);
+
+                if (i <= _currentHealth)
+                    spriteBatch.Draw(_barImage, new Rectangle((int)Position.X, (int)Position.Y - i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
+
+                
             }
         }
 

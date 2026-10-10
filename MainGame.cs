@@ -1,5 +1,7 @@
-﻿using dragon_hoard.Content.Models.Managers;
+﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities;
+using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -21,10 +23,12 @@ namespace dragon_hoard
 
         * Setup system for (basic) UI Management & handling (UI Manager)
         
-        v0.001b (09/26) Basic screen management finished.
+        v0.001c Setup of core basic game loop (Game Session management)
+        
 
     :: DONE ---------------------------
         (2026)
+        v0.001b (09/26) Basic screen management finished.
         v0.001a (09/24) Setup system for (basic) Game Screen management & handling (Game Screen Manager)
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +83,8 @@ namespace dragon_hoard
         public GameSession GameSession { get; private set; }
 
         // DEVICES
-        public MouseState currentMouseState;
+        public MouseState currentMouseState { get; private set; }
+        public MouseState PrevMouseState { get; private set; }
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public MainGame()
@@ -99,7 +104,7 @@ namespace dragon_hoard
             Window.ClientSizeChanged += OnClientSizeChanged;
             // -----------------------------------------------------------------
 
-            GameVersion = "v0.001a";
+            GameVersion = "v0.001b";
 
             RectangleTexture = new Texture2D(GraphicsDevice, 1, 1); // Needed for solid backgrounds
 
@@ -152,7 +157,7 @@ namespace dragon_hoard
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            GameSession = new GameSession();
+
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -260,7 +265,10 @@ namespace dragon_hoard
         private MouseState ReadMouseState(GameTime gameTime)
         {
             // Get current state of mouse
+            PrevMouseState = currentMouseState;
+
             MouseState mouseState = Mouse.GetState();
+            
 
             // Get X and Y coordinates
             int mouseX = currentMouseState.X;
@@ -276,6 +284,8 @@ namespace dragon_hoard
             - Callback method for later to turn Debug mode On/Off
         ----------------------------------------------------------------------------------------------------------*/
         public void SetDebugMode() => DebugMode = !DebugMode;
+
+        public void StartGameSession() => GameSession = new GameSession();
 
         #endregion
     }

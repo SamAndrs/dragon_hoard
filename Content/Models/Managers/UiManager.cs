@@ -29,7 +29,7 @@ namespace dragon_hoard.Content.Models.Managers
 
         public MouseState Mouse { get; private set; }
 
-        public MouseState PrevMouse { get; set; }
+        public MouseState PrevMouse { get; private set; }
 
 
         // FUNCTIONALITY
@@ -86,8 +86,9 @@ namespace dragon_hoard.Content.Models.Managers
         {
             keyboard = Keyboard.GetState();
 
+            PrevMouse = _game.PrevMouseState;
             Mouse = _game.currentMouseState;
-            
+                        
             MousePos = new Point(Mouse.X, Mouse.Y);
         }// End -----------------------------------------------------------------------------------------------------
 

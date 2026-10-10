@@ -26,9 +26,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         public string Name { get; private set; }
 
         // STATS
-        public int Health { get; private set; }
+        public int MaxHealth { get; private set; }
 
-        public int Wounds { get; private set; }  // Health - Wounds = Current health.
+        public int CurrentHealth { get; set; } // TODO Change to private set later
 
         public int Strength { get; private set; }
 
@@ -64,7 +64,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             Name = name;
             
-            Health = health;
+            MaxHealth = health;
 
             Strength = str;
 
