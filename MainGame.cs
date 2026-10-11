@@ -285,7 +285,7 @@ namespace dragon_hoard
         ----------------------------------------------------------------------------------------------------------*/
         public void SetDebugMode() => DebugMode = !DebugMode;
 
-        public void StartGameSession() => GameSession = new GameSession();
+        public void StartGameSession() => GameSession = new GameSession(this, _uiManager);
 
         #endregion
     }

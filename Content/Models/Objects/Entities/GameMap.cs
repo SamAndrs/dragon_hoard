@@ -1,7 +1,9 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Managers;
+using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace dragon_hoard.Content.Models.Objects.Entities
 {
@@ -23,33 +25,36 @@ namespace dragon_hoard.Content.Models.Objects.Entities
     public class GameMap
     {
         // DATA
-        private Room[,] _mapGrid;
+        private RoomTile[,] _mapGrid;
         
-        private UiManager _ui;
+        //private UiManager _ui;
         
         public int Rows { get; private set; } = 10;     // Height size property of the map. Default is 10 squares.
         
         public int Columns { get; private set; } = 13;  // Width size property of the map. Default is 13 squares.
 
-        public Room[,] MiniMap { get { return _mapGrid; } }
+        public RoomTile[,] MiniMap { get { return _mapGrid; } }
 
         // FUNCTIONALITY
 
 
         // GRAPHICS
-        private Vector2 _mapPosition; // Position of the map on the screen
+        public Vector2 MapPosition { get; set; }// Position of the map on the screen
+
+        public Texture2D SquareTexture { get; private set; }
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public GameMap(UiManager ui, int rows, int columns, Vector2 mapPosition)
+        public GameMap(int rows, int columns, Texture2D squareTexture)
         {
             // Add 2 rows and columns for outer walls & exit rooms.
             Rows = rows +2;
             Columns = columns +2;
 
-            _mapGrid = new Room[Rows, Columns];
-            _ui = ui;
-            _mapPosition = mapPosition;
+            _mapGrid = new RoomTile[Rows, Columns];
+            //_ui = ui;
+            //_mapPosition = mapPosition;
+            SquareTexture = squareTexture;
         }
 
 
@@ -102,7 +107,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             foreach(var room in _mapGrid)
             {
-                room.Update(gameTime);
+                //room.Update(gameTime);
                     
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -115,7 +120,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-           DrawMapRooms(spriteBatch);
+            foreach (var room in _mapGrid)
+                room.DrawOnMiniMap(spriteBatch, SquareTexture);
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -130,8 +136,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         private void CreateRoom(int roomId, int row, int col, int squareSize)
         {
             RoomType roomType;
-            int mapPosX = (int)_mapPosition.X + col * (squareSize + 3);
-            int mapPosY = (int)_mapPosition.Y + row * (squareSize + 3);
+            int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
+            int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
 
             // Check the top row of the map
             if (row == 0)
@@ -160,24 +166,47 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             // otherwise, set it as an empty room
             else
-                roomType = RoomType.Empty;
+                roomType = RoomType.Undiscovered;
 
             // Create the room and assign it to the map grid
-            _mapGrid[row, col] = new Room(_ui, roomId, row, col, new Vector2(mapPosX, mapPosY), squareSize, roomType);
+            //_mapGrid[row, col] = new Room(_ui, roomId, row, col, new Vector2(mapPosX, mapPosY), squareSize, roomType);
+            _mapGrid[row, col] = new RoomTile(roomType, row, col, squareSize, new Vector2(mapPosX, mapPosY));
 
         }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                               Draw Map Rooms					   
-         ------------------------------------------------------------------------------------------------------------
-        - Helper method to draw each room square on the map. 
+                                               Create Random Start Position					   
+        ------------------------------------------------------------------------------------------------------------
+        - Class specific method returning one of the four corner Exit/ Start -rooms.
         ----------------------------------------------------------------------------------------------------------*/
-        private void DrawMapRooms(SpriteBatch spriteBatch)
+        public RoomTile CreateRandomStartPosition(RoomTile roomTile)
         {
-            foreach (var room in _mapGrid)
-                room.Draw(spriteBatch);
+            Random rand = new Random();
 
+            int result = rand.Next(3);
+
+            int maxRows = _mapGrid.GetLength(0) - 1;
+            int maxCols = _mapGrid.GetLength (1) - 1;
+
+            switch(result)
+            {
+                case 0: // Upper left
+                    roomTile = _mapGrid[0, 0];
+                    break;
+                case 1: // Upper right
+                    roomTile = _mapGrid[0, maxCols];
+                    break;
+                case 2: // Bottom left
+                    roomTile = _mapGrid[maxRows, 0];
+                    break;
+
+                case 3: // Bottom right
+                    roomTile = _mapGrid[maxRows, maxCols];
+                    break;
+            }
+           
+            return roomTile;
         }// End -----------------------------------------------------------------------------------------------------
 
         #endregion

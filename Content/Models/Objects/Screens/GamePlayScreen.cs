@@ -45,8 +45,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private Healthbar _healthbar;
 
-        private Room _activeRoom;
-
         // FUNCTIONALITY
         private ClickButton _goUp;
         private ClickButton _goDown;
@@ -54,10 +52,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private ClickButton _goRight;
 
         // GRAPHICS
-        private Vector2 _mapPosition; // Position of the map on the screen
 
         // DEBUG
-        private Room _gameSessionRoom;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)
@@ -67,10 +63,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             Description = "Game Play Screen";
 
             RenderOnPause = false;
-
-            //_gameSession = _game.GameSession;
-
-            //_character = _gameSession.PlayerCharacter;
         }
 
 
@@ -80,30 +72,24 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         /*----------------------------------------------------------------------------------------------------------
                                                   Load Content					   
         ------------------------------------------------------------------------------------------------------------
-           - Override of derived method. Loads the screen specific content, sets up and initializes the 
-            game map, health bar, and other UI elements for the game play screen.
+           - Override of derived method. Loads the screen specific content, connects the game minimap, health bar, 
+            and other UI elements for the game play screen.
         ----------------------------------------------------------------------------------------------------------*/
         public override void LoadContent()
         {
-            
             _gameSession = _game.GameSession;
             _character = _gameSession.PlayerCharacter;
 
-            _mapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 50);
-            _map = new GameMap(_ui, 10, 13, _mapPosition); // Example: Create a 10x13 game map
-            _map.Initialize();
+            _map = _gameSession.GameMap;
 
             // DEBUG
-            _gameSession.SetCurrentRoom(_map.MiniMap[0, 2]);
-            _gameSessionRoom = _gameSession.CurrentPlayerRoom;
-            _activeRoom = _map.MiniMap[1, 2];
-            _activeRoom.SetTestValues(RoomType.Empty, true);
-            _activeRoom.Initialize(_gameSession);
+            //_gameSession.SetCurrentRoom(_map.MiniMap[0, 2]);
+            //_gameSessionRoom = _gameSession.CurrentPlayerRoom;
+            //_activeRoom = _map.MiniMap[1, 2];
+            //_activeRoom.SetTestValues(RoomType.Empty, true);
+            //_activeRoom.Initialize(_gameSession);
             CreateTestButtons();
             //-------------------------------------------------
-
-
-           
 
             _healthbar = new Healthbar(_ui, new Vector2(_game.CenterX, _game.CenterY + 150)); // Example position
             _healthbar.Load();
@@ -151,7 +137,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                 try
                 {
-                    _activeRoom.Draw(spriteBatch);
+                    //_activeRoom.Draw(spriteBatch);
+                    spriteBatch.Draw(_ui.RectangleTexture, _gameSession.CurrentRoom.MiniSquare, Color.White);
                 }
                 catch (Exception ex)
                 {
@@ -199,11 +186,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             if (showCurrentRoom)
             {
-                spriteBatch.DrawString(_ui.DebugText, $"ActiveRoom: [{_activeRoom.RoomRow}, {_activeRoom.RoomColumn}]",
-                   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 130), Color.Green);
+                //spriteBatch.DrawString(_ui.DebugText, $"ActiveRoom: [{_activeRoom.RoomRow}, {_activeRoom.RoomColumn}]",
+                //   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 130), Color.Green);
 
-                spriteBatch.DrawString(_ui.DebugText, $"SessionRoom: [{_gameSessionRoom.RoomRow}, {_gameSessionRoom.RoomColumn}]",
-                   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 100), Color.LightBlue);
+                //spriteBatch.DrawString(_ui.DebugText, $"SessionRoom: [{_gameSessionRoom.RoomRow}, {_gameSessionRoom.RoomColumn}]",
+                //   new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 100), Color.LightBlue);
 
                 spriteBatch.DrawString(_ui.DebugText, $"PlayerMove: {_gameSession.PlayerMove}",
                    new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 80), Color.Orange);
@@ -224,22 +211,22 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private void PlayerExitRoom(Direction direction)
         {
-            _gameSession.SetCurrentRoom(_activeRoom);
-            _gameSessionRoom = _gameSession.CurrentPlayerRoom;
+            //_gameSession.SetCurrentRoom(_activeRoom);
+            //_gameSessionRoom = _gameSession.CurrentRoom;
 
             if (_gameSession.RoomTileStack.Count > 0)
             {
                 _gameSession.RoomTileStack.Pop();
                 _gameSession.PlayerMove--;
 
-                if (direction == Direction.Up) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow - 1, _gameSessionRoom.RoomColumn];
-                else if (direction == Direction.Down) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow + 1, _gameSessionRoom.RoomColumn];
+                //if (direction == Direction.Up) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow - 1, _gameSessionRoom.RoomColumn];
+                //else if (direction == Direction.Down) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow + 1, _gameSessionRoom.RoomColumn];
 
-                else if (direction == Direction.Right) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn + 1];
-                else if (direction == Direction.Left) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn - 1];
+                //else if (direction == Direction.Right) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn + 1];
+                //else if (direction == Direction.Left) _activeRoom = _map.MiniMap[_gameSessionRoom.RoomRow, _gameSessionRoom.RoomColumn - 1];
 
-                _activeRoom.SetTestValues(RoomType.Empty, true);
-                _activeRoom.Initialize(_gameSession);
+                //_activeRoom.SetTestValues(RoomType.Empty, true);
+                //_activeRoom.Initialize(_gameSession);
             }
         }
         #endregion
@@ -336,11 +323,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             spriteBatch.DrawString(_ui.DebugText, $"DEX: {_character.Dexterity}",
                   new Vector2(_game.GraphicsDevice.Viewport.Width - 300, 440), Color.White);
 
-            spriteBatch.DrawString(_ui.DebugText, $"LCK: {_character.Luck}",
+            spriteBatch.DrawString(_ui.DebugText, $"ARM: {_character.Armor}",
                   new Vector2(_game.GraphicsDevice.Viewport.Width - 300, 460), Color.White);
 
-            spriteBatch.DrawString(_ui.DebugText, $"ARM: {_character.Armor}",
-                  new Vector2(_game.GraphicsDevice.Viewport.Width - 300, 480), Color.White);
+            spriteBatch.DrawString(_ui.DebugText, $"LCK: {_character.Luck}",
+                 new Vector2(_game.GraphicsDevice.Viewport.Width - 300, 480), Color.White);
         }
     }
 }

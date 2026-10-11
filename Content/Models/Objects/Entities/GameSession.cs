@@ -1,5 +1,7 @@
 ﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,28 +36,34 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         // public Player Player { get; private set; }
 
+        private MainGame _game;
+
+        private UiManager _ui;
+
         public PlayerCharacter PlayerCharacter { get;  set; }
 
-        public int PlayerMove { get; set; }                   // Determine how many rooms player can progress this turn.
+        public int PlayerMove { get; set; }                         // Determine how many rooms player can progress this turn.
 
         public GameMap GameMap { get; private set; }
 
-        public List<Room> ExploredRooms { get; private set; }   // What rooms the player have visited.
+        public List<RoomTile> ExploredRooms { get; private set; }   // What rooms the player have visited.
 
-        public Room CurrentPlayerRoom { get; private set; }     // The current room in which the player resides.
+        public RoomTile CurrentRoom { get; private set; }           // The current room in which the player resides.
 
         public int CurrentPCHealth { get; private set; }
 
-        private bool _playerCanExit = false;        // Determine if player can leave through an exit (i.e. end game).
+        private bool _playerCanExit = false;                        // Determine if player can leave through an exit (i.e. end game).
 
-        public int GameTurn { get; private set; } = 0;  // The amount of game turns since start.
+        public int GameTurn { get; private set; } = 0;              // The amount of game turns since start.
 
         // CARD STACKS
         public Stack<RoomTile> RoomTileStack { get; private set; }
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public GameSession()
+        public GameSession(MainGame game, UiManager ui)
         {
+            _game = game;
+            _ui = ui;
         }
 
 
@@ -67,8 +75,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                                                        Initialize					   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method called from the NewGameScreen upon Start game, to initialize the necessary 
-            data and objects upon starting a brand new game. 
-            Sets the choosen playercharacter, creates, fills and shuffles the various game card stacks 
+            data and objects upon starting a brand new game session. 
+            Sets the choosen playercharacter, creates-, fills- and shuffles the various game card stacks 
             and initiates the first game turn.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize(PlayerCharacter playerCharacter)
@@ -90,7 +98,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             */
 
             // DEBUG
-            CreateRoomTileStack(20);
+            CreateTestInitialization();
 
             // Set sun stage
             // Create and initialize gamemap
@@ -101,14 +109,26 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         }// End -----------------------------------------------------------------------------------------------------
 
-        public void SetCurrentRoom(Room room) => CurrentPlayerRoom = room;
+        public void SetCurrentRoom(RoomTile roomTile) => CurrentRoom = roomTile;
 
         #endregion
 
         // DEBUG
+        private void CreateTestInitialization()
+        {
+            CreateRoomTileStack(20);
+
+            GameMap = new GameMap(10, 13, _ui.RectangleTexture);
+            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 50);
+            GameMap.Initialize();
+            CurrentRoom = GameMap.CreateRandomStartPosition(CurrentRoom);
+
+        }
+
         private void CreateTestRound()
         {
             
+            // Add visited roomtile to ExploredRooms-list
         }
 
         private void CreateRoomTileStack(int amount)

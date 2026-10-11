@@ -184,35 +184,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 btn_startGame.Update(gameTime);
 
 
-                if(btn_pilgrim.Clicked)
-                {
-                    SetHeroStats("pilgrim");
-                    //btn_pilgrim.ResetButton();
-                }
+                if(btn_pilgrim.Clicked) SetHeroStats("pilgrim");
 
-                if (btn_knight.Clicked)
-                {
-                    SetHeroStats("knight");
-                    //btn_knight.ResetButton();
-                }
+                if (btn_knight.Clicked) SetHeroStats("knight");
 
-                if (btn_viking.Clicked)
-                {
-                    SetHeroStats("viking");
-                    //btn_viking.ResetButton();
-                }
+                if (btn_viking.Clicked) SetHeroStats("viking");
 
-                if (btn_archer.Clicked)
-                {
-                    SetHeroStats("archer");
-                    //btn_archer.ResetButton();
-                }
+                if (btn_archer.Clicked) SetHeroStats("archer");
 
-                if (btn_startGame.Clicked)
-                {
-                    CreateNewGameSession();
-                    //LoadNextScreen(_screenManager.GamePlay);
-                }
+                if (btn_startGame.Clicked) CreateNewGameSession();
 
                 // Update the UI if there are any elements in the array
                 //if (ScreenUi.Length > 0)
@@ -346,28 +326,28 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             {
                 case "pilgrim":
                     _pcName = "the Pilgrim";
-                    _pcStats = new int[5] { 15, 4, 7, 8, 4 }; // health, str, dex, lck, armr
+                    _pcStats = new int[5] { 15, 4, 7, 4, 8 }; // health, str, dex, armr, lck
                     _equipment = _charGear[0];
                     btn_pilgrim.ResetButton();
                     break;
 
                 case "knight":
                     _pcName = "the Knight";
-                    _pcStats = new int[5] { 17, 6, 4, 4, 9 };
+                    _pcStats = new int[5] { 17, 6, 4, 9, 4 };
                     _equipment = _charGear[1];
                     btn_knight.ResetButton();
                     break;
 
                 case "viking":
                     _pcName = "the Viking";
-                    _pcStats = new int[5] { 16, 7, 5, 5, 6 };
+                    _pcStats = new int[5] { 16, 7, 5, 6, 5 };
                     _equipment = _charGear[2];
                     btn_viking.ResetButton();
                     break;
 
                 case "archer":
                     _pcName = "the Archer";
-                    _pcStats = new int[5] { 11, 3, 8, 7, 5 };
+                    _pcStats = new int[5] { 11, 3, 8, 5, 7 };
                     _equipment = _charGear[3];
                     btn_archer.ResetButton();
                     break;
@@ -375,7 +355,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                default: // Pilgrim is set as default
                     _pcName = "the Pilgrim";
-                    _pcStats = new int[5] { 15, 4, 7, 8, 4 }; // health, str, dex, lck, armr
+                    _pcStats = new int[5] { 15, 4, 7, 4, 8 }; // health, str, dex, armr, lck
                     _equipment = _charGear[0];
                     break;
 
@@ -389,7 +369,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private void SetDefaultHeroStats()
         {
             _pcName = "the Pilgrim";
-            _pcStats = new int[5] { 15, 4, 7, 8, 4 };   // health, str, dex, lck, armr
+            _pcStats = new int[5] { 15, 4, 7, 4, 8 };   // health, str, dex, armr, lck
 
             _charGear.AddRange(new List<string>
             {
@@ -425,12 +405,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             // Dexterity
             spriteBatch.DrawString(_ui.DebugText, "Dexterity:", new Vector2(xPos1, sideWindow.Y + 165), Color.White);
             spriteBatch.DrawString(_ui.DebugText, $"{_pcStats[2]}", new Vector2(xPos2, sideWindow.Y + 165), Color.White);
-            // Luck
-            spriteBatch.DrawString(_ui.DebugText, "Luck:", new Vector2(xPos1, sideWindow.Y + 185), Color.White);
-            spriteBatch.DrawString(_ui.DebugText, $"{_pcStats[4]}", new Vector2(xPos2, sideWindow.Y + 185), Color.White);
             // Armor
-            spriteBatch.DrawString(_ui.DebugText, "Armor:", new Vector2(xPos1, sideWindow.Y + 205), Color.White);
-            spriteBatch.DrawString(_ui.DebugText, $"{_pcStats[3]}", new Vector2(xPos2, sideWindow.Y + 205), Color.White);
+            spriteBatch.DrawString(_ui.DebugText, "Armor:", new Vector2(xPos1, sideWindow.Y + 185), Color.White);
+            spriteBatch.DrawString(_ui.DebugText, $"{_pcStats[3]}", new Vector2(xPos2, sideWindow.Y + 185), Color.White);
+            // Luck
+            spriteBatch.DrawString(_ui.DebugText, "Luck:", new Vector2(xPos1, sideWindow.Y + 205), Color.White);
+            spriteBatch.DrawString(_ui.DebugText, $"{_pcStats[4]}", new Vector2(xPos2, sideWindow.Y + 205), Color.White);
             // Equipment
             spriteBatch.DrawString(_ui.DebugText, "Equipment:", new Vector2(xPos1, sideWindow.Y + 235), Color.White);
             spriteBatch.DrawString(_ui.DebugText, _equipment, new Vector2(xPos1, sideWindow.Y + 255), Color.White);
@@ -451,7 +431,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _gameSession = _game.GameSession;
             // Create new character based on the choosen one.
             _character = new PlayerCharacter(_pcName, _pcStats[0], _pcStats[1], _pcStats[2], _pcStats[3], _pcStats[4]);
-            
+
+
             // DEBUG
             _character.CurrentHealth = _character.MaxHealth - 2;
 

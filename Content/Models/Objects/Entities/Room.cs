@@ -165,25 +165,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities
        ----------------------------------------------------------------------------------------------------------*/
         private void CheckEnterDirection(GameSession session)
         {
-            RoomDoors = new List<Door>();
-            Room previous = session.CurrentPlayerRoom;
+            //RoomDoors = new List<Door>();
+            //Room previous = session.CurrentPlayerRoom;
 
 
-            // Enters from the north
-            if (previous.RoomRow == this.RoomRow -1)
-                RoomDoors.Add(new Door(Direction.Up));
+            //// Enters from the north
+            //if (previous.RoomRow == this.RoomRow -1)
+            //    RoomDoors.Add(new Door(Direction.Up));
 
-            // Enters from the east
-            else if(previous.RoomColumn == this.RoomColumn +1)
-                    RoomDoors.Add(new Door(Direction.Right));
+            //// Enters from the east
+            //else if(previous.RoomColumn == this.RoomColumn +1)
+            //        RoomDoors.Add(new Door(Direction.Right));
 
-            // Enters from the south
-            else if(previous.RoomRow == this.RoomRow + 1)
-                RoomDoors.Add(new Door(Direction.Down));
+            //// Enters from the south
+            //else if(previous.RoomRow == this.RoomRow + 1)
+            //    RoomDoors.Add(new Door(Direction.Down));
 
-            // Enters from the west
-            else if (previous.RoomColumn == this.RoomColumn - 1) 
-                RoomDoors.Add(new Door(Direction.Left));
+            //// Enters from the west
+            //else if (previous.RoomColumn == this.RoomColumn - 1) 
+            //    RoomDoors.Add(new Door(Direction.Left));
 
         }// End -----------------------------------------------------------------------------------------------------
 

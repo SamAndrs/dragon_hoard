@@ -1,4 +1,5 @@
 ﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -54,7 +55,23 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Rectangle MiniSquare { get; private set; }   // Tile representation on minimap
 
+        public Texture2D RoomImage { get; private set; }    // GamePlayScreen visual representation
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
+        // For gamemap
+        public RoomTile(RoomType roomType, int row, int col, int squareSize, Vector2 roomPosition)
+        {
+            
+            RoomType = roomType;
+            
+            Row = row;
+            
+            Col = col;
+
+            MiniSquare = new Rectangle((int)roomPosition.X, (int)roomPosition.Y, squareSize, squareSize);
+        }
+
+        // For RoomTile Stack
         public RoomTile(int tileId, RoomType roomType, int doorValue, bool[] doors)
         {
             TileId = tileId;
@@ -110,25 +127,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 switch (doorValue)
                 {
                     case 90:
-                        exits = new bool[4] { true, true, true, true }; break;
+                        exits = [true, true, true, true]; break;
 
                     case 82:
-                        exits = new bool[4] { true, true, true, false }; break;
+                        exits = [true, true, true, false]; break;
 
                     case 74:
-                        exits = new bool[4] { true, false, true, true }; break;
+                        exits = [true, false, true, true]; break;
 
                     case 26:
-                        exits = new bool[4] { true, true, false, true }; break;
+                        exits = [true, true, false, true]; break;
 
                     case 10:
-                        exits = new bool[4] { true, false, false, true }; break;
+                        exits = [true, false, false, true]; break;
 
                     case 18:
-                        exits = new bool[4] { true, true, false, false }; break;
+                        exits = [true, true, false, false]; break;
 
                     case 66:
-                        exits = new bool[4] { true, false, true, false }; break;
+                        exits = [true, false, true, false]; break;
 
                 }
                
@@ -143,25 +160,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 switch (doorValue)
                 {
                     case 90:
-                        exits = new bool[4] { true, true, true, true }; break;
+                        exits = [true, true, true, true]; break;
 
                     case 82:
-                        exits = new bool[4] { false, true, true, true }; break;
+                        exits = [false, true, true, true]; break;
 
                     case 74:
-                        exits = new bool[4] { true, true, false, true }; break;
+                        exits = [true, true, false, true]; break;
 
                     case 26:
-                        exits = new bool[4] { true, true, true, false }; break;
+                        exits = [true, true, true, false]; break;
 
                     case 10:
-                        exits = new bool[4] { true, true, false, false }; break;
+                        exits = [true, true, false, false]; break;
 
                     case 18:
-                        exits = new bool[4] { false, true, true, false }; break;
+                        exits = [false, true, true, false]; break;
 
                     case 66:
-                        exits = new bool[4] { false, true, false, true }; break;
+                        exits = [false, true, false, true]; break;
                 }
             }
             else if (fromDirection == Direction.Down)
@@ -174,25 +191,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 switch (doorValue)
                 {
                     case 90:
-                        exits = new bool[4] { true, true, true, true }; break;
+                        exits = [true, true, true, true]; break;
 
                     case 82:
-                        exits = new bool[4] { true, false, true, true }; break;
+                        exits = [true, false, true, true]; break;
 
                     case 74:
-                        exits = new bool[4] { true, true, true, false }; break;
+                        exits = [true, true, true, false]; break;
 
                     case 26:
-                        exits = new bool[4] { false, true, true, true }; break;
+                        exits = [false, true, true, true]; break;
 
                     case 10:
-                        exits = new bool[4] { false, true, true, false }; break;
+                        exits = [false, true, true, false]; break;
 
                     case 18:
-                        exits = new bool[4] { false, false, true, true }; break;
+                        exits = [false, false, true, true]; break;
 
                     case 66:
-                        exits = new bool[4] { true, false, true, false }; break;
+                        exits = [true, false, true, false]; break;
                 }
             }
             else
@@ -204,31 +221,31 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 switch (doorValue)
                 {
                     case 90:
-                        exits = new bool[4] { true, true, true, true }; break;
+                        exits = [true, true, true, true]; break;
 
                     case 82:
-                        exits = new bool[4] { true, true, false, true }; break;
+                        exits = [true, true, false, true]; break;
 
                     case 74:
-                        exits = new bool[4] { false, true, true, true }; break;
+                        exits = [false, true, true, true]; break;
 
                     case 26:
-                        exits = new bool[4] { true, false, true, true }; break;
+                        exits = [true, false, true, true]; break;
 
                     case 10:
-                        exits = new bool[4] { false, false, true, true }; break;
+                        exits = [false, false, true, true]; break;
 
                     case 18:
-                        exits = new bool[4] { true, false, false, true }; break;
+                        exits = [true, false, false, true]; break;
 
                     case 66:
-                        exits = new bool[4] { false, true, false, true }; break;
+                        exits = [false, true, false, true]; break;
 
                 }
             }
 
             return exits;
-        }
+        }// End -----------------------------------------------------------------------------------------------------
 
 
 
@@ -244,6 +261,26 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 if (Exits[i] == false)
                     Doors[i] = false;
             }
+        }
+
+        public void DrawOnMiniMap(SpriteBatch spriteBatch, Texture2D squareTexture)
+        {
+            Color darkGray = new Color(28, 30, 33); // Dark gray color for outer wall room squares
+
+            // Draw the room square on the map
+            if (RoomType == RoomType.Exit)
+                spriteBatch.Draw(squareTexture, MiniSquare, Color.Yellow);
+
+            else if (RoomType == RoomType.OuterWall)
+                spriteBatch.Draw(squareTexture, MiniSquare, darkGray);
+            //else
+            //{
+            //    if (IsDiscovered)
+            //    {
+            //        spriteBatch.Draw(_ui.RectangleTexture, RoomSquare, Color.White);
+            //    }
+
+            //}
         }
         #endregion
     }
