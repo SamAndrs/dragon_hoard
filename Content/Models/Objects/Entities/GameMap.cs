@@ -10,6 +10,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
     ///////////////////////////////////////// GAME MAP CLASS ///////////////////////////////////////////////
     /*
         - Data container class for game map information and functionality.
+            Consists of a (default) 12x15 grid of RoomTile objects. Two rows and two columns make up the untraceable 
+            outer wall (save for the four corners which acts as starting- and exit squares).
+             
         
             
     :: TODO ---------------------------
@@ -52,8 +55,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Columns = columns +2;
 
             _mapGrid = new RoomTile[Rows, Columns];
-            //_ui = ui;
-            //_mapPosition = mapPosition;
             SquareTexture = squareTexture;
         }
 
@@ -65,8 +66,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         /*----------------------------------------------------------------------------------------------------------
                                                        Initialize					   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method to initialize the map grid with Room objects. 
-            Each room is assigned a numerical ID and its position on the map is calculated based on its row and column.
+          - Class specific method to initialize the map grid with RoomTile objects. 
+            Each RoomTile is assigned a numerical ID and its position on the map is calculated 
+            based on its row and column on the grid.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
@@ -84,20 +86,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         }// End -----------------------------------------------------------------------------------------------------
 
 
-
-        /*----------------------------------------------------------------------------------------------------------
-                                                       Load Map Data					   
-        ------------------------------------------------------------------------------------------------------------
-          - Class specific method to load visible map data from the game session or other source, 
-            if applicable.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void Load()
-        {
-            // Load visible map data from the game session or other source, if applicable.
-
-        }// End -----------------------------------------------------------------------------------------------------
-
-
         /*----------------------------------------------------------------------------------------------------------
                                                  Update				   
         ------------------------------------------------------------------------------------------------------------
@@ -105,9 +93,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            foreach(var room in _mapGrid)
+            foreach(var roomTile in _mapGrid)
             {
-                //room.Update(gameTime);
+                roomTile.Update(gameTime);
                     
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -130,47 +118,33 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         /*----------------------------------------------------------------------------------------------------------
                                                Create Room					   
         ------------------------------------------------------------------------------------------------------------
-        - Class specific method to create a room object and assign it to the map grid.
+        - Class specific method to create a 'blank' RoomTile object and assign it to the map grid.
             Sets initial properties such as the position of the room's 'texture square' on the map and its type.
         ----------------------------------------------------------------------------------------------------------*/
         private void CreateRoom(int roomId, int row, int col, int squareSize)
         {
-            RoomType roomType;
+            RoomType roomType = RoomType.Undiscovered;
             int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
             int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
 
-            // Check the top row of the map
-            if (row == 0)
-            {
-                // If room is either top left or top right corner, set it as an exit; otherwise, set it as an outer wall
-                if (col == 0 || col == Columns - 1)
-                    roomType = RoomType.Exit;
-                
-                else
-                    roomType = RoomType.OuterWall;
-
-            }
-            // Check the bottom row of the map
-            else if (row == Rows - 1)
-            {
-                // If room is either bottom left or bottom right corner, set it as an exit; otherwise, set it as an outer wall
-                if (col == 0 || col == Columns - 1)
-                    roomType = RoomType.Exit;
-
-                else
-                    roomType = RoomType.OuterWall;
-            }
-            // If the room isn't a corner room but is in first or last column, set it as an outer wall; 
-            else if (col == 0 || col == Columns - 1)
+            // Set the top-, bottom rows and the left- and rightmost columns of the map
+            if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)
                 roomType = RoomType.OuterWall;
 
-            // otherwise, set it as an empty room
+            // Check 2nd row from top and bottom
+            else if (row == 1 || row == Rows - 2)
+            {
+                // If room is a corner, set it as an exit; otherwise, as an undiscovered room
+                if (col == 1 || col == Columns - 2)
+                    roomType = RoomType.Exit;
+            }
             else
                 roomType = RoomType.Undiscovered;
 
             // Create the room and assign it to the map grid
-            //_mapGrid[row, col] = new Room(_ui, roomId, row, col, new Vector2(mapPosX, mapPosY), squareSize, roomType);
             _mapGrid[row, col] = new RoomTile(roomType, row, col, squareSize, new Vector2(mapPosX, mapPosY));
+            // Create doors to progress into castle, if room is an Exit.
+            _mapGrid[row, col].DetermineCastleExits(Rows - 2, Columns - 2);
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -186,26 +160,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             int result = rand.Next(3);
 
-            int maxRows = _mapGrid.GetLength(0) - 1;
-            int maxCols = _mapGrid.GetLength (1) - 1;
+            int maxRows = _mapGrid.GetLength(0) - 2;
+            int maxCols = _mapGrid.GetLength (1) - 2;
 
             switch(result)
             {
                 case 0: // Upper left
-                    roomTile = _mapGrid[0, 0];
+                    roomTile = _mapGrid[1, 1];
                     break;
                 case 1: // Upper right
-                    roomTile = _mapGrid[0, maxCols];
+                    roomTile = _mapGrid[1, maxCols];
                     break;
                 case 2: // Bottom left
-                    roomTile = _mapGrid[maxRows, 0];
+                    roomTile = _mapGrid[maxRows, 1];
                     break;
 
                 case 3: // Bottom right
                     roomTile = _mapGrid[maxRows, maxCols];
                     break;
             }
-           
             return roomTile;
         }// End -----------------------------------------------------------------------------------------------------
 

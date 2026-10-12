@@ -1,12 +1,7 @@
 ﻿using dragon_hoard.Content.Models.Enums;
-using dragon_hoard.Content.Models.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 {
@@ -18,12 +13,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         :: TODO ---------------------------
 
-            v.001a (10/08) Setup of basic core properties and methods.
+            
 
 
 
         :: DONE ---------------------------
             (2026)
+            v.001a (10/08) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class RoomTile
@@ -57,7 +53,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Texture2D RoomImage { get; private set; }    // GamePlayScreen visual representation
 
+        private Color _miniSquareColor;
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
+        // For RoomTile-placement
+        public RoomTile() { }
+        
         // For gamemap
         public RoomTile(RoomType roomType, int row, int col, int squareSize, Vector2 roomPosition)
         {
@@ -88,165 +89,245 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         #region methods
 
 
+        public void Update(GameTime gameTime)
+        {
+
+        }
+
         /*----------------------------------------------------------------------------------------------------------
                                                        Place Tile					   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method representing the room tile being pulled from the stack and placed on the 
             game board.
         ----------------------------------------------------------------------------------------------------------*/
-        public void PlaceTile(Texture2D tileImage, Direction fromDirection)
+        public void PlaceTile(Direction fromDirection, RoomTile roomTile)
         {
-            TileImage = tileImage;
+            //TileImage = tileImage;
+
+            TileId = roomTile.TileId;
+
+            RoomType = roomTile.RoomType;
 
             EnteredFrom = fromDirection;
            
-            Exits = CalculateDoors(fromDirection, DoorValue);
+            Exits = DetermineRoomExits(EnteredFrom, roomTile.DoorValue);
 
-            DoorErrorCheck();
+            //DoorErrorCheck();
+
+            _miniSquareColor = SetMiniMapColor(RoomType);
 
         }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                                       Calculate Doors				   
+                                                       Determine Room Exits				   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method determining available exits of a room based on direction of entrance and a 
-            selection of static values (90, 82, 74, 26, 10, 18 and 66).
+            selection of static values: (90, 82, 74, 26, 10, 18 and 66).
+            1 = RoomTile has 4 exits
+            2 = RoomTile has 3 exits (entrance, up, opposite end)
+            3 = RoomTile has 3 exits (entrance, down, opposite end)
+            4 = RoomTile has 3 exits (entrance, up, down)
+            5 = RoomTile has 2 exits (entrance, up)
+            6 = RoomTile has 2 exits (entrance, down)
+            7 = RoomTile has 2 exits (entrance, opposite end)
+            8 = RoomTile is a dead end (only entrance)
+
+            
         ----------------------------------------------------------------------------------------------------------*/
-        private bool[] CalculateDoors(Direction fromDirection, int doorValue)
+        private bool[] DetermineRoomExits(Direction fromDirection, int doorValue)
         {
             bool[] exits = new bool[4];
 
             if (fromDirection == Direction.Up)
             {
-                //if (Exits[0] == true) { value += 2; }
-                //if (Exits[1] == true) { value += 16; }
-                //if (Exits[2] == true) { value += 64; }
-                //if (Exits[3] == true) { value += 8; }
-
                 switch (doorValue)
                 {
-                    case 90:
-                        exits = [true, true, true, true]; break;
-
-                    case 82:
-                        exits = [true, true, true, false]; break;
-
-                    case 74:
-                        exits = [true, false, true, true]; break;
-
-                    case 26:
-                        exits = [true, true, false, true]; break;
-
-                    case 10:
-                        exits = [true, false, false, true]; break;
-
-                    case 18:
-                        exits = [true, true, false, false]; break;
-
-                    case 66:
-                        exits = [true, false, true, false]; break;
-
+                    case 1: exits = [true, true, true, true]; break;
+                    case 2: exits = [true, true, true, false]; break;
+                    case 3: exits = [true, false, true, true]; break;
+                    case 4: exits = [true, true, false, true]; break;
+                    case 5: exits = [true, true, false, false]; break;
+                    case 6: exits = [true, false, false, true]; break;
+                    case 7: exits = [true, false, true, false]; break;
+                    case 8: exits = [true, false, false, false]; break;
                 }
-               
             }
             else if (fromDirection == Direction.Right)
             {
-                //if (Exits[0] == true) { value += 8; }
-                //if (Exits[1] == true) { value += 2; }
-                //if (Exits[2] == true) { value += 16; }
-                //if (Exits[3] == true) { value += 64; }
-
                 switch (doorValue)
                 {
-                    case 90:
-                        exits = [true, true, true, true]; break;
-
-                    case 82:
-                        exits = [false, true, true, true]; break;
-
-                    case 74:
-                        exits = [true, true, false, true]; break;
-
-                    case 26:
-                        exits = [true, true, true, false]; break;
-
-                    case 10:
-                        exits = [true, true, false, false]; break;
-
-                    case 18:
-                        exits = [false, true, true, false]; break;
-
-                    case 66:
-                        exits = [false, true, false, true]; break;
+                    case 1: exits = [true, true, true, true]; break;
+                    case 2: exits = [true, true, false, true]; break;
+                    case 3: exits = [false, true, true, true]; break;
+                    case 4: exits = [true, true, true, false]; break;
+                    case 5: exits = [true, true, false, false]; break;
+                    case 6: exits = [false, true, true, false]; break;
+                    case 7: exits = [false, true, false, true]; break;
+                    case 8: exits = [false, true, false, false]; break;
                 }
             }
             else if (fromDirection == Direction.Down)
             {
-                //if (Exits[0] == true) { value += 64; }
-                //if (Exits[1] == true) { value += 8; }
-                //if (Exits[2] == true) { value += 2; }
-                //if (Exits[3] == true) { value += 16; }
-
                 switch (doorValue)
                 {
-                    case 90:
-                        exits = [true, true, true, true]; break;
-
-                    case 82:
-                        exits = [true, false, true, true]; break;
-
-                    case 74:
-                        exits = [true, true, true, false]; break;
-
-                    case 26:
-                        exits = [false, true, true, true]; break;
-
-                    case 10:
-                        exits = [false, true, true, false]; break;
-
-                    case 18:
-                        exits = [false, false, true, true]; break;
-
-                    case 66:
-                        exits = [true, false, true, false]; break;
+                    case 1: exits = [true, true, true, true]; break;
+                    case 2: exits = [true, false, true, true]; break;
+                    case 3: exits = [true, true, true, false]; break;
+                    case 4: exits = [false, true, true, true]; break;
+                    case 5: exits = [false, false, true, true]; break;
+                    case 6: exits = [false, true, true, false]; break;
+                    case 7: exits = [true, false, true, false]; break;
+                    case 8: exits = [false, false, true, false]; break;
                 }
             }
-            else
+            else if (fromDirection == Direction.Left)
             {
-                //if (Exits[0] == true) { value += 16; }
-                //if (Exits[1] == true) { value += 64; }
-                //if (Exits[2] == true) { value += 2; }
-                //if (Exits[3] == true) { value += 8; }
                 switch (doorValue)
                 {
-                    case 90:
-                        exits = [true, true, true, true]; break;
-
-                    case 82:
-                        exits = [true, true, false, true]; break;
-
-                    case 74:
-                        exits = [false, true, true, true]; break;
-
-                    case 26:
-                        exits = [true, false, true, true]; break;
-
-                    case 10:
-                        exits = [false, false, true, true]; break;
-
-                    case 18:
-                        exits = [true, false, false, true]; break;
-
-                    case 66:
-                        exits = [false, true, false, true]; break;
+                    case 1: exits = [true, true, true, true]; break;
+                    case 2: exits = [true, true, false, true]; break;
+                    case 3: exits = [false, true, true, true]; break;
+                    case 4: exits = [true, false, true, true]; break;
+                    case 5: exits = [true, false, false, true]; break;
+                    case 6: exits = [false, false, true, true]; break;
+                    case 7: exits = [false, true, false, true]; break;
+                    case 8: exits = [false, false, false, true]; break;
 
                 }
             }
+        
 
-            return exits;
+                #region old code ===============================================
+                //if (fromDirection == Direction.Up)
+                //{
+                //    //if (Exits[0] == true) { value += 2; }
+                //    //if (Exits[1] == true) { value += 16; }
+                //    //if (Exits[2] == true) { value += 64; }
+                //    //if (Exits[3] == true) { value += 8; }
+
+                //    switch (doorValue)
+                //    {
+                //        case 90:
+                //            exits = [true, true, true, true]; break;
+
+                //        case 82:
+                //            exits = [true, true, true, false]; break;
+
+                //        case 74:
+                //            exits = [true, false, true, true]; break;
+
+                //        case 26:
+                //            exits = [true, true, false, true]; break;
+
+                //        case 10:
+                //            exits = [true, false, false, true]; break;
+
+                //        case 18:
+                //            exits = [true, true, false, false]; break;
+
+                //        case 66:
+                //            exits = [true, false, true, false]; break;
+
+                //    }
+
+                //}
+                //else if (fromDirection == Direction.Right)
+                //{
+                //    //if (Exits[0] == true) { value += 8; }
+                //    //if (Exits[1] == true) { value += 2; }
+                //    //if (Exits[2] == true) { value += 16; }
+                //    //if (Exits[3] == true) { value += 64; }
+
+                //    switch (doorValue)
+                //    {
+                //        case 90:
+                //            exits = [true, true, true, true]; break;
+
+                //        case 82:
+                //            exits = [false, true, true, true]; break;
+
+                //        case 74:
+                //            exits = [true, true, false, true]; break;
+
+                //        case 26:
+                //            exits = [true, true, true, false]; break;
+
+                //        case 10:
+                //            exits = [true, true, false, false]; break;
+
+                //        case 18:
+                //            exits = [false, true, true, false]; break;
+
+                //        case 66:
+                //            exits = [false, true, false, true]; break;
+                //    }
+                //}
+                //else if (fromDirection == Direction.Down)
+                //{
+                //    //if (Exits[0] == true) { value += 64; }
+                //    //if (Exits[1] == true) { value += 8; }
+                //    //if (Exits[2] == true) { value += 2; }
+                //    //if (Exits[3] == true) { value += 16; }
+
+                //    switch (doorValue)
+                //    {
+                //        case 90:
+                //            exits = [true, true, true, true]; break;
+
+                //        case 82:
+                //            exits = [true, false, true, true]; break;
+
+                //        case 74:
+                //            exits = [true, true, true, false]; break;
+
+                //        case 26:
+                //            exits = [false, true, true, true]; break;
+
+                //        case 10:
+                //            exits = [false, true, true, false]; break;
+
+                //        case 18:
+                //            exits = [false, false, true, true]; break;
+
+                //        case 66:
+                //            exits = [true, false, true, false]; break;
+                //    }
+                //}
+                //else
+                //{
+                //    //if (Exits[0] == true) { value += 16; }
+                //    //if (Exits[1] == true) { value += 64; }
+                //    //if (Exits[2] == true) { value += 2; }
+                //    //if (Exits[3] == true) { value += 8; }
+                //    switch (doorValue)
+                //    {
+                //        case 90:
+                //            exits = [true, true, true, true]; break;
+
+                //        case 82:
+                //            exits = [true, true, false, true]; break;
+
+                //        case 74:
+                //            exits = [false, true, true, true]; break;
+
+                //        case 26:
+                //            exits = [true, false, true, true]; break;
+
+                //        case 10:
+                //            exits = [false, false, true, true]; break;
+
+                //        case 18:
+                //            exits = [true, false, false, true]; break;
+
+                //        case 66:
+                //            exits = [false, true, false, true]; break;
+
+                //    }
+                //}
+                #endregion
+                return exits;
         }// End -----------------------------------------------------------------------------------------------------
-
 
 
         /*----------------------------------------------------------------------------------------------------------
@@ -261,27 +342,93 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 if (Exits[i] == false)
                     Doors[i] = false;
             }
-        }
+        }// End -----------------------------------------------------------------------------------------------------
 
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Determine Castle Exits				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method. Checks whether an Exit room is on the top or bottom row, and depending on
+            result; creates an exit so player can progress into the GameMap proper.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void DetermineCastleExits(int maxRow, int maxCol)
+        {
+            if (RoomType != RoomType.Exit)
+                return;
+
+            else
+            {
+                Exits = new bool[4];
+                if(Row == 1) // Check if exit is on 2nd row from top...
+                {
+                    if(Col == 1) // ..and is top left corner
+                        Exits = [false, true, true, false]; // exits are right and down
+
+                    else // ..is top right corner
+                        Exits = [false, false, true, true]; // exits are left and down 
+                }
+
+                if(Row == maxRow) // If exit is at bottom row...
+                {
+                    if (Col == 1) // ..and is bottom left corner
+                        Exits = [true, true, false, false]; // exits are up and right
+
+                    else // ..is bottom right corner
+                        Exits = [true, false, false, true]; // exits are up and left 
+                }
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Draw On Mini Map					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method. Draws the RoomTile's representation square on the GamePlayScreen minimap.
+            Different kinds of rooms are displayed in different colors.
+        ----------------------------------------------------------------------------------------------------------*/
         public void DrawOnMiniMap(SpriteBatch spriteBatch, Texture2D squareTexture)
         {
             Color darkGray = new Color(28, 30, 33); // Dark gray color for outer wall room squares
 
-            // Draw the room square on the map
+            //Draw the room square on the map
             if (RoomType == RoomType.Exit)
                 spriteBatch.Draw(squareTexture, MiniSquare, Color.Yellow);
 
             else if (RoomType == RoomType.OuterWall)
                 spriteBatch.Draw(squareTexture, MiniSquare, darkGray);
-            //else
-            //{
-            //    if (IsDiscovered)
-            //    {
-            //        spriteBatch.Draw(_ui.RectangleTexture, RoomSquare, Color.White);
-            //    }
+            else
+            {
+                spriteBatch.Draw(squareTexture, MiniSquare, _miniSquareColor);
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+        
+        private Color SetMiniMapColor(RoomType roomType)
+        {
+            Color setColor = new Color();
 
-            //}
+            Color pit = new Color(10, 50, 255);
+            Color bridge = new Color(50, 50, 200);
+            Color dark = new Color(25, 25, 25);
+
+            switch (RoomType)
+            {
+                //case RoomType.Exit: setColor = Color.Yellow; break;
+                //case RoomType.OuterWall: setColor = darkGray; break;
+                case RoomType.Empty: setColor = Color.DarkBlue; break;
+                case RoomType.BottomLessPit: setColor = pit; break;
+                case RoomType.BridgeRoom: setColor = pit; break;
+                case RoomType.DarkRoom: setColor = dark; break;
+                case RoomType.Corridor: setColor = Color.Orange; break;
+                case RoomType.Rubble: setColor = Color.Brown; break;
+                case RoomType.SpinRoom: setColor = Color.LightGray; break;
+                case RoomType.TreasureRoom: setColor = Color.Gold; break;
+                case RoomType.WebbedRoom: setColor = Color.LightSalmon; break;
+                case RoomType.TrapRoom: setColor = Color.Red; break;
+            }
+
+            return setColor;
         }
+        
         #endregion
     }
 }

@@ -97,21 +97,19 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                    Initialize					   
         ------------------------------------------------------------------------------------------------------------
-            - Class specific method for initializing the first screen of the game; the Splash Screen and
+            - Class specific method for initializing the first screen of the game; the Main Menu screen and
             push it onto the stack, load its assosciated contents (including UI) and set its state to 'Active'. 
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
-            // Initialize screens
-            //SplashScreen = new SplashScreen(_game, this, _ui);
-            
+            // Initialize screens            
             MainMenu = new MainMenu(_game, this, _ui);
 
             NewGame = new NewGameScreen(_game, this, _ui);
 
             GamePlay = new GamePlayScreen(_game, this, _ui);
 
-            // Push Splashscreen onto stack, load content & set to active
+            // Push MainMenu onto stack, load content & set to active
             //_gameScreens.Push(MainMenu);
 
             //MainMenu.LoadContent();
@@ -154,7 +152,7 @@ namespace dragon_hoard.Content.Models.Managers
 
             _ui.Update(gameTime);
 
-            // When a screen tranition is called, run "load screen" process.
+            // When a screen tranition is called; run the "load screen" process.
             if (ScreenTransition)
                 countDown = DoScreenTransition(_nextScreen, gameTime, countDown);
             else

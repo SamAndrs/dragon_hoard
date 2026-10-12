@@ -50,6 +50,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public RoomTile CurrentRoom { get; private set; }           // The current room in which the player resides.
 
+        public RoomTile NextRoom { get; private set; }
+
         public int CurrentPCHealth { get; private set; }
 
         private bool _playerCanExit = false;                        // Determine if player can leave through an exit (i.e. end game).
@@ -64,6 +66,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             _game = game;
             _ui = ui;
+
+            ExploredRooms = new List<RoomTile>();
         }
 
 
@@ -97,6 +101,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
              * CatacombsCardStack
             */
 
+            // Initialize ExploredRooms-list
+
             // DEBUG
             CreateTestInitialization();
 
@@ -125,20 +131,56 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         }
 
-        private void CreateTestRound()
+        public void CreateTestRound(Direction direction)
         {
-            
+            // Pop RoomTile from RoomTile-stack
+            // Place RoomTile on GameMap
             // Add visited roomtile to ExploredRooms-list
+
+            RoomTile nextTile = new RoomTile();
+            RoomTile pulledTile = RoomTileStack.Peek();
+            //if (direction == Direction.Up) //&& GameMap.MiniMap[CurrentRoom.Row - 1, CurrentRoom.Col].RoomType == RoomType.Undiscovered)
+            switch (direction)
+            {
+                case Direction.Up: nextTile = GameMap.MiniMap[CurrentRoom.Row - 1, CurrentRoom.Col]; break;
+                case Direction.Right: nextTile = GameMap.MiniMap[CurrentRoom.Row, CurrentRoom.Col + 1]; break;
+                case Direction.Down: nextTile = GameMap.MiniMap[CurrentRoom.Row + 1, CurrentRoom.Col]; break;
+                case Direction.Left: nextTile = GameMap.MiniMap[CurrentRoom.Row, CurrentRoom.Col - 1]; break;
+            }
+
+            if(nextTile.RoomType == RoomType.Undiscovered)
+            {
+                ExploredRooms.Add(CurrentRoom);
+                nextTile.PlaceTile(direction, pulledTile);
+                SetCurrentRoom(nextTile);
+            }
+            else
+            {
+                SetCurrentRoom(nextTile);
+            }
+            
+            RoomTileStack.Pop();
+
         }
 
         private void CreateRoomTileStack(int amount)
         {
             RoomTileStack = new Stack<RoomTile>();
-            for (int i = 0; i < amount; i++)
-            {
+            //for (int i = 0; i < amount; i++)
+            //{
 
-                RoomTileStack.Push(new RoomTile(i, RoomType.Empty, 74, new bool[4] { true, false, false, true }));
-            }
+            //    RoomTileStack.Push(new RoomTile(i, RoomType.Empty, 74, new bool[4] { true, false, false, true }));
+            //}
+
+            RoomTileStack.Push(new RoomTile(1, RoomType.Empty, 1, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 2, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(3, RoomType.TrapRoom, 3, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(4, RoomType.WebbedRoom, 4, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(5, RoomType.Empty, 5, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(6, RoomType.BridgeRoom, 6, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(7, RoomType.Empty, 7, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(8, RoomType.Rubble, 8, new bool[4] { false, false, false, false }));
+            RoomTileStack.Push(new RoomTile(9, RoomType.DarkRoom, 1, new bool[4] { false, false, false, false }));
         }
 
     }
