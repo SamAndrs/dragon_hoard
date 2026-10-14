@@ -31,11 +31,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public RoomType RoomType { get; private set; }      // Determine the type of room
 
-        public bool[] Exits { get; private set; }           // Determine if Up, Right, Down, Left has exits
+        public bool ExitUp { get; private set; }
+        public bool ExitRight { get; private set; }
+        public bool ExitDown { get; private set; }
+        public bool ExitLeft { get; private set; }
 
-        public bool[] Doors { get; private set; }           // Determine what exits have a door.
+        //public bool[] Doors { get; private set; }           // Determine what exits have a door.
 
-        public Direction EnteredFrom {  get; private set; }   // Direction Player entered from initially
+        public Direction EnteredFrom {  get; set; }   // Direction Player entered from initially
 
         public int DoorValue { get; private set; }          // Value that determines which directions have exits
 
@@ -62,7 +65,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         // For gamemap
         public RoomTile(RoomType roomType, int row, int col, int squareSize, Vector2 roomPosition)
         {
-            
             RoomType = roomType;
             
             Row = row;
@@ -70,10 +72,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             Col = col;
 
             MiniSquare = new Rectangle((int)roomPosition.X, (int)roomPosition.Y, squareSize, squareSize);
+
         }
 
         // For RoomTile Stack
-        public RoomTile(int tileId, RoomType roomType, int doorValue, bool[] doors)
+        public RoomTile(int tileId, RoomType roomType, int doorValue)
         {
             TileId = tileId;
 
@@ -81,7 +84,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             DoorValue = doorValue;
 
-            Doors = doors;
+            //Doors = doors;
         }
 
 
@@ -100,7 +103,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
           - Class specific method representing the room tile being pulled from the stack and placed on the 
             game board.
         ----------------------------------------------------------------------------------------------------------*/
-        public void PlaceTile(Direction fromDirection, RoomTile roomTile)
+        public void PlaceTile(Direction moveDirection, RoomTile roomTile, int doorValue)
         {
             //TileImage = tileImage;
 
@@ -108,15 +111,39 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             RoomType = roomTile.RoomType;
 
-            EnteredFrom = fromDirection;
-           
-            Exits = DetermineRoomExits(EnteredFrom, roomTile.DoorValue);
+            DoorValue = doorValue;
+
+            if (RoomType != RoomType.Exit)
+            {
+                EnteredFrom = DetermineEnteredFrom(moveDirection);
+                DetermineRoomExits(doorValue);
+            }
+
+            //EnteredFrom = moveDirection;
+
+            //if (RoomType != RoomType.Exit)
+            //    Exits = DetermineRoomExits(roomTile.DoorValue);
 
             //DoorErrorCheck();
 
             _miniSquareColor = SetMiniMapColor(RoomType);
 
         }// End -----------------------------------------------------------------------------------------------------
+
+
+        private Direction DetermineEnteredFrom(Direction moveDirection)
+        {
+            Direction setEnteredFrom = Direction.Up;
+            switch (moveDirection)
+            {
+                case Direction.Up: setEnteredFrom = Direction.Down; break;
+                case Direction.Right: setEnteredFrom = Direction.Left; break;
+                case Direction.Down: setEnteredFrom = Direction.Up; break;
+                case Direction.Left: setEnteredFrom = Direction.Right; break;
+            }
+
+            return setEnteredFrom;
+        }
 
 
         /*----------------------------------------------------------------------------------------------------------
@@ -135,198 +162,180 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             
         ----------------------------------------------------------------------------------------------------------*/
-        private bool[] DetermineRoomExits(Direction fromDirection, int doorValue)
+
+
+        private void DetermineRoomExits(int doorValue)
         {
-            bool[] exits = new bool[4];
+            //bool[] exits = new bool[4];
 
-            if (fromDirection == Direction.Up)
+            if (EnteredFrom == Direction.Up)
+            {
+                
+            }
+            if (EnteredFrom == Direction.Right)
+            {
+                
+            }
+            if (EnteredFrom == Direction.Down)
             {
                 switch (doorValue)
                 {
-                    case 1: exits = [true, true, true, true]; break;
-                    case 2: exits = [true, true, true, false]; break;
-                    case 3: exits = [true, false, true, true]; break;
-                    case 4: exits = [true, true, false, true]; break;
-                    case 5: exits = [true, true, false, false]; break;
-                    case 6: exits = [true, false, false, true]; break;
-                    case 7: exits = [true, false, true, false]; break;
-                    case 8: exits = [true, false, false, false]; break;
+                    case 1: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 2: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = false; break;
+                    case 3: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = true; break;
+                    case 4: ExitUp = true; ExitRight = true; ExitDown = false; ExitLeft = true; break;
+                    case 5: ExitUp = true; ExitRight = true; ExitDown = false; ExitLeft = false; break;
+                    case 6: ExitUp = true; ExitRight = false; ExitDown = false; ExitLeft = true; break;
+                    case 7: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = false; break;
+                    case 8: ExitUp = true; ExitRight = false; ExitDown = false; ExitLeft = false; break;
                 }
+
             }
-            else if (fromDirection == Direction.Right)
+            if (EnteredFrom == Direction.Left)
             {
                 switch (doorValue)
                 {
-                    case 1: exits = [true, true, true, true]; break;
-                    case 2: exits = [true, true, false, true]; break;
-                    case 3: exits = [false, true, true, true]; break;
-                    case 4: exits = [true, true, true, false]; break;
-                    case 5: exits = [true, true, false, false]; break;
-                    case 6: exits = [false, true, true, false]; break;
-                    case 7: exits = [false, true, false, true]; break;
-                    case 8: exits = [false, true, false, false]; break;
-                }
-            }
-            else if (fromDirection == Direction.Down)
-            {
-                switch (doorValue)
-                {
-                    case 1: exits = [true, true, true, true]; break;
-                    case 2: exits = [true, false, true, true]; break;
-                    case 3: exits = [true, true, true, false]; break;
-                    case 4: exits = [false, true, true, true]; break;
-                    case 5: exits = [false, false, true, true]; break;
-                    case 6: exits = [false, true, true, false]; break;
-                    case 7: exits = [true, false, true, false]; break;
-                    case 8: exits = [false, false, true, false]; break;
-                }
-            }
-            else if (fromDirection == Direction.Left)
-            {
-                switch (doorValue)
-                {
-                    case 1: exits = [true, true, true, true]; break;
-                    case 2: exits = [true, true, false, true]; break;
-                    case 3: exits = [false, true, true, true]; break;
-                    case 4: exits = [true, false, true, true]; break;
-                    case 5: exits = [true, false, false, true]; break;
-                    case 6: exits = [false, false, true, true]; break;
-                    case 7: exits = [false, true, false, true]; break;
-                    case 8: exits = [false, false, false, true]; break;
+                    case 1: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 2: ExitUp = true; ExitRight = true; ExitDown = false; ExitLeft = true; break;
+                    case 3: ExitUp = false; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 4: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = true; break;
+                    case 5: ExitUp = true; ExitRight = false; ExitDown = false; ExitLeft = true; break;
+                    case 6: ExitUp = false; ExitRight = false; ExitDown = true; ExitLeft = true; break;
+                    case 7: ExitUp = false; ExitRight = true; ExitDown = false; ExitLeft = true; break;
+                    case 8: ExitUp = false; ExitRight = false; ExitDown = false; ExitLeft = true; break;
 
                 }
             }
-        
 
-                #region old code ===============================================
-                //if (fromDirection == Direction.Up)
-                //{
-                //    //if (Exits[0] == true) { value += 2; }
-                //    //if (Exits[1] == true) { value += 16; }
-                //    //if (Exits[2] == true) { value += 64; }
-                //    //if (Exits[3] == true) { value += 8; }
+            #region old code ===============================================
+            //if (fromDirection == Direction.Up)
+            //{
+            //    //if (Exits[0] == true) { value += 2; }
+            //    //if (Exits[1] == true) { value += 16; }
+            //    //if (Exits[2] == true) { value += 64; }
+            //    //if (Exits[3] == true) { value += 8; }
 
-                //    switch (doorValue)
-                //    {
-                //        case 90:
-                //            exits = [true, true, true, true]; break;
+            //    switch (doorValue)
+            //    {
+            //        case 90:
+            //            exits = [true, true, true, true]; break;
 
-                //        case 82:
-                //            exits = [true, true, true, false]; break;
+            //        case 82:
+            //            exits = [true, true, true, false]; break;
 
-                //        case 74:
-                //            exits = [true, false, true, true]; break;
+            //        case 74:
+            //            exits = [true, false, true, true]; break;
 
-                //        case 26:
-                //            exits = [true, true, false, true]; break;
+            //        case 26:
+            //            exits = [true, true, false, true]; break;
 
-                //        case 10:
-                //            exits = [true, false, false, true]; break;
+            //        case 10:
+            //            exits = [true, false, false, true]; break;
 
-                //        case 18:
-                //            exits = [true, true, false, false]; break;
+            //        case 18:
+            //            exits = [true, true, false, false]; break;
 
-                //        case 66:
-                //            exits = [true, false, true, false]; break;
+            //        case 66:
+            //            exits = [true, false, true, false]; break;
 
-                //    }
+            //    }
 
-                //}
-                //else if (fromDirection == Direction.Right)
-                //{
-                //    //if (Exits[0] == true) { value += 8; }
-                //    //if (Exits[1] == true) { value += 2; }
-                //    //if (Exits[2] == true) { value += 16; }
-                //    //if (Exits[3] == true) { value += 64; }
+            //}
+            //else if (fromDirection == Direction.Right)
+            //{
+            //    //if (Exits[0] == true) { value += 8; }
+            //    //if (Exits[1] == true) { value += 2; }
+            //    //if (Exits[2] == true) { value += 16; }
+            //    //if (Exits[3] == true) { value += 64; }
 
-                //    switch (doorValue)
-                //    {
-                //        case 90:
-                //            exits = [true, true, true, true]; break;
+            //    switch (doorValue)
+            //    {
+            //        case 90:
+            //            exits = [true, true, true, true]; break;
 
-                //        case 82:
-                //            exits = [false, true, true, true]; break;
+            //        case 82:
+            //            exits = [false, true, true, true]; break;
 
-                //        case 74:
-                //            exits = [true, true, false, true]; break;
+            //        case 74:
+            //            exits = [true, true, false, true]; break;
 
-                //        case 26:
-                //            exits = [true, true, true, false]; break;
+            //        case 26:
+            //            exits = [true, true, true, false]; break;
 
-                //        case 10:
-                //            exits = [true, true, false, false]; break;
+            //        case 10:
+            //            exits = [true, true, false, false]; break;
 
-                //        case 18:
-                //            exits = [false, true, true, false]; break;
+            //        case 18:
+            //            exits = [false, true, true, false]; break;
 
-                //        case 66:
-                //            exits = [false, true, false, true]; break;
-                //    }
-                //}
-                //else if (fromDirection == Direction.Down)
-                //{
-                //    //if (Exits[0] == true) { value += 64; }
-                //    //if (Exits[1] == true) { value += 8; }
-                //    //if (Exits[2] == true) { value += 2; }
-                //    //if (Exits[3] == true) { value += 16; }
+            //        case 66:
+            //            exits = [false, true, false, true]; break;
+            //    }
+            //}
+            //else if (fromDirection == Direction.Down)
+            //{
+            //    //if (Exits[0] == true) { value += 64; }
+            //    //if (Exits[1] == true) { value += 8; }
+            //    //if (Exits[2] == true) { value += 2; }
+            //    //if (Exits[3] == true) { value += 16; }
 
-                //    switch (doorValue)
-                //    {
-                //        case 90:
-                //            exits = [true, true, true, true]; break;
+            //    switch (doorValue)
+            //    {
+            //        case 90:
+            //            exits = [true, true, true, true]; break;
 
-                //        case 82:
-                //            exits = [true, false, true, true]; break;
+            //        case 82:
+            //            exits = [true, false, true, true]; break;
 
-                //        case 74:
-                //            exits = [true, true, true, false]; break;
+            //        case 74:
+            //            exits = [true, true, true, false]; break;
 
-                //        case 26:
-                //            exits = [false, true, true, true]; break;
+            //        case 26:
+            //            exits = [false, true, true, true]; break;
 
-                //        case 10:
-                //            exits = [false, true, true, false]; break;
+            //        case 10:
+            //            exits = [false, true, true, false]; break;
 
-                //        case 18:
-                //            exits = [false, false, true, true]; break;
+            //        case 18:
+            //            exits = [false, false, true, true]; break;
 
-                //        case 66:
-                //            exits = [true, false, true, false]; break;
-                //    }
-                //}
-                //else
-                //{
-                //    //if (Exits[0] == true) { value += 16; }
-                //    //if (Exits[1] == true) { value += 64; }
-                //    //if (Exits[2] == true) { value += 2; }
-                //    //if (Exits[3] == true) { value += 8; }
-                //    switch (doorValue)
-                //    {
-                //        case 90:
-                //            exits = [true, true, true, true]; break;
+            //        case 66:
+            //            exits = [true, false, true, false]; break;
+            //    }
+            //}
+            //else
+            //{
+            //    //if (Exits[0] == true) { value += 16; }
+            //    //if (Exits[1] == true) { value += 64; }
+            //    //if (Exits[2] == true) { value += 2; }
+            //    //if (Exits[3] == true) { value += 8; }
+            //    switch (doorValue)
+            //    {
+            //        case 90:
+            //            exits = [true, true, true, true]; break;
 
-                //        case 82:
-                //            exits = [true, true, false, true]; break;
+            //        case 82:
+            //            exits = [true, true, false, true]; break;
 
-                //        case 74:
-                //            exits = [false, true, true, true]; break;
+            //        case 74:
+            //            exits = [false, true, true, true]; break;
 
-                //        case 26:
-                //            exits = [true, false, true, true]; break;
+            //        case 26:
+            //            exits = [true, false, true, true]; break;
 
-                //        case 10:
-                //            exits = [false, false, true, true]; break;
+            //        case 10:
+            //            exits = [false, false, true, true]; break;
 
-                //        case 18:
-                //            exits = [true, false, false, true]; break;
+            //        case 18:
+            //            exits = [true, false, false, true]; break;
 
-                //        case 66:
-                //            exits = [false, true, false, true]; break;
+            //        case 66:
+            //            exits = [false, true, false, true]; break;
 
-                //    }
-                //}
-                #endregion
-                return exits;
+            //    }
+            //}
+            #endregion
+            //return exits;
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -337,11 +346,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         ----------------------------------------------------------------------------------------------------------*/
         private void DoorErrorCheck()
         {
-            for (int i = 0; i < Exits.Length; i++)
-            {
-                if (Exits[i] == false)
-                    Doors[i] = false;
-            }
+            //for (int i = 0; i < Exits.Length; i++)
+            //{
+            //    if (Exits[i] == false)
+            //        Doors[i] = false;
+            //}
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -351,34 +360,59 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
           - Class specific method. Checks whether an Exit room is on the top or bottom row, and depending on
             result; creates an exit so player can progress into the GameMap proper.
         ----------------------------------------------------------------------------------------------------------*/
-        public void DetermineCastleExits(int maxRow, int maxCol)
+        public void CreateCastleExits(int maxRow, int maxCol)
         {
-            if (RoomType != RoomType.Exit)
-                return;
 
-            else
+            //bool[] exits = new bool[4];
+            if (Row == 1) // Check if exit is on 2nd row from top...
             {
-                Exits = new bool[4];
-                if(Row == 1) // Check if exit is on 2nd row from top...
-                {
-                    if(Col == 1) // ..and is top left corner
-                        Exits = [false, true, true, false]; // exits are right and down
+                if (Col == 1) // ..and is top left corner
+                    ExitRight = true;
 
-                    else // ..is top right corner
-                        Exits = [false, false, true, true]; // exits are left and down 
-                }
+                else // ..is top right corner
+                    ExitLeft = true;
 
-                if(Row == maxRow) // If exit is at bottom row...
-                {
-                    if (Col == 1) // ..and is bottom left corner
-                        Exits = [true, true, false, false]; // exits are up and right
-
-                    else // ..is bottom right corner
-                        Exits = [true, false, false, true]; // exits are up and left 
-                }
+                ExitDown = true;
             }
+
+            if (Row == maxRow) // If exit is at bottom row...
+            {
+                if (Col == 1) // ..and is bottom left corner
+                    ExitRight = true;
+
+                else // ..is bottom right corner
+                    ExitLeft = true;
+
+                ExitUp = true;
+            }
+
         }// End -----------------------------------------------------------------------------------------------------
 
+        public void CreateCastleExit(int row, int col)
+        {
+            _miniSquareColor = Color.Yellow;
+
+            if(row == 1)
+            {
+                if (col == 1)
+                    ExitRight = true;
+                else
+                    ExitLeft = true;
+
+                ExitDown = true;
+                EnteredFrom = Direction.Up;
+            }
+            else
+            {
+                if (col == 1)
+                    ExitRight = true;
+                else
+                    ExitLeft= true;
+
+                ExitUp = true;
+                EnteredFrom = Direction.Down;
+            }
+        }
 
         /*----------------------------------------------------------------------------------------------------------
                                                        Draw On Mini Map					   
@@ -429,6 +463,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             return setColor;
         }
         
+       
         #endregion
     }
 }

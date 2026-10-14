@@ -6,6 +6,7 @@ using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Data;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {
@@ -41,6 +42,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private GameSession _gameSession;
 
         private PlayerCharacter _character;
+
+        private RoomTile _currentRoom;
 
         private GameMap _map;
 
@@ -83,6 +86,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             _map = _gameSession.GameMap;
 
+            _currentRoom = _gameSession.CurrentRoom;
+
             // DEBUG
             CreateTestButtons();
             //-------------------------------------------------
@@ -107,6 +112,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         {
             if(IsActive)
             {
+                _currentRoom = _gameSession.CurrentRoom;
                 _map.Update(gameTime);
                 _healthbar.Update(_character.CurrentHealth);
 
@@ -133,8 +139,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                 try
                 {
-                    //_activeRoom.Draw(spriteBatch);
-                    spriteBatch.Draw(_ui.RectangleTexture, _gameSession.CurrentRoom.MiniSquare, Color.White);
+                    spriteBatch.Draw(_ui.RectangleTexture, _currentRoom.MiniSquare, Color.White);
                 }
                 catch (Exception ex)
                 {
@@ -165,7 +170,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             bool displayHeroStats = true;
 
-            bool listDoors = false;
+            bool mapNumbers = true;
 
             if (showContentLoaded)
             {
@@ -185,27 +190,38 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             if (showCurrentRoom)
             {
                 spriteBatch.DrawString(_ui.DebugText, $"PlayerMove: {_gameSession.PlayerMove}",
-                   new Vector2(250, 40), Color.Orange);
+                   new Vector2(50, 40), Color.Orange);
 
-                spriteBatch.DrawString(_ui.DebugText, $"CurrentRoom: [{_gameSession.CurrentRoom.Row}, {_gameSession.CurrentRoom.Col}]",
-                   new Vector2(250, 60), Color.Green);
+                spriteBatch.DrawString(_ui.DebugText, $"CurrentRoom: [{_currentRoom.Row}, {_currentRoom.Col}]",
+                   new Vector2(50, 60), Color.Green);
 
-                spriteBatch.DrawString(_ui.DebugText, $"NextRoomTileType: {_gameSession.RoomTileStack.Peek().RoomType}",
-                  new Vector2(250, 80), Color.Yellow);
+                spriteBatch.DrawString(_ui.DebugText, $"MoveDirection: {_gameSession.MoveDirection}",
+                  new Vector2(180, 80), Color.LightCyan);
 
-                //if (_gameSession.NextRoom != null)
-                //{
-                //    //spriteBatch.DrawString(_ui.DebugText, $"NextRoom: [{_gameSession.NextRoom.Row}, {_gameSession.NextRoom.Col}]",
-                //    //   new Vector2(250, 70), Color.Red);
+                spriteBatch.DrawString(_ui.DebugText, $"EnteredFrom: {_currentRoom.EnteredFrom}",
+                   new Vector2(50, 80), Color.LightCyan);
 
-                //    spriteBatch.DrawString(_ui.DebugText, $"NextRoom: {_gameSession.NextRoom.RoomType}",
-                //  new Vector2(250, 120), Color.Gray);
-                //}
+                spriteBatch.DrawString(_ui.DebugText, $"Doors: [value: {_currentRoom.DoorValue}]", new Vector2(50, 100), Color.White);
+
+                if (_gameSession.RoomTileStack.Count > 0)
+                {
+                    spriteBatch.DrawString(_ui.DebugText, $"NextRoomTileType: {_gameSession.RoomTileStack.Peek().RoomType}",
+                     new Vector2(250, 60), Color.Yellow);
+
+                    if (_gameSession.NextRoom != null)
+                    {
+                        spriteBatch.DrawString(_ui.DebugText, $"NextRoom: [{_gameSession.NextRoom.Row}, {_gameSession.NextRoom.Col}]",
+                           new Vector2(250, 70), Color.Red);
+
+                        spriteBatch.DrawString(_ui.DebugText, $"NextRoom: {_gameSession.NextRoom.RoomType}",
+                      new Vector2(250, 120), Color.Gray);
+                    }
+                }
 
                 for (int i = 0; i < _gameSession.ExploredRooms.Count; i++)
                 {
                     spriteBatch.DrawString(_ui.DebugText, $"ExploredRooms: [{_gameSession.ExploredRooms[i].Row}, {_gameSession.ExploredRooms[i].Col}]",
-                  new Vector2(250, 140 + (i * 15)), Color.LightBlue);
+                  new Vector2(50, 210 + (i * 15)), Color.LightBlue);
                 }
             }
 
@@ -216,33 +232,21 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             }
 
             if (displayHeroStats) DrawTestCharacter(spriteBatch);
+              
 
-            if (listDoors)
-                for (int i = 0; i < _gameSession.CurrentRoom.Exits.Length; i++)
-                    spriteBatch.DrawString(_ui.DebugText, $"{_gameSession.CurrentRoom.Exits[i]}", new Vector2(300, 300 + (i * 15)), Color.Yellow);
+            if (mapNumbers)
+            {
+                for (int row = 0; row < _map.Rows; row++)
+                    spriteBatch.DrawString(_ui.DebugText, $"{row}", new Vector2(_map.MapPosition.X - 25, _map.MapPosition.Y + (row * 18)), Color.LightBlue);
 
+                for (int col = 0; col < _map.Columns; col++)
+                    spriteBatch.DrawString(_ui.DebugText, $"{col}", new Vector2(_map.MapPosition.X + (col * 18), _map.MapPosition.Y - 25), Color.LightBlue);
+            }
         }// End -----------------------------------------------------------------------------------------------------
 
-
+       
         private void PlayerExitRoom(Direction direction)
         {
-            //_gameSession.SetCurrentRoom(_activeRoom);
-            //_activeRoom = _gameSession.CurrentRoom;
-
-            //if (_gameSession.RoomTileStack.Count > 0)
-            //{
-            //    _gameSession.RoomTileStack.Pop();
-            //    _gameSession.PlayerMove--;
-
-            //    if (direction == Direction.Up) _gameSession.SetCurrentRoom(_map.MiniMap[_activeRoom.Row - 1, _activeRoom.Col]);
-            //    else if (direction == Direction.Down) _gameSession.SetCurrentRoom(_map.MiniMap[_activeRoom.Row + 1, _activeRoom.Col]);
-
-            //    else if (direction == Direction.Right) _gameSession.SetCurrentRoom(_map.MiniMap[_activeRoom.Row, _activeRoom.Col + 1]);
-            //    else if (direction == Direction.Left) _gameSession.SetCurrentRoom(_map.MiniMap[_activeRoom.Row, _activeRoom.Col - 1]);
-
-            //_activeRoom.SetTestValues(RoomType.Empty, true);
-            //_activeRoom.Initialize(_gameSession);
-            //}
             _gameSession.CreateTestRound(direction);
         }
         #endregion
@@ -267,89 +271,83 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             _goRight = new ClickButton(_ui, new Rectangle(center.X + size, center.Y + (80 + size), size, size), true);
             _goRight.Initialize(Color.White, "R", Color.White, Vector2.Zero, true, 0);
+
+            // Set initial state to non-clickable
+            _goUp.SetNonClickable();
+            _goRight.SetNonClickable();
+            _goDown.SetNonClickable();
+            _goLeft.SetNonClickable();
         }
 
         private void UpdateTestButtons(GameTime gameTime)
-        {
+        {           
             _goUp.Update(gameTime);
             _goRight.Update(gameTime);
             _goDown.Update(gameTime);
             _goLeft.Update(gameTime);
 
-            if (_gameSession.RoomTileStack.Count > 0)
+            // Allow only exits that are available
+
+            // Check if there's an exit up and if the current position on gamemap is not on upmost row.
+            if (_currentRoom.ExitUp && _currentRoom.Row > 1)
+            //if (_currentRoom.Row > 1)
             {
-                if (_gameSession.CurrentRoom.Exits[0]) //  && _gameSession.CurrentRoom.Row > 1
-                {
-                    
-                    if (_goUp.Clicked && _gameSession.PlayerMove > 0)
-                    {
-                        _goUp.BackgroundColor = Color.Yellow;
-                        PlayerExitRoom(Direction.Up);
-                        //_gameSession.PlayerMove++;
-                    }
-                    else
-                    {
-                        _goUp.BackgroundColor = Color.White;
-                    }
-                }
-                else
-                {
-                    _goUp.BackgroundColor = Color.DarkGray;
-                    //_goUp.SetNonClickable();
-                }
-
-                if (_gameSession.CurrentRoom.Exits[1]) //  && _gameSession.CurrentRoom.Col < _map.Columns
-                {
-                    
-                    if (_goRight.Clicked && _gameSession.PlayerMove > 0)
-                    {
-                        _goRight.BackgroundColor = Color.Yellow;
-                        PlayerExitRoom(Direction.Right);
-                        //_gameSession.PlayerMove++;
-                    }
-                    else _goRight.BackgroundColor = Color.White;
-                }
-                else
-                {
-                    _goRight.BackgroundColor = Color.DarkGray;
-                    //_goRight.SetNonClickable();
-                }
-
-                if (_gameSession.CurrentRoom.Exits[2]) //  && _gameSession.CurrentRoom.Row < _map.Rows - 1
-                {
-                   
-                    if (_goDown.Clicked && _gameSession.PlayerMove > 0)
-                    {
-                        _goDown.BackgroundColor = Color.Yellow;
-                        PlayerExitRoom(Direction.Down);
-                        //_gameSession.PlayerMove++;
-                    }
-                    else _goDown.BackgroundColor = Color.White;
-                }
-                else
-                {
-                    _goDown.BackgroundColor = Color.DarkGray;
-                    //_goDown.SetNonClickable();
-                }
-
-                if (_gameSession.CurrentRoom.Exits[3]) //  && _gameSession.CurrentRoom.Col > 1
-                {
-                    
-                    if (_goLeft.Clicked && _gameSession.PlayerMove > 0)
-                    {
-                        _goLeft.BackgroundColor = Color.Yellow;
-                        PlayerExitRoom(Direction.Left);
-                        //_gameSession.PlayerMove++;
-                    }
-                    else _goDown.BackgroundColor = Color.White;
-                }
-                else
-                {
-                    _goLeft.BackgroundColor = Color.DarkGray;
-                    //_goLeft.SetNonClickable();
-                }
+                _goUp.SetVisibility();
+                _goUp.SetClickable();
+                
             }
-            
+            else
+            {
+                _goUp.SetInvisible();
+                _goUp.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitRight && _currentRoom.Col < _map.Columns - 2)
+            //if (_currentRoom.Col < _map.Columns - 2)
+            {
+                _goRight.SetVisibility();
+                _goRight.SetClickable();
+                
+            }
+            else
+            {
+                _goRight.SetInvisible();
+                _goRight.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitDown && _currentRoom.Row < _map.Rows - 2)
+            //if (_currentRoom.Row < _map.Rows - 2)
+            {
+                _goDown.SetVisibility();
+                _goDown.SetClickable();
+                
+            }
+            else
+            {
+                _goDown.SetInvisible();
+                _goDown.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitLeft && _currentRoom.Col > 1)
+            //if (_currentRoom.Col > 1)
+            {
+                _goLeft.SetVisibility();
+                _goLeft.SetClickable();
+                
+            }
+            else
+            {
+                _goLeft.SetInvisible();
+                _goLeft.SetNonClickable();
+            }
+
+            if (_goUp.Clicked) PlayerExitRoom(Direction.Up);
+
+            if (_goRight.Clicked) PlayerExitRoom(Direction.Right);
+
+            if (_goDown.Clicked) PlayerExitRoom(Direction.Down);
+
+            if (_goLeft.Clicked) PlayerExitRoom(Direction.Left);
         }
 
 
@@ -361,10 +359,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _goLeft.Draw(spriteBatch);
 
 
-            spriteBatch.DrawString(_ui.DebugText, $"{_goUp.Clicked}", new Vector2(_goUp.BoundingBox.X, _goUp.BoundingBox.Top - 10), Color.White);
-            spriteBatch.DrawString(_ui.DebugText, $"{_goRight.Clicked}", new Vector2(_goRight.BoundingBox.Right + 10, _goRight.BoundingBox.Y), Color.White);
-            spriteBatch.DrawString(_ui.DebugText, $"{_goDown.Clicked}", new Vector2(_goDown.BoundingBox.X, _goDown.BoundingBox.Bottom + 10), Color.White);
-            spriteBatch.DrawString(_ui.DebugText, $"{_goLeft.Clicked}", new Vector2(_goLeft.BoundingBox.Left - 40, _goLeft.BoundingBox.Y), Color.White);
+            //spriteBatch.DrawString(_ui.DebugText, $"{_goUp.Clicked}", new Vector2(_goUp.BoundingBox.X, _goUp.BoundingBox.Top - 10), Color.White);
+            //spriteBatch.DrawString(_ui.DebugText, $"{_goRight.Clicked}", new Vector2(_goRight.BoundingBox.Right + 10, _goRight.BoundingBox.Y), Color.White);
+            //spriteBatch.DrawString(_ui.DebugText, $"{_goDown.Clicked}", new Vector2(_goDown.BoundingBox.X, _goDown.BoundingBox.Bottom + 10), Color.White);
+            //spriteBatch.DrawString(_ui.DebugText, $"{_goLeft.Clicked}", new Vector2(_goLeft.BoundingBox.Left - 40, _goLeft.BoundingBox.Y), Color.White);
         }
 
 
