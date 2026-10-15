@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +84,11 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
             Clicked = false;
 
             AnimDone = false;
-            _animTimer = animTimer;            
+
+            if (animTimer <= 0)
+                _animTimer = 0.1f;  // set default value
+            else
+                _animTimer = animTimer;           
         }
 
 
@@ -98,10 +103,12 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
         {
             if(IsClickable)
             {
-                if (BoundingBox.Contains(_ui.MousePos) && _ui.Mouse.LeftButton == ButtonState.Pressed)
+                if (BoundingBox.Contains(_ui.MousePos) && _ui.Mouse.LeftButton == ButtonState.Released
+                    && _ui.PrevMouse.LeftButton == ButtonState.Pressed)
                 {
                     Clicked = true;
                 }
+                else Clicked = false;
             }
         }// End -----------------------------------------------------------------------------------------------------
 

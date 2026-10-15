@@ -1,55 +1,60 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Managers;
+using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace dragon_hoard.Content.Models.Objects.Entities
 {
     ///////////////////////////////////////// GAME MAP CLASS ///////////////////////////////////////////////
     /*
         - Data container class for game map information and functionality.
+            Consists of a (default) 12x15 grid of RoomTile objects. Two rows and two columns make up the untraceable 
+            outer wall (save for the four corners which acts as starting- and exit squares).
+             
         
             
     :: TODO ---------------------------
         
-
+        
 
 
     :: DONE ---------------------------
         (2026)
+        v.001b (10/14) Rework of CreateRoom method. Additional methods (ReturnRoomTile, PickRandomStartPosition) added.
         v.001a (10/01) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class GameMap
     {
         // DATA
-        private Room[,] _mapGrid;
-        
-        private UiManager _ui;
-        
+        private RoomTile[,] _mapGrid;
+               
         public int Rows { get; private set; } = 10;     // Height size property of the map. Default is 10 squares.
         
         public int Columns { get; private set; } = 13;  // Width size property of the map. Default is 13 squares.
 
-        public Room[,] MiniMap { get { return _mapGrid; } }
+        public RoomTile[,] MiniMap { get { return _mapGrid; } }
 
         // FUNCTIONALITY
 
 
         // GRAPHICS
-        private Vector2 _mapPosition; // Position of the map on the screen
+        public Vector2 MapPosition { get; set; }                // Position of the map on the screen
+
+        public Texture2D SquareTexture { get; private set; }    // Texture used to draw squares on the minimap
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public GameMap(UiManager ui, int rows, int columns, Vector2 mapPosition)
+        public GameMap(int rows, int columns, Texture2D squareTexture)
         {
             // Add 2 rows and columns for outer walls & exit rooms.
             Rows = rows +2;
             Columns = columns +2;
 
-            _mapGrid = new Room[Rows, Columns];
-            _ui = ui;
-            _mapPosition = mapPosition;
+            _mapGrid = new RoomTile[Rows, Columns];
+            SquareTexture = squareTexture;
         }
 
 
@@ -58,38 +63,22 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                                       Initialize					   
+                                                       Initialize				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method to initialize the map grid with Room objects. 
-            Each room is assigned a numerical ID and its position on the map is calculated based on its row and column.
+          - Class specific method to initialize the map grid with RoomTile objects. 
+            Each RoomTile is assigned a position on the map is calculated 
+            based on its row and column on the grid.	
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
-            int roomId = 1; // Initialize a variable to assign numerical IDs to each room
-
             // Loop through the rows and columns of the map grid to create Room objects
             for (int row = 0; row < Rows; row++)
             {
                 for (int col = 0; col < Columns; col++)
                 {
-                    CreateRoom(roomId, row, col, 15);
-                    roomId++;
+                    _mapGrid[row, col] = CreateRoom(row, col, 15);
                 }
             }
-        }// End -----------------------------------------------------------------------------------------------------
-
-
-
-        /*----------------------------------------------------------------------------------------------------------
-                                                       Load Map Data					   
-        ------------------------------------------------------------------------------------------------------------
-          - Class specific method to load visible map data from the game session or other source, 
-            if applicable.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void Load()
-        {
-            // Load visible map data from the game session or other source, if applicable.
-
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -100,10 +89,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            foreach(var room in _mapGrid)
+            foreach (var roomTile in _mapGrid)
             {
-                room.Update(gameTime);
-                    
+                roomTile.Update(gameTime);
+
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -115,7 +104,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-           DrawMapRooms(spriteBatch);
+          foreach (var room in _mapGrid)
+                room.DrawOnMiniMap(spriteBatch, SquareTexture);
+
+          
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -124,60 +116,121 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         /*----------------------------------------------------------------------------------------------------------
                                                Create Room					   
         ------------------------------------------------------------------------------------------------------------
-        - Class specific method to create a room object and assign it to the map grid.
-            Sets initial properties such as the position of the room's 'texture square' on the map and its type.
+        - Class specific method to create a 'blank' RoomTile object and assign it to the map grid.
+            The RoomTile object will be changed to either an outer wall or a Castle Exit tile depending on
+            certain conditions.
+            Sets initial properties such as the position of the room's 'texture square' on the minimap and its type.
         ----------------------------------------------------------------------------------------------------------*/
-        private void CreateRoom(int roomId, int row, int col, int squareSize)
+        private RoomTile CreateRoom(int row, int col, int squareSize)
         {
-            RoomType roomType;
-            int mapPosX = (int)_mapPosition.X + col * (squareSize + 3);
-            int mapPosY = (int)_mapPosition.Y + row * (squareSize + 3);
+            int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
+            int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
 
-            // Check the top row of the map
-            if (row == 0)
+            Vector2 position = new Vector2(mapPosX, mapPosY);
+
+            // Default room for every position.
+            RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, position);
+
+            // Outer walls.
+            if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)
+                newRoom = new RoomTile(RoomType.OuterWall, row, col, squareSize, new Vector2(mapPosX, mapPosY));
+
+            // Exits - If room is a corner, set it as an exit;
+            else if ((row == 1 || row == Rows - 2) && (col == 1 || col == Columns -2 ) )
             {
-                // If room is either top left or top right corner, set it as an exit; otherwise, set it as an outer wall
-                if (col == 0 || col == Columns - 1)
-                    roomType = RoomType.Exit;
-                
-                else
-                    roomType = RoomType.OuterWall;
-
+                // If room is a corner, set it as an exit;
+                newRoom = new RoomTile(RoomType.Exit, row, col, squareSize, new Vector2(mapPosX, mapPosY));
+                CreateExitDoors(newRoom);
             }
-            // Check the bottom row of the map
-            else if (row == Rows - 1)
+            
+            return newRoom;
+        }// End -----------------------------------------------------------------------------------------------------
+
+     
+        /*----------------------------------------------------------------------------------------------------------
+                                               Return Room Tile					   
+        ------------------------------------------------------------------------------------------------------------
+        - Class specific method returning a given GameMap RoomTile upon request.
+        ----------------------------------------------------------------------------------------------------------*/
+        public RoomTile ReturnRoomTile(Direction direction, int currentRow, int currentCol)
+        {
+           int newRow = currentRow;
+           int newCol = currentCol;
+
+            switch (direction)
             {
-                // If room is either bottom left or bottom right corner, set it as an exit; otherwise, set it as an outer wall
-                if (col == 0 || col == Columns - 1)
-                    roomType = RoomType.Exit;
-
-                else
-                    roomType = RoomType.OuterWall;
+                // Set placeholder tile to corresponding RoomTile on Minimap, depending on direction moved.
+                case Direction.Up: newRow --; break;
+                case Direction.Right: newCol ++; break;
+                case Direction.Down: newRow ++; break;
+                case Direction.Left: newCol --; break;
             }
-            // If the room isn't a corner room but is in first or last column, set it as an outer wall; 
-            else if (col == 0 || col == Columns - 1)
-                roomType = RoomType.OuterWall;
 
-            // otherwise, set it as an empty room
-            else
-                roomType = RoomType.Empty;
-
-            // Create the room and assign it to the map grid
-            _mapGrid[row, col] = new Room(_ui, roomId, row, col, new Vector2(mapPosX, mapPosY), squareSize, roomType);
-
+             return _mapGrid[newRow, newCol];
         }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                               Draw Map Rooms					   
-         ------------------------------------------------------------------------------------------------------------
-        - Helper method to draw each room square on the map. 
-        ----------------------------------------------------------------------------------------------------------*/
-        private void DrawMapRooms(SpriteBatch spriteBatch)
+                                              Create Exit Doors					   
+       ------------------------------------------------------------------------------------------------------------
+       - Class specific method assigning doors in Exit rooms, by which player can progress into the castle.
+       ----------------------------------------------------------------------------------------------------------*/
+        private void CreateExitDoors(RoomTile roomTile)
         {
-            foreach (var room in _mapGrid)
-                room.Draw(spriteBatch);
+            if (roomTile.Row == 1)
+            {
+                if (roomTile.Col == 1)
+                    roomTile.ExitRight = true;
+                else
+                    roomTile.ExitLeft = true;
 
+                roomTile.ExitDown = true;
+                roomTile.EnteredFrom = Direction.Up;
+            }
+            else
+            {
+                if (roomTile.Col == 1)
+                    roomTile.ExitRight = true;
+                else
+                    roomTile.ExitLeft = true;
+
+                roomTile.ExitUp = true;
+                roomTile.EnteredFrom = Direction.Down;
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Create Random Start Position					   
+        ------------------------------------------------------------------------------------------------------------
+        - Class specific method returning one of the four corner Exit/ Start -rooms.
+        ----------------------------------------------------------------------------------------------------------*/
+        public RoomTile PickRandomStartPosition()
+        {
+            Random rand = new Random();
+
+            int result = rand.Next(3);
+
+            int maxRows = Rows - 2;
+            int maxCols = Columns - 2;
+
+            switch(result)
+            {
+                case 0: // Upper left
+                    return _mapGrid[1, 1];
+
+                case 1: // Upper right
+                    return _mapGrid[1, maxCols];
+
+                case 2: // Bottom left
+                    return _mapGrid[maxRows, 1];
+
+                case 3: // Bottom right
+                    return _mapGrid[maxRows, maxCols];
+
+                default: // Top left as default.
+                    return _mapGrid[1, 1];
+            }
         }// End -----------------------------------------------------------------------------------------------------
 
         #endregion
