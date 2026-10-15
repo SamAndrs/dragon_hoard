@@ -2,6 +2,7 @@
 using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,9 +43,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public PlayerCharacter PlayerCharacter { get;  set; }
 
-        public int PlayerMove { get; set; }                         // Determine how many rooms player can progress this turn.
-
-        public Direction MoveDirection { get; private set; }
+        public Direction MoveDirection { get; set; }
 
         public GameMap GameMap { get; private set; }
 
@@ -59,6 +58,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         private bool _playerCanExit = false;                        // Determine if player can leave through an exit (i.e. end game).
 
         public int GameTurn { get; private set; } = 0;              // The amount of game turns since start.
+
 
         // CARD STACKS
         public Stack<RoomTile> RoomTileStack { get; private set; }
@@ -113,7 +113,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             // Set player initial room (randomized entrance)
             // 
             // GameTurn++;
-            PlayerMove = 1;
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -127,36 +126,34 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             CreateRoomTileStack(10, 13);
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
-            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 50);
+            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 80);
             GameMap.Initialize();
             CurrentRoom = GameMap.PickRandomStartPosition();
         }
 
-        public void CreateTestRound(Direction direction)
+        public void CreateTestRound()
         {
             // Pop RoomTile from RoomTile-stack
             // Place RoomTile on GameMap
             // Add visited roomtile to ExploredRooms-list
             
-            //RoomTile nextTile = TestFindRoom(direction);    // Return the roomtile of the gamemap in the direction moved
-            RoomTile nextTile = GameMap.ReturnRoomTile(direction, CurrentRoom.Row, CurrentRoom.Col);
-            RoomTile fromStack = RoomTileStack.Pop();
+            // Return the roomtile of the gamemap in the direction moved
+            RoomTile nextTile = GameMap.ReturnRoomTile(MoveDirection, CurrentRoom.Row, CurrentRoom.Col);
 
-
-            if (!ExploredRooms.Contains(CurrentRoom)) // If not yet; add current room to list of explored ones.  
+            // Place current RoomTile in list of visited rooms, if not yet added.
+            if (!ExploredRooms.Contains(CurrentRoom))   
                 ExploredRooms.Add(CurrentRoom);
 
-
-
-            // If the next RoomTile is not discovered yet; Place current RoomTile in list of visited rooms
-            // Place the next Tile down on the MiniMap grid.
-            // Set the new CurrentRoom to the Next Tile
+            // If the next RoomTile has not yet been visited...
             if (nextTile.RoomType == RoomType.Undiscovered)
-            {                
-                nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue); // Pull next RoomTile from stack and place it on gamemap grid
+            {
+                // Pull next RoomTile from the stack
+                RoomTile fromStack = RoomTileStack.Pop();
 
-                GameMap.MiniMap[nextTile.Row, nextTile.Col] = nextTile;
+                // Update the new RoomTile's information.
+                nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue);
 
+                // Progress to the new RoomTile
                 SetCurrentRoom(nextTile);
             }
             // If already visited, then just move.
@@ -164,37 +161,26 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
                 SetCurrentRoom(nextTile);
             }
+
+            GameTurn++;
         }
 
-        private RoomTile TestFindRoom(Direction direction)
-        {
-            RoomTile foundTile = new RoomTile();
-            switch (direction)
-            {
-                // Set placeholder tile to corresponding RoomTile on Minimap, depending on direction moved.
-                case Direction.Up: foundTile = GameMap.MiniMap[CurrentRoom.Row - 1, CurrentRoom.Col]; break;
-                case Direction.Right: foundTile = GameMap.MiniMap[CurrentRoom.Row, CurrentRoom.Col + 1]; break;
-                case Direction.Down: foundTile = GameMap.MiniMap[CurrentRoom.Row + 1, CurrentRoom.Col]; break;
-                case Direction.Left: foundTile = GameMap.MiniMap[CurrentRoom.Row, CurrentRoom.Col - 1]; break;
-            }
-
-            return foundTile;
-        }
-
+       
         private void CreateRoomTileStack(int rows, int columns)
         {
-            int amount = rows * columns;
+            int amount = (rows * columns)/2;
             RoomTileStack = new Stack<RoomTile>();
-            //for (int i = 0; i < amount; i++)
-            //{
-            //    RoomTileStack.Push(new RoomTile(1, RoomType.Empty, 1));
-            //    //    RoomTileStack.Push(new RoomTile(i, RoomType.Empty, 74, new bool[4] { true, false, false, true }));
-            //}
+            for (int i = 0; i < amount; i++)
+            {
+                RoomTileStack.Push(new RoomTile(1, RoomType.Empty, 1));
+                //    RoomTileStack.Push(new RoomTile(i, RoomType.Empty, 74, new bool[4] { true, false, false, true }));
+            }
 
-            RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
-            RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 4)); // (entrance, up, down)
-            RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
-            RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 3)); //(entrance, down, opposite end)
+            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
+            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
+            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 4)); // (entrance, up, down)
+            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
+            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); //(entrance, down, opposite end)
 
             //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 2, new bool[4] { false, false, false, false }));
             //RoomTileStack.Push(new RoomTile(3, RoomType.TrapRoom, 3, new bool[4] { false, false, false, false }));

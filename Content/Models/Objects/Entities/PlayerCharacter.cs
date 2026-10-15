@@ -54,8 +54,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // MISC
         public bool TorchIsOn { get; set; }
 
-        public Room CurrentRoom { get; private set; }
-
         // public List<Room> ExploredRooms {get; private set; }
 
 

@@ -51,6 +51,10 @@ namespace dragon_hoard.Content.Models.Managers
 
         public Texture2D RectangleTexture { get; set; }
 
+        public Texture2D SunIcon { get; private set; }
+
+        public Texture2D SunSkull { get; private set; }
+
         public BitmapFont bitFont;
 
 
@@ -67,6 +71,9 @@ namespace dragon_hoard.Content.Models.Managers
 
             RectangleTexture = new Texture2D(game.GraphicsDevice, 1, 1); // Pixel rectangle
             RectangleTexture.SetData(new[] { Color.White }); // Pixel rectangle color
+
+            SunIcon = _game.Content.Load<Texture2D>("Images/SunIcon");
+            SunSkull = _game.Content.Load<Texture2D>("Images/sun_skull");
 
             Randomizer = new Random();
 

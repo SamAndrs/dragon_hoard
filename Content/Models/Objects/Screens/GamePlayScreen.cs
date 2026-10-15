@@ -5,6 +5,7 @@ using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Data;
 
@@ -49,6 +50,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private Healthbar _healthbar;
 
+        private SunDial _sunDial;
+
         // FUNCTIONALITY
         private ClickButton _goUp;
         private ClickButton _goDown;
@@ -89,12 +92,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _currentRoom = _gameSession.CurrentRoom;
 
             // DEBUG
-            CreateTestButtons();
+            CreateMoveButtons();
             //-------------------------------------------------
 
             _healthbar = new Healthbar(_ui, new Vector2(_game.CenterX, _game.CenterY + 150));
             _healthbar.Load();
             _healthbar.Initialize(_character.MaxHealth, _character.CurrentHealth, 20);
+
+            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull, _ui.HeadLine);
+            _sunDial.Initialize(new Vector2(_game.CenterX - 486, 35));
 
             IsContentLoaded = true;
 
@@ -113,11 +119,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             if(IsActive)
             {
                 _currentRoom = _gameSession.CurrentRoom;
+                _sunDial.Update(gameTime);
                 _map.Update(gameTime);
                 _healthbar.Update(_character.CurrentHealth);
 
+                
+                UpdateScreenButtons(gameTime);
+
                 // DEBUG
-                UpdateTestButtons(gameTime);
+                if (Keyboard.GetState().IsKeyDown(Keys.P))
+                    _sunDial.DisplayMessage();
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -134,19 +145,13 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             {
                 _game.GraphicsDevice.Clear(Color.Black);
 
+                _sunDial.Draw(spriteBatch);
                 _map.Draw(spriteBatch);
                 _healthbar.Draw(spriteBatch);
 
-                try
-                {
-                    spriteBatch.Draw(_ui.RectangleTexture, _currentRoom.MiniSquare, Color.White);
-                }
-                catch (Exception ex)
-                {
-                    spriteBatch.DrawString(_ui.DebugText, $"ERROR! {ex.ToString()}", new Vector2(_game.CenterX, _game.CenterY), Color.Red);
-                }
-
-                DrawTestButtons(spriteBatch); // DEBUG
+                spriteBatch.Draw(_ui.RectangleTexture, _currentRoom.MiniSquare, Color.White);
+                
+                DrawMoveButtons(spriteBatch);
             }
 
             base.Draw(spriteBatch);
@@ -154,10 +159,156 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                                Debug Screen				   
+                                                Player Exit Room					   
         ------------------------------------------------------------------------------------------------------------
-         - Override of derived method. Draws the screen specific debugging information on the game screen.
+         - Class specific method. Assigns the direction which the player leaves the current room, and then 
+            callbacks to the game session method for going through the events of a turn.
         ----------------------------------------------------------------------------------------------------------*/
+        private void PlayerExitRoom(Direction direction)
+        {
+            _gameSession.MoveDirection = direction;
+            _gameSession.CreateTestRound();
+        }// End -----------------------------------------------------------------------------------------------------
+        
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Create Move Buttons				   
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific button for creating and initiating the 4 movement buttons.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void CreateMoveButtons()
+        {
+            int size = 50;
+
+            Point center = new Point((int)_game.CenterX, (int)_game.CenterY);
+
+            _goUp = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80, size, size), true);
+            _goUp.Initialize(Color.White, "U", Color.White, Vector2.Zero, true, 0);
+
+            _goDown = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80 + (size * 2), size, size), true);
+            _goDown.Initialize(Color.White, "D", Color.White, Vector2.Zero, true, 0);
+
+            _goLeft = new ClickButton(_ui, new Rectangle(center.X - size, center.Y + (80 + size), size, size), true);
+            _goLeft.Initialize(Color.White, "L", Color.White, Vector2.Zero, true, 0);
+
+            _goRight = new ClickButton(_ui, new Rectangle(center.X + size, center.Y + (80 + size), size, size), true);
+            _goRight.Initialize(Color.White, "R", Color.White, Vector2.Zero, true, 0);
+
+            // Set initial state to non-clickable
+            _goUp.SetNonClickable();
+            _goRight.SetNonClickable();
+            _goDown.SetNonClickable();
+            _goLeft.SetNonClickable();
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Update Screen Buttons				   
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific main method for looping through and updating the status and catch any events 
+            of all the buttons.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void UpdateScreenButtons(GameTime gameTime)
+        {           
+            _goUp.Update(gameTime);
+            _goRight.Update(gameTime);
+            _goDown.Update(gameTime);
+            _goLeft.Update(gameTime);
+
+            UpdateMoveButtonStatus();
+
+            if (_goUp.Clicked) PlayerExitRoom(Direction.Up);
+
+            if (_goRight.Clicked) PlayerExitRoom(Direction.Right);
+
+            if (_goDown.Clicked) PlayerExitRoom(Direction.Down);
+
+            if (_goLeft.Clicked) PlayerExitRoom(Direction.Left);
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                              Update Move Button Status
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific support method for looping through and updating the status visibility and 
+            clickability status of the move buttons.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void UpdateMoveButtonStatus()
+        {
+            // Allow only exits that are available
+
+            // Check if there's an exit up and if the current position on gamemap is not on upmost row.
+            if (_currentRoom.ExitUp && _currentRoom.Row > 1)
+            {
+                _goUp.SetVisibility();
+                _goUp.SetClickable();
+            }
+            else
+            {
+                _goUp.SetInvisible();
+                _goUp.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitRight && _currentRoom.Col < _map.Columns - 2)
+            {
+                _goRight.SetVisibility();
+                _goRight.SetClickable();
+
+            }
+            else
+            {
+                _goRight.SetInvisible();
+                _goRight.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitDown && _currentRoom.Row < _map.Rows - 2)
+            {
+                _goDown.SetVisibility();
+                _goDown.SetClickable();
+
+            }
+            else
+            {
+                _goDown.SetInvisible();
+                _goDown.SetNonClickable();
+            }
+
+            if (_currentRoom.ExitLeft && _currentRoom.Col > 1)
+            {
+                _goLeft.SetVisibility();
+                _goLeft.SetClickable();
+
+            }
+            else
+            {
+                _goLeft.SetInvisible();
+                _goLeft.SetNonClickable();
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Draw Move Buttons				   
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific button for drawing the move buttons onto the game screen.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void DrawMoveButtons(SpriteBatch spriteBatch)
+        {
+            _goUp.Draw(spriteBatch);
+            _goRight.Draw(spriteBatch);
+            _goDown.Draw(spriteBatch);
+            _goLeft.Draw(spriteBatch);
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Debug Screen				   
+       ------------------------------------------------------------------------------------------------------------
+        - Override of derived method. Draws the screen specific debugging information on the game screen.
+       ----------------------------------------------------------------------------------------------------------*/
         public override void DebugScreen(SpriteBatch spriteBatch)
         {
             bool showContentLoaded = false;
@@ -166,11 +317,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             bool showCurrentRoom = true;
 
-            bool showTilesInStack = true;
+            bool showTilesInStack = false;
 
             bool displayHeroStats = true;
 
-            bool mapNumbers = true;
+            bool mapNumbers = false;
 
             if (showContentLoaded)
             {
@@ -189,9 +340,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             if (showCurrentRoom)
             {
-                spriteBatch.DrawString(_ui.DebugText, $"PlayerMove: {_gameSession.PlayerMove}",
-                   new Vector2(50, 40), Color.Orange);
-
                 spriteBatch.DrawString(_ui.DebugText, $"CurrentRoom: [{_currentRoom.Row}, {_currentRoom.Col}]",
                    new Vector2(50, 60), Color.Green);
 
@@ -232,7 +380,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             }
 
             if (displayHeroStats) DrawTestCharacter(spriteBatch);
-              
+
 
             if (mapNumbers)
             {
@@ -243,128 +391,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                     spriteBatch.DrawString(_ui.DebugText, $"{col}", new Vector2(_map.MapPosition.X + (col * 18), _map.MapPosition.Y - 25), Color.LightBlue);
             }
         }// End -----------------------------------------------------------------------------------------------------
-
-       
-        private void PlayerExitRoom(Direction direction)
-        {
-            _gameSession.CreateTestRound(direction);
-        }
         #endregion
-
-
-
-
-        private void CreateTestButtons()
-        {
-            int size = 50;
-
-            Point center = new Point((int)_game.CenterX, (int)_game.CenterY);
-
-            _goUp = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80, size, size), true);
-            _goUp.Initialize(Color.White, "U", Color.White, Vector2.Zero, true, 0);
-
-            _goDown = new ClickButton(_ui, new Rectangle(center.X, center.Y + 80 + (size * 2), size, size), true);
-            _goDown.Initialize(Color.White, "D", Color.White, Vector2.Zero, true, 0);
-
-            _goLeft = new ClickButton(_ui, new Rectangle(center.X - size, center.Y + (80 + size), size, size), true);
-            _goLeft.Initialize(Color.White, "L", Color.White, Vector2.Zero, true, 0);
-
-            _goRight = new ClickButton(_ui, new Rectangle(center.X + size, center.Y + (80 + size), size, size), true);
-            _goRight.Initialize(Color.White, "R", Color.White, Vector2.Zero, true, 0);
-
-            // Set initial state to non-clickable
-            _goUp.SetNonClickable();
-            _goRight.SetNonClickable();
-            _goDown.SetNonClickable();
-            _goLeft.SetNonClickable();
-        }
-
-        private void UpdateTestButtons(GameTime gameTime)
-        {           
-            _goUp.Update(gameTime);
-            _goRight.Update(gameTime);
-            _goDown.Update(gameTime);
-            _goLeft.Update(gameTime);
-
-            // Allow only exits that are available
-
-            // Check if there's an exit up and if the current position on gamemap is not on upmost row.
-            if (_currentRoom.ExitUp && _currentRoom.Row > 1)
-            //if (_currentRoom.Row > 1)
-            {
-                _goUp.SetVisibility();
-                _goUp.SetClickable();
-                
-            }
-            else
-            {
-                _goUp.SetInvisible();
-                _goUp.SetNonClickable();
-            }
-
-            if (_currentRoom.ExitRight && _currentRoom.Col < _map.Columns - 2)
-            //if (_currentRoom.Col < _map.Columns - 2)
-            {
-                _goRight.SetVisibility();
-                _goRight.SetClickable();
-                
-            }
-            else
-            {
-                _goRight.SetInvisible();
-                _goRight.SetNonClickable();
-            }
-
-            if (_currentRoom.ExitDown && _currentRoom.Row < _map.Rows - 2)
-            //if (_currentRoom.Row < _map.Rows - 2)
-            {
-                _goDown.SetVisibility();
-                _goDown.SetClickable();
-                
-            }
-            else
-            {
-                _goDown.SetInvisible();
-                _goDown.SetNonClickable();
-            }
-
-            if (_currentRoom.ExitLeft && _currentRoom.Col > 1)
-            //if (_currentRoom.Col > 1)
-            {
-                _goLeft.SetVisibility();
-                _goLeft.SetClickable();
-                
-            }
-            else
-            {
-                _goLeft.SetInvisible();
-                _goLeft.SetNonClickable();
-            }
-
-            if (_goUp.Clicked) PlayerExitRoom(Direction.Up);
-
-            if (_goRight.Clicked) PlayerExitRoom(Direction.Right);
-
-            if (_goDown.Clicked) PlayerExitRoom(Direction.Down);
-
-            if (_goLeft.Clicked) PlayerExitRoom(Direction.Left);
-        }
-
-
-        private void DrawTestButtons(SpriteBatch spriteBatch)
-        {
-            _goUp.Draw(spriteBatch);
-            _goRight.Draw(spriteBatch);
-            _goDown.Draw(spriteBatch);
-            _goLeft.Draw(spriteBatch);
-
-
-            //spriteBatch.DrawString(_ui.DebugText, $"{_goUp.Clicked}", new Vector2(_goUp.BoundingBox.X, _goUp.BoundingBox.Top - 10), Color.White);
-            //spriteBatch.DrawString(_ui.DebugText, $"{_goRight.Clicked}", new Vector2(_goRight.BoundingBox.Right + 10, _goRight.BoundingBox.Y), Color.White);
-            //spriteBatch.DrawString(_ui.DebugText, $"{_goDown.Clicked}", new Vector2(_goDown.BoundingBox.X, _goDown.BoundingBox.Bottom + 10), Color.White);
-            //spriteBatch.DrawString(_ui.DebugText, $"{_goLeft.Clicked}", new Vector2(_goLeft.BoundingBox.Left - 40, _goLeft.BoundingBox.Y), Color.White);
-        }
-
 
         private void DrawTestCharacter(SpriteBatch spriteBatch)
         {

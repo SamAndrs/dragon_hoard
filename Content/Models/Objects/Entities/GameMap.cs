@@ -66,22 +66,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                                                        Initialize				   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method to initialize the map grid with RoomTile objects. 
-            Each RoomTile is assigned a numerical ID and its position on the map is calculated 
-            based on its row and column on the grid.
-            TODO rewrite	
+            Each RoomTile is assigned a position on the map is calculated 
+            based on its row and column on the grid.	
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
-            //int roomId = 1; // Initialize a variable to assign numerical IDs to each room
-
             // Loop through the rows and columns of the map grid to create Room objects
             for (int row = 0; row < Rows; row++)
             {
                 for (int col = 0; col < Columns; col++)
                 {
-                    //CreateRoom(row, col, 15);
                     _mapGrid[row, col] = CreateRoom(row, col, 15);
-                    //roomId++;
                 }
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -94,11 +89,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            //foreach (var roomTile in _mapGrid)
-            //{
-            //    roomTile.Update(gameTime);
+            foreach (var roomTile in _mapGrid)
+            {
+                roomTile.Update(gameTime);
 
-            //}
+            }
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -111,6 +106,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
           foreach (var room in _mapGrid)
                 room.DrawOnMiniMap(spriteBatch, SquareTexture);
+
+          
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -143,43 +140,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
                 // If room is a corner, set it as an exit;
                 newRoom = new RoomTile(RoomType.Exit, row, col, squareSize, new Vector2(mapPosX, mapPosY));
-                newRoom.CreateCastleExit(row, col);
+                CreateExitDoors(newRoom);
             }
             
             return newRoom;
         }// End -----------------------------------------------------------------------------------------------------
 
-        //private void CreateRoom(int row, int col, int squareSize)
-        //{
-        //    RoomType roomType = RoomType.Undiscovered;
-        //    int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
-        //    int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
-
-        //    // Set the top-, bottom rows and the left- and rightmost columns of the map
-        //    if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)
-        //        roomType = RoomType.OuterWall;
-
-        //    // Check 2nd row from top and bottom
-        //    else if (row == 1 || row == Rows - 2)
-        //    {
-        //        // If room is a corner, set it as an exit; otherwise, as an undiscovered room
-        //        if (col == 1 || col == Columns - 2)
-        //            roomType = RoomType.Exit;
-        //    }
-        //    else
-        //        roomType = RoomType.Undiscovered;
-
-        //    // Create the room and assign it to the map grid
-        //    _mapGrid[row, col] = new RoomTile(roomType, row, col, squareSize, new Vector2(mapPosX, mapPosY));
-
-        //    // Create doors to progress into castle, if room is an Exit.
-        //    if (roomType == RoomType.Exit)
-        //        _mapGrid[row, col].CreateCastleExits(row - 2, col - 2);
-
-
-        //}// End -----------------------------------------------------------------------------------------------------
-
-
+     
         /*----------------------------------------------------------------------------------------------------------
                                                Return Room Tile					   
         ------------------------------------------------------------------------------------------------------------
@@ -202,6 +169,37 @@ namespace dragon_hoard.Content.Models.Objects.Entities
              return _mapGrid[newRow, newCol];
         }// End -----------------------------------------------------------------------------------------------------
 
+
+        /*----------------------------------------------------------------------------------------------------------
+                                              Create Exit Doors					   
+       ------------------------------------------------------------------------------------------------------------
+       - Class specific method assigning doors in Exit rooms, by which player can progress into the castle.
+       ----------------------------------------------------------------------------------------------------------*/
+        private void CreateExitDoors(RoomTile roomTile)
+        {
+            if (roomTile.Row == 1)
+            {
+                if (roomTile.Col == 1)
+                    roomTile.ExitRight = true;
+                else
+                    roomTile.ExitLeft = true;
+
+                roomTile.ExitDown = true;
+                roomTile.EnteredFrom = Direction.Up;
+            }
+            else
+            {
+                if (roomTile.Col == 1)
+                    roomTile.ExitRight = true;
+                else
+                    roomTile.ExitLeft = true;
+
+                roomTile.ExitUp = true;
+                roomTile.EnteredFrom = Direction.Down;
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
+
         /*----------------------------------------------------------------------------------------------------------
                                                Create Random Start Position					   
         ------------------------------------------------------------------------------------------------------------
@@ -219,23 +217,19 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             switch(result)
             {
                 case 0: // Upper left
-                    //return _mapGrid[1, 1];
-                    return _mapGrid[maxRows, 1];
-                   
+                    return _mapGrid[1, 1];
+
                 case 1: // Upper right
-                    //return _mapGrid[1, maxCols];
-                   return _mapGrid[maxRows, 1];
-                    
+                    return _mapGrid[1, maxCols];
+
                 case 2: // Bottom left
                     return _mapGrid[maxRows, 1];
-                    
 
                 case 3: // Bottom right
-                    //return _mapGrid[maxRows, maxCols];
-                    return _mapGrid[maxRows, 1];
+                    return _mapGrid[maxRows, maxCols];
 
-                default:
-                    return null;
+                default: // Top left as default.
+                    return _mapGrid[1, 1];
             }
         }// End -----------------------------------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace dragon_hoard.Content.Models.Objects.Entities.Cards
@@ -31,10 +32,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public RoomType RoomType { get; private set; }      // Determine the type of room
 
-        public bool ExitUp { get; private set; }
-        public bool ExitRight { get; private set; }
-        public bool ExitDown { get; private set; }
-        public bool ExitLeft { get; private set; }
+        public bool ExitUp { get; set; }
+        public bool ExitRight { get; set; }
+        public bool ExitDown { get; set; }
+        public bool ExitLeft { get; set; }
 
         //public bool[] Doors { get; private set; }           // Determine what exits have a door.
 
@@ -73,6 +74,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             MiniSquare = new Rectangle((int)roomPosition.X, (int)roomPosition.Y, squareSize, squareSize);
 
+            _miniSquareColor = SetMiniMapColor(RoomType);
         }
 
         // For RoomTile Stack
@@ -92,9 +94,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         #region methods
 
 
+
         public void Update(GameTime gameTime)
         {
-
+            // Only update if the RoomType is of a category that need to change.
+            if(RoomType != RoomType.Undiscovered && RoomType != RoomType.Exit && RoomType != RoomType.OuterWall)
+                _miniSquareColor = SetMiniMapColor(RoomType);
         }
 
         /*----------------------------------------------------------------------------------------------------------
@@ -113,22 +118,19 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             DoorValue = doorValue;
 
+            // Only check entrance direction and number of available exits of a room, if it isn't a Castle Exit.
             if (RoomType != RoomType.Exit)
             {
                 EnteredFrom = DetermineEnteredFrom(moveDirection);
                 DetermineRoomExits(doorValue);
             }
 
-            //EnteredFrom = moveDirection;
-
-            //if (RoomType != RoomType.Exit)
-            //    Exits = DetermineRoomExits(roomTile.DoorValue);
-
             //DoorErrorCheck();
 
             _miniSquareColor = SetMiniMapColor(RoomType);
 
         }// End -----------------------------------------------------------------------------------------------------
+
 
 
         private Direction DetermineEnteredFrom(Direction moveDirection)
@@ -150,7 +152,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                                                        Determine Room Exits				   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method determining available exits of a room based on direction of entrance and a 
-            selection of static values: (90, 82, 74, 26, 10, 18 and 66).
+            selection of static values: 1 to 8. 
             1 = RoomTile has 4 exits
             2 = RoomTile has 3 exits (entrance, up, opposite end)
             3 = RoomTile has 3 exits (entrance, down, opposite end)
@@ -160,23 +162,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             7 = RoomTile has 2 exits (entrance, opposite end)
             8 = RoomTile is a dead end (only entrance)
 
-            
+            When assigning available doors, always 'rotate' the RoomTile in the 'direction' point-of-view.
+            As an example: compare two RoomTiles both with a value of 2 (3 doors; entrance, up and opposite end).
+            If entered from the [Left]; doors will be left (entrance), up (up) and right (opposite) side of RoomTile.
+            If entered from [Down]; doors will be down (entrance), left (up) and up (opposite) side of RoomTile.
         ----------------------------------------------------------------------------------------------------------*/
-
-
         private void DetermineRoomExits(int doorValue)
         {
-            //bool[] exits = new bool[4];
-
             if (EnteredFrom == Direction.Up)
-            {
-                
-            }
-            if (EnteredFrom == Direction.Right)
-            {
-                
-            }
-            if (EnteredFrom == Direction.Down)
             {
                 switch (doorValue)
                 {
@@ -188,6 +181,34 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                     case 6: ExitUp = true; ExitRight = false; ExitDown = false; ExitLeft = true; break;
                     case 7: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = false; break;
                     case 8: ExitUp = true; ExitRight = false; ExitDown = false; ExitLeft = false; break;
+                }
+            }
+            if (EnteredFrom == Direction.Right)
+            {
+                switch (doorValue)
+                {
+                    case 1: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 2: ExitUp = true; ExitRight = true; ExitDown = false; ExitLeft = true; break;
+                    case 3: ExitUp = false; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 4: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = false; break;
+                    case 5: ExitUp = true; ExitRight = true; ExitDown = false; ExitLeft = false; break;
+                    case 6: ExitUp = false; ExitRight = true; ExitDown= true; ExitLeft = false; break;
+                    case 7: ExitUp = false; ExitRight = true; ExitDown = false; ExitLeft = true; break;
+                    case 8: ExitUp = false; ExitRight = true; ExitDown = false; ExitLeft = false; break;
+                }
+            }
+            if (EnteredFrom == Direction.Down)
+            {
+                switch (doorValue)
+                {
+                    case 1: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 2: ExitUp = true; ExitRight = true; ExitDown = true; ExitLeft = false; break;
+                    case 3: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = true; break;
+                    case 4: ExitUp = false; ExitRight = true; ExitDown = true; ExitLeft = true; break;
+                    case 5: ExitUp = false; ExitRight = true; ExitDown = true; ExitLeft = false; break;
+                    case 6: ExitUp = false; ExitRight = false; ExitDown = true; ExitLeft = true; break;
+                    case 7: ExitUp = true; ExitRight = false; ExitDown = true; ExitLeft = false; break;
+                    case 8: ExitUp = false; ExitRight = false; ExitDown = true; ExitLeft = false; break;
                 }
 
             }
@@ -207,135 +228,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                 }
             }
 
-            #region old code ===============================================
-            //if (fromDirection == Direction.Up)
-            //{
-            //    //if (Exits[0] == true) { value += 2; }
-            //    //if (Exits[1] == true) { value += 16; }
-            //    //if (Exits[2] == true) { value += 64; }
-            //    //if (Exits[3] == true) { value += 8; }
-
-            //    switch (doorValue)
-            //    {
-            //        case 90:
-            //            exits = [true, true, true, true]; break;
-
-            //        case 82:
-            //            exits = [true, true, true, false]; break;
-
-            //        case 74:
-            //            exits = [true, false, true, true]; break;
-
-            //        case 26:
-            //            exits = [true, true, false, true]; break;
-
-            //        case 10:
-            //            exits = [true, false, false, true]; break;
-
-            //        case 18:
-            //            exits = [true, true, false, false]; break;
-
-            //        case 66:
-            //            exits = [true, false, true, false]; break;
-
-            //    }
-
-            //}
-            //else if (fromDirection == Direction.Right)
-            //{
-            //    //if (Exits[0] == true) { value += 8; }
-            //    //if (Exits[1] == true) { value += 2; }
-            //    //if (Exits[2] == true) { value += 16; }
-            //    //if (Exits[3] == true) { value += 64; }
-
-            //    switch (doorValue)
-            //    {
-            //        case 90:
-            //            exits = [true, true, true, true]; break;
-
-            //        case 82:
-            //            exits = [false, true, true, true]; break;
-
-            //        case 74:
-            //            exits = [true, true, false, true]; break;
-
-            //        case 26:
-            //            exits = [true, true, true, false]; break;
-
-            //        case 10:
-            //            exits = [true, true, false, false]; break;
-
-            //        case 18:
-            //            exits = [false, true, true, false]; break;
-
-            //        case 66:
-            //            exits = [false, true, false, true]; break;
-            //    }
-            //}
-            //else if (fromDirection == Direction.Down)
-            //{
-            //    //if (Exits[0] == true) { value += 64; }
-            //    //if (Exits[1] == true) { value += 8; }
-            //    //if (Exits[2] == true) { value += 2; }
-            //    //if (Exits[3] == true) { value += 16; }
-
-            //    switch (doorValue)
-            //    {
-            //        case 90:
-            //            exits = [true, true, true, true]; break;
-
-            //        case 82:
-            //            exits = [true, false, true, true]; break;
-
-            //        case 74:
-            //            exits = [true, true, true, false]; break;
-
-            //        case 26:
-            //            exits = [false, true, true, true]; break;
-
-            //        case 10:
-            //            exits = [false, true, true, false]; break;
-
-            //        case 18:
-            //            exits = [false, false, true, true]; break;
-
-            //        case 66:
-            //            exits = [true, false, true, false]; break;
-            //    }
-            //}
-            //else
-            //{
-            //    //if (Exits[0] == true) { value += 16; }
-            //    //if (Exits[1] == true) { value += 64; }
-            //    //if (Exits[2] == true) { value += 2; }
-            //    //if (Exits[3] == true) { value += 8; }
-            //    switch (doorValue)
-            //    {
-            //        case 90:
-            //            exits = [true, true, true, true]; break;
-
-            //        case 82:
-            //            exits = [true, true, false, true]; break;
-
-            //        case 74:
-            //            exits = [false, true, true, true]; break;
-
-            //        case 26:
-            //            exits = [true, false, true, true]; break;
-
-            //        case 10:
-            //            exits = [false, false, true, true]; break;
-
-            //        case 18:
-            //            exits = [true, false, false, true]; break;
-
-            //        case 66:
-            //            exits = [false, true, false, true]; break;
-
-            //    }
-            //}
-            #endregion
-            //return exits;
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -354,66 +246,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        /*----------------------------------------------------------------------------------------------------------
-                                                       Determine Castle Exits				   
-        ------------------------------------------------------------------------------------------------------------
-          - Class specific method. Checks whether an Exit room is on the top or bottom row, and depending on
-            result; creates an exit so player can progress into the GameMap proper.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void CreateCastleExits(int maxRow, int maxCol)
-        {
-
-            //bool[] exits = new bool[4];
-            if (Row == 1) // Check if exit is on 2nd row from top...
-            {
-                if (Col == 1) // ..and is top left corner
-                    ExitRight = true;
-
-                else // ..is top right corner
-                    ExitLeft = true;
-
-                ExitDown = true;
-            }
-
-            if (Row == maxRow) // If exit is at bottom row...
-            {
-                if (Col == 1) // ..and is bottom left corner
-                    ExitRight = true;
-
-                else // ..is bottom right corner
-                    ExitLeft = true;
-
-                ExitUp = true;
-            }
-
-        }// End -----------------------------------------------------------------------------------------------------
-
-        public void CreateCastleExit(int row, int col)
-        {
-            _miniSquareColor = Color.Yellow;
-
-            if(row == 1)
-            {
-                if (col == 1)
-                    ExitRight = true;
-                else
-                    ExitLeft = true;
-
-                ExitDown = true;
-                EnteredFrom = Direction.Up;
-            }
-            else
-            {
-                if (col == 1)
-                    ExitRight = true;
-                else
-                    ExitLeft= true;
-
-                ExitUp = true;
-                EnteredFrom = Direction.Down;
-            }
-        }
-
+      
         /*----------------------------------------------------------------------------------------------------------
                                                        Draw On Mini Map					   
         ------------------------------------------------------------------------------------------------------------
@@ -422,48 +255,58 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         ----------------------------------------------------------------------------------------------------------*/
         public void DrawOnMiniMap(SpriteBatch spriteBatch, Texture2D squareTexture)
         {
-            Color darkGray = new Color(28, 30, 33); // Dark gray color for outer wall room squares
-
-            //Draw the room square on the map
-            if (RoomType == RoomType.Exit)
-                spriteBatch.Draw(squareTexture, MiniSquare, Color.Yellow);
-
-            else if (RoomType == RoomType.OuterWall)
-                spriteBatch.Draw(squareTexture, MiniSquare, darkGray);
-            else
-            {
-                spriteBatch.Draw(squareTexture, MiniSquare, _miniSquareColor);
-            }
+            spriteBatch.Draw(squareTexture, MiniSquare, _miniSquareColor);
         }// End -----------------------------------------------------------------------------------------------------
-        
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Set Mini Map Color			   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method. Assigns the RoomTile's minimap square a color denoting the type of
+            room represented.
+        ----------------------------------------------------------------------------------------------------------*/
         private Color SetMiniMapColor(RoomType roomType)
         {
-            Color setColor = new Color();
-
+            Color darkGray = new Color(28, 30, 33);
             Color pit = new Color(10, 50, 255);
             Color bridge = new Color(50, 50, 200);
             Color dark = new Color(25, 25, 25);
 
             switch (RoomType)
             {
-                //case RoomType.Exit: setColor = Color.Yellow; break;
-                //case RoomType.OuterWall: setColor = darkGray; break;
-                case RoomType.Empty: setColor = Color.DarkBlue; break;
-                case RoomType.BottomLessPit: setColor = pit; break;
-                case RoomType.BridgeRoom: setColor = pit; break;
-                case RoomType.DarkRoom: setColor = dark; break;
-                case RoomType.Corridor: setColor = Color.Orange; break;
-                case RoomType.Rubble: setColor = Color.Brown; break;
-                case RoomType.SpinRoom: setColor = Color.LightGray; break;
-                case RoomType.TreasureRoom: setColor = Color.Gold; break;
-                case RoomType.WebbedRoom: setColor = Color.LightSalmon; break;
-                case RoomType.TrapRoom: setColor = Color.Red; break;
+                case RoomType.Undiscovered: return Color.Black;
+                case RoomType.Exit:         return Color.Yellow;
+                case RoomType.OuterWall:    return darkGray;
+                case RoomType.Empty:        return Color.DarkBlue;
+                case RoomType.BottomLessPit: return pit;
+                case RoomType.BridgeRoom:   return bridge;
+                case RoomType.DarkRoom:     return dark;
+                case RoomType.Corridor:     return Color.Orange;
+                case RoomType.Rubble:       return Color.Brown;
+                case RoomType.SpinRoom:     return Color.LightGray;
+                case RoomType.TreasureRoom: return Color.Gold;
+                case RoomType.WebbedRoom:   return Color.LightSalmon;
+                case RoomType.TrapRoom:     return Color.Red;
+                default: return Color.IndianRed;
+
+                    //case RoomType.Exit: setColor = Color.Yellow; break;
+                    //case RoomType.OuterWall: setColor = darkGray; break;
+                    //case RoomType.Empty: setColor = Color.DarkBlue; break;
+                    //case RoomType.BottomLessPit: setColor = pit; break;
+                    //case RoomType.BridgeRoom: setColor = pit; break;
+                    //case RoomType.DarkRoom: setColor = dark; break;
+                    //case RoomType.Corridor: setColor = Color.Orange; break;
+                    //case RoomType.Rubble: setColor = Color.Brown; break;
+                    //case RoomType.SpinRoom: setColor = Color.LightGray; break;
+                    //case RoomType.TreasureRoom: setColor = Color.Gold; break;
+                    //case RoomType.WebbedRoom: setColor = Color.LightSalmon; break;
+                    //case RoomType.TrapRoom: setColor = Color.Red; break;
             }
 
-            return setColor;
-        }
-        
-       
+            //return setColor;
+        }// End -----------------------------------------------------------------------------------------------------
+
+
         #endregion
     }
 }
