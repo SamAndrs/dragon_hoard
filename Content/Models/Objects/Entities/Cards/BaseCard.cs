@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
 
 namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 {
@@ -15,6 +11,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
     :: TODO ---------------------------
 
+            v.001a (10/16) Setup of basic core properties and methods.
 
     :: DONE ---------------------------
 
@@ -26,9 +23,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
     {
         //========================================== PROPERTIES ==================================================//
 
-        internal Texture2D CardImage { get; set; }
+        internal virtual Texture2D CardImage { get; set; }
 
-        internal Rectangle BoundingBox { get; set; }
+        internal virtual Rectangle BoundingBox { get; set; }
+
+        internal virtual Vector2 CardPosition { get; set; }
 
 
         //============================================ METHODS ===================================================//

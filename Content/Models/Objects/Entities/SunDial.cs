@@ -69,12 +69,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                                 Initialize				   
+                                                 Load				   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method. Initializes the array of rectangles for the position of the sun icons.
             Also ensures they are visible at start.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize(Vector2 setPosition)
+        public void Load(Vector2 setPosition)
         {
             Position = setPosition;
             for (int i = 0; i < Steps.Length; i++)
@@ -96,7 +96,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime, Random randomizer)
         {
-            if (_gameSession.DisplayMessage)
+            if (_gameSession.DisplayFlavorMessage)
                 _isVisible = false;
             else
                 _isVisible = true;
