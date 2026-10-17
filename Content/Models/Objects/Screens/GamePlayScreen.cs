@@ -6,9 +6,6 @@ using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Data;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {
@@ -72,6 +69,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private Vector2 _currentCardPosition;
 
+        private float _eventMessageTimer;
+
         // DEBUG
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -103,6 +102,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             _currentRoom = _gameSession.CurrentRoom;
 
+            _eventMessageTimer = 3f;
 
             // DEBUG
             CreateMoveButtons();
@@ -134,11 +134,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             if(IsActive)
             {
                 // Display the SunDial message until LMB is clicked.
-                if (_gameSession.DisplayMessage)
+                if (_gameSession.DisplayFlavorMessage)
                 {
                     if (_ui.Mouse.LeftButton == ButtonState.Pressed
                     && _ui.PrevMouse.LeftButton == ButtonState.Released)
-                        _gameSession.DisplayMessage = false;
+                        _gameSession.DisplayFlavorMessage = false;
                 }
 
                 _currentRoom = _gameSession.CurrentRoom;
@@ -153,6 +153,18 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                     _currentCard.Update(_currentCardPosition);
 
                 // DEBUG
+                if(!string.IsNullOrEmpty(_gameSession.EventMessage) && _gameSession.DisplayEventMessage)
+                {
+                    if(_eventMessageTimer > 0)
+                    {
+                        _eventMessageTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    }
+                    else
+                    {
+                        _gameSession.DisplayEventMessage = false;
+                        _eventMessageTimer = 3f;
+                    }
+                }
 
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -172,8 +184,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                 _sunDial.Draw(spriteBatch);
 
-                DrawFlavorMessage(spriteBatch, _gameSession.DisplayMessage, _gameSession.FlavorMessage, new Vector2(_game.CenterX, _sunDial.Position.Y));
-                
                 _map.Draw(spriteBatch);
                 _healthbar.Draw(spriteBatch);
 
@@ -184,7 +194,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                 //DEBUG
                 if(_currentCard != null)
+                {
                     _currentCard.Draw(spriteBatch, _ui.Text);
+
+                    DrawEventMessage(spriteBatch, _gameSession.DisplayEventMessage, _gameSession.EventMessage, new Vector2(_currentCardPosition.X + (_gameSession.CurrentRoomCard.BoundingBox.Width / 2), _game.CenterY));
+                }
+                    
+
+                DrawFlavorMessage(spriteBatch, _gameSession.DisplayFlavorMessage, _gameSession.FlavorMessage, new Vector2(_game.CenterX, _sunDial.Position.Y));
+
+                
 
             }
 
@@ -372,6 +391,31 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             else
                 return;
         }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Draw Event Message				   
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific method for displaying any Event message on screen.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void DrawEventMessage(SpriteBatch spriteBatch, bool showMessage, string message, Vector2 position)
+        {
+            Vector2 modifiedPos = new Vector2();
+            if (!string.IsNullOrEmpty(message))
+            {
+               // Measure the length of the string to be able to center its position correctly
+               Vector2 messageLength = _ui.HeadLine.MeasureString(message) / 2;
+                modifiedPos = new Vector2(position.X - messageLength.X, position.Y);
+            }
+
+            if (showMessage)
+                spriteBatch.DrawString(_ui.HeadLine, message, modifiedPos, Color.Red);
+                //spriteBatch.DrawString(_ui.HeadLine, message, position, Color.Red);
+
+            else
+                return;
+        }// End -----------------------------------------------------------------------------------------------------
+
 
         /*----------------------------------------------------------------------------------------------------------
                                                Debug Screen				   

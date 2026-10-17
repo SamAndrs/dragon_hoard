@@ -96,7 +96,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime, Random randomizer)
         {
-            if (_gameSession.DisplayMessage)
+            if (_gameSession.DisplayFlavorMessage)
                 _isVisible = false;
             else
                 _isVisible = true;

@@ -23,7 +23,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             * (optional) fetch messages from external file/ database.
             * Account for the player moving into an exit (should prompt "Want to leave?" message)
             * Account for events (RoomTile and RoomCards) preventing player from moving or cards from being removed.
-            * Account for RoomTiles having an event preventing pulling of a RoomCard.
+            * Account for RoomTiles having an event preventing pulling of a RoomCard. (traps, exits ec.)
 
             
             
@@ -47,8 +47,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private UiManager _ui;
 
+        public Random Randomizer { get; private set; }
+
         public PlayerCharacter PlayerCharacter { get;  set; }
 
+        // Game- / mini map
         public Direction MoveDirection { get; set; }
 
         public GameMap GameMap { get; private set; }
@@ -59,23 +62,30 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public RoomTile NextRoom { get; private set; }
 
-        public int CurrentPCHealth { get; private set; }
+        
 
+        // Player actions
         private bool _playerCanExit;                               // Determine if player can leave through an exit (i.e. end game).
 
         public bool PlayerCanMove { get; private set; }            // Determine if the player can progress to another room.
 
-
+        public int PlayerCanSearch { get; private set; }          // Determine amount of times left the player can search a room.
+         
+        
+        // Misc
         public int GameTurn { get; private set; }                   // The amount of game turns since start.
 
 
-        public bool DisplayMessage { get; set; }                    // Controls display of 'flavor' message
+        // Messages
+        public bool DisplayFlavorMessage { get; set; }              // Flag switch for displaying 'flavor' message
 
         public string FlavorMessage { get; private set; }           // Flavor message text
 
-        public Random Randomizer { get; private set; }
+        public bool DisplayEventMessage { get; set; }               // Flag switch for displaying event message
 
+        public string EventMessage { get; private set; }            // Text explaining what event is transpiring.
 
+        
         // CARD STACKS
         public Stack<RoomTile> RoomTileStack { get; private set; }   //TODO turn into a proper class?
 
@@ -185,7 +195,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
             GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 120);
             GameMap.Initialize();
-            DisplayMessage = false;
+            DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
         }
 
@@ -232,16 +242,19 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             GameTurn++;
             FlavorMessage = RandomFlavorMessage(Randomizer);
-            DisplayMessage = true;
+            DisplayFlavorMessage = true;
 
             // If the RoomTile is empty, pull a room card. 
-            if (CurrentRoom.RoomType == RoomType.Empty) 
+            if (CurrentRoom.RoomType == RoomType.Empty)
+            {
                 CurrentRoomCard = RoomCardStack.PullCard();
+                DoRoomCardEvent(CurrentRoomCard);
+            }
 
             // If the RoomTile is a corridor, keep moving in an available direction.
             else if(CurrentRoom.RoomType == RoomType.Corridor)
             {
-
+                //TODO: Allow extra movement (1 RoomTile)
             }
             // If the RoomTile has an event type of some kind, run the event.
             else
@@ -257,31 +270,258 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             switch (roomTile.RoomType)
             {
                 case RoomType.DarkRoom:
+                    // No RoomCard pulled.
+                    // End turn
+                    // Next turn roll to see which door to exit at
                     break;
 
                 case RoomType.TreasureRoom:
+                    // No RoomCard pulled.
+                    // Pull treaurecards
+                    // Pull dragon card
+                    // End turn
                     break;
 
                 case RoomType.Rubble:
+                    // Pull RoomCard DoRoomCardEvent(CurrentRoom);
+                    // Do Card Event
+                    // End turn
+                    // Next turn try move: Success move direction. Failure remain in place. End turn
                     break;
 
                 case RoomType.TrapRoom:
+                    // No RoomCard pulled.
+                    // Pull TrapCard
+                    // Do Card Event
+                    // End turn
+
+                    // Trap event triggers only once upon 1st enter. Can't search in room: No RoomCard pulled.
                     break;
 
                 case RoomType.BottomLessPit:
+                    // No RoomCard pulled
+                    // Roll T12 vs DEX. Success = Survive. Turn ends.  Failure = instant death
+                    // If success: can proceed next turn.
                     break;
 
                 case RoomType.BridgeRoom:
+                    // No RoomCard pulled
+                    // Move back or try cross bridge. If crossing bridge: T10 vs DEX. 
+                    // If success: Turn ends. Next turn proceed.
+                    // If failure: Instant death.
                     break;
 
                 case RoomType.WebbedRoom:
+                    // No RoomCard pulled
+                    // Turn ends
+                    // Next turn either move back or try force way through webs. T12 vs. STR
+                    // If success: Exit through door
+                    // If failure: End turn. Try again next.
                     break;
 
                 case RoomType.SpinRoom:
+                    // No RoomCard pulled.
+                    // Exit changes 2 steps clockwise.
+                    // Turn ends.
+                    // Next turn: Proceed or search room (can do 2 times max, then death).
                     break;
             }
         }
 
+        private void DoRoomCardEvent(RoomCard roomCard)
+        {
+            switch (roomCard.CardEvent)
+            {
+                case RoomCardEvent.Empty:
+                    EventMessage = "The room is empty";
+                    DisplayEventMessage = true;
+                    break;
+
+                #region CONTAINERS ----------------------------------------
+                case RoomCardEvent.Chest:
+                    // OpenContainerEvent:
+                    // Pull ChestCard
+                    // DoChestCardEvent
+                    // End turn
+                    EventMessage = "A Chest";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.Sarcophagus:
+                    // OpenContainerEvent:
+                    // Pull ChestCard
+                    // DoChestCardEvent
+                    // End turn
+                    EventMessage = "A Sarcophagus";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.FallenWarrior:
+                    // SearchCorspeEvent:
+                    // Pull CorpseCard
+                    // DoCorpseCardEvent
+                    // End turn
+                    EventMessage = "A Fallen warrior";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+
+                #region TRAPS -------------------------------------
+                case RoomCardEvent.PitTrap:
+                    // DoTrapEvent
+                    // End Turn
+                    EventMessage = "TRAP!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.SpearTrap:
+                    // DoTrapEvent
+                    // End Turn
+                    EventMessage = "TRAP!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.CaveIn:
+                    // DoTrapEvent
+                    // End Turn
+                    EventMessage = "TRAP!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.WallArrows:
+                    // DoTrapEvent
+                    // End Turn
+                    EventMessage = "TRAP!";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+
+                #region DAMAGE --------------------------------
+                case RoomCardEvent.VampireBats:
+                    // DoDamageEvent
+                    // End Turn
+                    EventMessage = "Vampire bats!";
+                    DisplayEventMessage = true;
+                    break;
+
+                #endregion
+
+                #region AMBUSH -------------------------
+                case RoomCardEvent.AmbushSkeleton:
+                    // DoAmbushEvent
+                    // Combat
+                    // End Turn
+                    EventMessage = "AMBUSHED!";
+                    DisplayEventMessage = true;
+                    break;
+
+
+                case RoomCardEvent.AmbushOgre:
+                    // DoAmbushEvent
+                    // Combat
+                    // End Turn
+                    EventMessage = "AMBUSHED!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.AmbushOrc:
+                    // DoAmbushEvent
+                    // Combat
+                    // End Turn
+                    EventMessage = "AMBUSHED!";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+
+                #region MONSTERS (STATIC) ------------------
+                case RoomCardEvent.GiantSpider:
+                    // DoSpiderEvent
+                    // End Turn
+                    EventMessage = "Giant spider!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.PosionCaterpillar:
+                    // DoPoisonCaterpillarEvent
+                    // End Turn
+                    EventMessage = "Poisonous Caterpillar";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.CorpseEaters:
+                    // DoCorpseEaterEvent
+                    // End Turn
+                    EventMessage = "Corpse eaters!";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+
+                #region MONSTERS (DYNAMIC) -----------------------
+                case RoomCardEvent.Darkelf:
+                    // Pull MonsterCard(Darkelf)
+                    // Resolve MonsterCard (monster combat or flee)
+                    // If monster: flee = End Turn
+                    // If Monster: combat = Player fight or flee.
+                    // If Player: flee = resolve success.  (failure = dmg)
+                    // If Player: combat = resolve combat
+                    // End Turn
+                    EventMessage = "A Darkelf!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.Ogre:
+                    // Pull MonsterCard(Ogre)
+                    // Same as above
+                    EventMessage = "An Ogre!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.Skeleton:
+                    // Pull MonsterCard(Skeleton)
+                    // Same as above
+                    EventMessage = "A Skeleton!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.Orc:
+                    // Pull MonsterCard(Orc)
+                    // Same as above
+                    EventMessage = "An Orc!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.TwoOrcs:
+                    // Pull MonsterCard(TwoOrcs)
+                    // Same as above
+                    EventMessage = "Two Orcs!!";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+
+                #region SPECIAL ----------------------
+                case RoomCardEvent.TorchOut:
+                    // End Turn
+                    // Next turn: DoTorchOutEvent
+                    EventMessage = "The Torch is out!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.CurseOfMadMage:
+                    // DoCurseOfMadMageEvent
+                    // End Turn (???)
+                    EventMessage = "Curse of the mad mage!";
+                    DisplayEventMessage = true;
+                    break;
+
+                case RoomCardEvent.PursuingShadow:
+                    // DoPursuingShadowEvent
+                    // End Turn
+                    EventMessage = "A shadow pursues you!";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
+            }
+        }
        
         private void CreateRoomTileStack(int rows, int columns)
         {
