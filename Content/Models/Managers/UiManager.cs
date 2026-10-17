@@ -37,7 +37,6 @@ namespace dragon_hoard.Content.Models.Managers
 
         public KeyboardState keyboard { get; private set; }
 
-        public Random Randomizer { get; set; }
 
         // GRAPHICS
 
@@ -74,8 +73,6 @@ namespace dragon_hoard.Content.Models.Managers
 
             SunIcon = _game.Content.Load<Texture2D>("Images/SunIcon");
             SunSkull = _game.Content.Load<Texture2D>("Images/sun_skull");
-
-            Randomizer = new Random();
 
         }// End
 

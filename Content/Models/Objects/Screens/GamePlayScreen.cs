@@ -118,17 +118,26 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         {
             if(IsActive)
             {
+                // Display the SunDial message until LMB is clicked.
+                if (_gameSession.DisplayMessage)
+                {
+                    if (_ui.Mouse.LeftButton == ButtonState.Pressed
+                    && _ui.PrevMouse.LeftButton == ButtonState.Released)
+                        _gameSession.DisplayMessage = false;
+                }
+
                 _currentRoom = _gameSession.CurrentRoom;
-                _sunDial.Update(gameTime);
+                _sunDial.Update(gameTime, _gameSession.Randomizer);
                 _map.Update(gameTime);
                 _healthbar.Update(_character.CurrentHealth);
 
                 
                 UpdateScreenButtons(gameTime);
 
+                
+
                 // DEBUG
-                if (Keyboard.GetState().IsKeyDown(Keys.P))
-                    _sunDial.DisplayMessage();
+
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -146,6 +155,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 _game.GraphicsDevice.Clear(Color.Black);
 
                 _sunDial.Draw(spriteBatch);
+
+                DrawFlavorMessage(spriteBatch, _gameSession.DisplayMessage, _gameSession.FlavorMessage, new Vector2(_game.CenterX, _sunDial.Position.Y));
+                
                 _map.Draw(spriteBatch);
                 _healthbar.Draw(spriteBatch);
 
@@ -303,6 +315,30 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _goLeft.Draw(spriteBatch);
         }// End -----------------------------------------------------------------------------------------------------
 
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Draw Flavor Message				   
+        ------------------------------------------------------------------------------------------------------------
+         - Class specific method for displaying the randomly choosen flavor message, picked at the 
+            start of a game turn.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void DrawFlavorMessage(SpriteBatch spriteBatch, bool showMessage, string message, Vector2 position)
+        {
+            Vector2 modifiedPos = new Vector2();
+            if (!string.IsNullOrEmpty(message))
+            {
+                // Measure the length of the string to be ble to center its position correctly
+                Vector2 messageLength = _ui.HeadLine.MeasureString(message) / 2;
+                modifiedPos = new Vector2(position.X - messageLength.X, position.Y);
+            }
+
+            if (showMessage)
+                spriteBatch.DrawString(_ui.HeadLine, message, modifiedPos, Color.Red);
+
+            else
+                return;
+        }// End -----------------------------------------------------------------------------------------------------
 
         /*----------------------------------------------------------------------------------------------------------
                                                Debug Screen				   

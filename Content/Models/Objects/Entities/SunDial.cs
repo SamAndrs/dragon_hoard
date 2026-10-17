@@ -16,12 +16,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
       
        :: TODO ---------------------------
 
-            v.001a (10/15) Setup of basic core properties and methods.
-
-
-
+        
         :: DONE ---------------------------
             (2026)
+        v.001a (10/15) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class SunDial
@@ -34,8 +32,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         private GameSession _gameSession;
 
         private int _currentStep;
-
-        private SpriteFont _textFont;
         
         // FUNCTIONAL
 
@@ -51,17 +47,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private bool _isVisible;
 
-        private bool _displayMessage;
-
-        private string _message;
-
-        private float _messageTimer;
-
-
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public SunDial(GameSession thisSession, Texture2D sunTexture, Texture2D sunSkullImage, SpriteFont font)
+        public SunDial(GameSession thisSession, Texture2D sunTexture, Texture2D sunSkullImage)
         {
             _gameSession = thisSession;
 
@@ -72,9 +61,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             _sunSkull = sunSkullImage;
 
             _iconSize = 32;
-
-            _textFont = font;
-
         }
 
 
@@ -85,7 +71,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         /*----------------------------------------------------------------------------------------------------------
                                                  Initialize				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. 
+          - Class specific method. Initializes the array of rectangles for the position of the sun icons.
+            Also ensures they are visible at start.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize(Vector2 setPosition)
         {
@@ -97,36 +84,24 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             _isVisible = true;
 
-            _displayMessage = false;
-
-            _message = "";
-
-            _messageTimer = 3f;
-
         }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
                                                  Update				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. 
+          - Class specific method. Checks wether the sun dial are to be displayed or temporarily hidden
+            in favor of displaying a flavor message.
+            Also keeps track of the current game turn.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, Random randomizer)
         {
-            if(_displayMessage && _messageTimer > 0)
-            {
+            if (_gameSession.DisplayMessage)
                 _isVisible = false;
-                _message = "This is a message";
-                _messageTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
             else
-            {
-                _messageTimer = 1;
-                _message = "";
-                _displayMessage = false;
                 _isVisible = true;
-            }    
-                _currentStep = _gameSession.GameTurn;
+  
+            _currentStep = _gameSession.GameTurn;
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -134,7 +109,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         /*----------------------------------------------------------------------------------------------------------
                                                  Draw				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. 
+          - Class specific method for drawing the sun icons onto the screen provided the sun dial is visible.
+            Makes sure the current gameturn is represented as a white sun icon, and the last step marked as 
+            a skull icon.
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -150,14 +127,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 spriteBatch.Draw(_sunSkull, Steps[26], Color.White);
             }
 
-            if(_displayMessage)
-            {
-                spriteBatch.DrawString(_textFont, _message, Position, Color.Red);
-            }
-
         }// End -----------------------------------------------------------------------------------------------------
 
 
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Check Color				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific support method for returning a specific color depending on position in the 
+            sun step array, when a sun icon is drawn onto the GamePlayScreen.
+        ----------------------------------------------------------------------------------------------------------*/
         private Color CheckColor(int step)
         {
             if (step < 2 || step > 23)
@@ -167,10 +145,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 return Color.Red;
 
             return Color.Yellow;
-        }
+        }// End -----------------------------------------------------------------------------------------------------
 
-        public void DisplayMessage() => _displayMessage = true;
-        
         #endregion
     }
 }

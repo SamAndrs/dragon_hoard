@@ -2,12 +2,8 @@
 using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dragon_hoard.Content.Models.Objects.Entities
 {
@@ -23,12 +19,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities
       
        :: TODO ---------------------------
 
-            v.001a (10/07) Setup of basic core properties and methods.
+            * Extend selection of available flavor messages.
+            * (optional) fetch messages from external file/ database.
 
+            v.001c (10/15) Addition of properties for the Flavor message functionality.
+            
 
 
         :: DONE ---------------------------
             (2026)
+            v.001b (10/12) Additions to facilitate RoomTile system functionality.
+            v.001a (10/07) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class GameSession
@@ -37,6 +38,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         // public Player Player { get; private set; }
 
+        // DATA
         private MainGame _game;
 
         private UiManager _ui;
@@ -57,7 +59,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private bool _playerCanExit = false;                        // Determine if player can leave through an exit (i.e. end game).
 
-        public int GameTurn { get; private set; } = 0;              // The amount of game turns since start.
+        public int GameTurn { get; private set; }                   // The amount of game turns since start.
+
+
+        public bool DisplayMessage { get; set; }                    // Controls display of 'flavor' message
+
+        public string FlavorMessage { get; private set; }           // Flavor message text
+
+        public Random Randomizer { get; private set; }
 
 
         // CARD STACKS
@@ -68,6 +77,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             _game = game;
             _ui = ui;
+
+            Randomizer = new Random();
 
             ExploredRooms = new List<RoomTile>();
         }
@@ -87,6 +98,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize(PlayerCharacter playerCharacter)
         {
+            GameTurn = 0;
+
             // Create a new character with choosen stats from NewGameScreen
             PlayerCharacter = playerCharacter;
 
@@ -128,15 +141,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
             GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 80);
             GameMap.Initialize();
+            DisplayMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
+
         }
 
         public void CreateTestRound()
         {
+
             // Pop RoomTile from RoomTile-stack
             // Place RoomTile on GameMap
             // Add visited roomtile to ExploredRooms-list
-            
+
+            // Progress game turn
+            // Display flavor message
+
             // Return the roomtile of the gamemap in the direction moved
             RoomTile nextTile = GameMap.ReturnRoomTile(MoveDirection, CurrentRoom.Row, CurrentRoom.Col);
 
@@ -163,6 +182,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             }
 
             GameTurn++;
+            FlavorMessage = RandomFlavorMessage(Randomizer);
+            DisplayMessage = true;
         }
 
        
@@ -192,5 +213,23 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             //RoomTileStack.Push(new RoomTile(9, RoomType.DarkRoom, 1, new bool[4] { false, false, false, false }));
         }
 
+
+        private string RandomFlavorMessage(Random randomizer)
+        {
+            int result = randomizer.Next(3);
+
+            switch (result)
+            {
+                case 0: return "Mind the path of the sun. As night draws closer the denizens of the castle grows fiercer";
+
+                case 1: return "The  brave,  the  foolhardy,  the  desperate.  The  promise  of  the  hoard  calls  to  them  each.";
+
+                case 2: return "Take  heed  to  escape  the  castle  before  sunset,  for  none  have  survived  the  horrors  of  the  night.";
+
+                case 3: return "The  promise  of  wealth  beckons.  Lurking  close  behind  is  the  promise  of  peril.";
+
+                default: return "Bravery  or  madness;  challenging  the  castle  is  both";
+            }
+        }
     }
 }
