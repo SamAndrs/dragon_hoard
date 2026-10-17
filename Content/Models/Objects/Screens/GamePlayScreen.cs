@@ -466,9 +466,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
                 spriteBatch.DrawString(_ui.DebugText, $"Doors: [value: {_currentRoom.DoorValue}]", new Vector2(50, 100), Color.White);
 
-                if (_gameSession.RoomTileStack.Count > 0)
+                if (_gameSession.RoomTileStack.TileStack.Count > 0)
                 {
-                    spriteBatch.DrawString(_ui.DebugText, $"NextRoomTileType: {_gameSession.RoomTileStack.Peek().RoomType}",
+                    spriteBatch.DrawString(_ui.DebugText, $"NextRoomTileType: {_gameSession.RoomTileStack.TileStack.Peek().RoomType}",
                      new Vector2(250, 60), Color.Yellow);
 
                     if (_gameSession.NextRoom != null)
@@ -490,7 +490,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             if (showTilesInStack)
             {
-                spriteBatch.DrawString(_ui.DebugText, $"RoomTilesStack: {_gameSession.RoomTileStack.Count}",
+                spriteBatch.DrawString(_ui.DebugText, $"RoomTilesStack: {_gameSession.RoomTileStack.TileStack.Count}",
                    new Vector2(_game.GraphicsDevice.Viewport.Width / 2, 60), Color.Orange);
             }
 
