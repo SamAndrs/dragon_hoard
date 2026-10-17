@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {
@@ -16,10 +17,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
        
     :: TODO ---------------------------
-        v.001b (10/09) Implementation of player movement and corresponding minimap updates.
+        * Account for RoomTile events preventing movement (traps, etc)
+        * Account for RoomCard events preventing movement (combat, traps, special etc.) 
        
     :: DONE ---------------------------
         (2026)
+        v.001b (10/09) Implementation of player movement and corresponding minimap updates.
         v.001a (10/01) Setup of basic properties and methods for core functionality.
         
 
@@ -46,6 +49,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private RoomTile _currentRoom;
 
+        private RoomCard _currentCard;
+
         private GameMap _map;
 
         private Healthbar _healthbar;
@@ -59,6 +64,13 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private ClickButton _goRight;
 
         // GRAPHICS
+        //private Vector2 _mapPosition;
+
+        private Vector2 _healthBarPosition;
+
+        private Vector2 _sunDialPosition;
+
+        private Vector2 _currentCardPosition;
 
         // DEBUG
 
@@ -91,17 +103,20 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             _currentRoom = _gameSession.CurrentRoom;
 
+
             // DEBUG
             CreateMoveButtons();
             //-------------------------------------------------
+            
+            _healthBarPosition = new Vector2(_game.CenterX, _game.CenterY + 150);
+            _healthbar = new Healthbar(_ui, _healthBarPosition);
+            _healthbar.Load(_character.MaxHealth, _character.CurrentHealth, 20);
 
-            _healthbar = new Healthbar(_ui, new Vector2(_game.CenterX, _game.CenterY + 150));
-            _healthbar.Load();
-            _healthbar.Initialize(_character.MaxHealth, _character.CurrentHealth, 20);
+            _sunDialPosition = new Vector2(_game.CenterX - 486, 35);
+            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
+            _sunDial.Load(_sunDialPosition);
 
-            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull, _ui.HeadLine);
-            _sunDial.Initialize(new Vector2(_game.CenterX - 486, 35));
-
+            _currentCardPosition = new Vector2(150, 120);
             IsContentLoaded = true;
 
 
@@ -131,10 +146,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 _map.Update(gameTime);
                 _healthbar.Update(_character.CurrentHealth);
 
-                
-                UpdateScreenButtons(gameTime);
+                UpdateScreenButtons(gameTime, _gameSession.PlayerCanMove);
 
-                
+                _currentCard = _gameSession.CurrentRoomCard;
+                if (_currentCard != null) 
+                    _currentCard.Update(_currentCardPosition);
 
                 // DEBUG
 
@@ -164,6 +180,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 spriteBatch.Draw(_ui.RectangleTexture, _currentRoom.MiniSquare, Color.White);
                 
                 DrawMoveButtons(spriteBatch);
+
+
+                //DEBUG
+                if(_currentCard != null)
+                    _currentCard.Draw(spriteBatch, _ui.Text);
+
             }
 
             base.Draw(spriteBatch);
@@ -179,7 +201,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         private void PlayerExitRoom(Direction direction)
         {
             _gameSession.MoveDirection = direction;
+            _gameSession.SetPlayerCanMove(false);
+            _gameSession.DiscardCurrentRoomCard(); //TODO implement check. Certain cards should not be dicarded upon moving.
             _gameSession.CreateTestRound();
+            
         }// End -----------------------------------------------------------------------------------------------------
         
 
@@ -222,8 +247,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
          - Class specific main method for looping through and updating the status and catch any events 
             of all the buttons.
         ----------------------------------------------------------------------------------------------------------*/
-        private void UpdateScreenButtons(GameTime gameTime)
-        {           
+        private void UpdateScreenButtons(GameTime gameTime, bool playerCanExit)
+        {
             _goUp.Update(gameTime);
             _goRight.Update(gameTime);
             _goDown.Update(gameTime);
@@ -231,13 +256,17 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             UpdateMoveButtonStatus();
 
-            if (_goUp.Clicked) PlayerExitRoom(Direction.Up);
+            // Movement only allowed if Player isn't facing an event that prevents it (trap, monster etc.)
+            if (playerCanExit)
+            {
+                if (_goUp.Clicked) PlayerExitRoom(Direction.Up);
 
-            if (_goRight.Clicked) PlayerExitRoom(Direction.Right);
+                if (_goRight.Clicked) PlayerExitRoom(Direction.Right);
 
-            if (_goDown.Clicked) PlayerExitRoom(Direction.Down);
+                if (_goDown.Clicked) PlayerExitRoom(Direction.Down);
 
-            if (_goLeft.Clicked) PlayerExitRoom(Direction.Left);
+                if (_goLeft.Clicked) PlayerExitRoom(Direction.Left);
+            }
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -309,10 +338,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         private void DrawMoveButtons(SpriteBatch spriteBatch)
         {
-            _goUp.Draw(spriteBatch);
-            _goRight.Draw(spriteBatch);
-            _goDown.Draw(spriteBatch);
-            _goLeft.Draw(spriteBatch);
+            if(_gameSession.PlayerCanMove)
+            {
+                _goUp.Draw(spriteBatch);
+                _goRight.Draw(spriteBatch);
+                _goDown.Draw(spriteBatch);
+                _goLeft.Draw(spriteBatch);
+            }
+            
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -351,13 +384,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             bool showMousePos = false;
 
-            bool showCurrentRoom = true;
+            bool showCurrentRoom = false;
 
             bool showTilesInStack = false;
 
             bool displayHeroStats = true;
 
             bool mapNumbers = false;
+
+            bool displayCardEvent = true;
 
             if (showContentLoaded)
             {
@@ -426,6 +461,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 for (int col = 0; col < _map.Columns; col++)
                     spriteBatch.DrawString(_ui.DebugText, $"{col}", new Vector2(_map.MapPosition.X + (col * 18), _map.MapPosition.Y - 25), Color.LightBlue);
             }
+
+            if(displayCardEvent && _currentCard != null)
+                spriteBatch.DrawString(_ui.DebugText, $"Event: {_currentCard.CardEvent}", new Vector2(_currentCardPosition.X + 10, _currentCardPosition.Y + 25), Color.Black);
         }// End -----------------------------------------------------------------------------------------------------
         #endregion
 

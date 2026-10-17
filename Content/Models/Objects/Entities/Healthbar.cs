@@ -11,12 +11,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
       
        :: TODO ---------------------------
 
-            v.001a (10/07) Setup of basic core properties and methods.
-
-
+            * Add a skull icon to the bottom of the array of healthboxes.
 
         :: DONE ---------------------------
             (2026)
+            v.001a (10/07) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class Healthbar
@@ -46,13 +45,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         #region methods
 
 
-        public void Load()
+        public void Load(int maxHealth, int currentHealth, int squareSize)
         {
             _barImage = _ui.RectangleTexture;
-        }
 
-        public void Initialize(int maxHealth, int currentHealth, int squareSize)
-        {
             _maxHealth = maxHealth;
 
             _currentHealth = currentHealth;

@@ -15,19 +15,23 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             - Keeps track of the choosen player character
             - Keeps track of what parts of the gamemap have been discovered and visited
             - Keeps track of the current room in which the player character is
-            - Progress through the game loop depending on the current state of events (see RunGameTurn())
+            - Progress through the game loop depending on the current state of events
       
        :: TODO ---------------------------
 
             * Extend selection of available flavor messages.
             * (optional) fetch messages from external file/ database.
+            * Account for the player moving into an exit (should prompt "Want to leave?" message)
+            * Account for events (RoomTile and RoomCards) preventing player from moving or cards from being removed.
+            * Account for RoomTiles having an event preventing pulling of a RoomCard.
 
-            v.001c (10/15) Addition of properties for the Flavor message functionality.
+            
             
 
 
         :: DONE ---------------------------
             (2026)
+            v.001c (10/15) Addition of properties for the Flavor message functionality.
             v.001b (10/12) Additions to facilitate RoomTile system functionality.
             v.001a (10/07) Setup of basic core properties and methods.
 
@@ -57,7 +61,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public int CurrentPCHealth { get; private set; }
 
-        private bool _playerCanExit = false;                        // Determine if player can leave through an exit (i.e. end game).
+        private bool _playerCanExit;                               // Determine if player can leave through an exit (i.e. end game).
+
+        public bool PlayerCanMove { get; private set; }            // Determine if the player can progress to another room.
+
 
         public int GameTurn { get; private set; }                   // The amount of game turns since start.
 
@@ -70,7 +77,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         // CARD STACKS
-        public Stack<RoomTile> RoomTileStack { get; private set; }
+        public Stack<RoomTile> RoomTileStack { get; private set; }   //TODO turn into a proper class?
+
+        public RoomCardStack RoomCardStack { get; private set; }
+
+
+        public RoomCard CurrentRoomCard { get; private set; }
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GameSession(MainGame game, UiManager ui)
@@ -81,6 +93,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Randomizer = new Random();
 
             ExploredRooms = new List<RoomTile>();
+
+            RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
         }
 
 
@@ -93,12 +107,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ------------------------------------------------------------------------------------------------------------
           - Class specific method called from the NewGameScreen upon Start game, to initialize the necessary 
             data and objects upon starting a brand new game session. 
-            Sets the choosen playercharacter, creates-, fills- and shuffles the various game card stacks 
-            and initiates the first game turn.
+            Sets the choosen playercharacter, initiates the first game turn and controls the game turn flow.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize(PlayerCharacter playerCharacter)
         {
             GameTurn = 0;
+
+            _playerCanExit = false;
+
+            PlayerCanMove = true;
 
             // Create a new character with choosen stats from NewGameScreen
             PlayerCharacter = playerCharacter;
@@ -118,18 +135,44 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             // Initialize ExploredRooms-list
 
-            // DEBUG
-            CreateTestInitialization();
-
             // Set sun stage
             // Create and initialize gamemap
             // Set player initial room (randomized entrance)
             // 
-            // GameTurn++;
+      
+
+            // DEBUG
+            CreateTestInitialization();
+
+            
 
         }// End -----------------------------------------------------------------------------------------------------
 
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Set Current Room					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method to assign the CurrentRoom property the latest pulled RoomTile object.
+        ----------------------------------------------------------------------------------------------------------*/
         public void SetCurrentRoom(RoomTile roomTile) => CurrentRoom = roomTile;
+        // End -----------------------------------------------------------------------------------------------------
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Discard Current RoomCard					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method to discard the current active RoomCard if the player moves.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void DiscardCurrentRoomCard() => CurrentRoomCard = null;
+        // End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Set Player Can Move					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method to set the switch On/Off whether character movement is allowed or not.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void SetPlayerCanMove(bool setFlag) => PlayerCanMove = setFlag;
+        // End -----------------------------------------------------------------------------------------------------
 
         #endregion
 
@@ -137,24 +180,26 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         private void CreateTestInitialization()
         {
             CreateRoomTileStack(10, 13);
+            RoomCardStack.Initialize();
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
-            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 80);
+            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 120);
             GameMap.Initialize();
             DisplayMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
-
         }
 
         public void CreateTestRound()
         {
-
             // Pop RoomTile from RoomTile-stack
             // Place RoomTile on GameMap
             // Add visited roomtile to ExploredRooms-list
 
             // Progress game turn
             // Display flavor message
+            // Handle any RoomTile events
+            // Pull a RoomCard.
+            // Handle any RoomCardEvent.
 
             // Return the roomtile of the gamemap in the direction moved
             RoomTile nextTile = GameMap.ReturnRoomTile(MoveDirection, CurrentRoom.Row, CurrentRoom.Col);
@@ -162,6 +207,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             // Place current RoomTile in list of visited rooms, if not yet added.
             if (!ExploredRooms.Contains(CurrentRoom))   
                 ExploredRooms.Add(CurrentRoom);
+
+            // If the player has moved from the castle entrance, they can now exit the castle.
+            if (ExploredRooms.Count > 0)
+                _playerCanExit = true;
 
             // If the next RoomTile has not yet been visited...
             if (nextTile.RoomType == RoomType.Undiscovered)
@@ -184,6 +233,53 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             GameTurn++;
             FlavorMessage = RandomFlavorMessage(Randomizer);
             DisplayMessage = true;
+
+            // If the RoomTile is empty, pull a room card. 
+            if (CurrentRoom.RoomType == RoomType.Empty) 
+                CurrentRoomCard = RoomCardStack.PullCard();
+
+            // If the RoomTile is a corridor, keep moving in an available direction.
+            else if(CurrentRoom.RoomType == RoomType.Corridor)
+            {
+
+            }
+            // If the RoomTile has an event type of some kind, run the event.
+            else
+                DoRoomTileEvent(CurrentRoom);
+
+
+            SetPlayerCanMove(true);
+        }
+
+
+        private void DoRoomTileEvent(RoomTile roomTile)
+        {
+            switch (roomTile.RoomType)
+            {
+                case RoomType.DarkRoom:
+                    break;
+
+                case RoomType.TreasureRoom:
+                    break;
+
+                case RoomType.Rubble:
+                    break;
+
+                case RoomType.TrapRoom:
+                    break;
+
+                case RoomType.BottomLessPit:
+                    break;
+
+                case RoomType.BridgeRoom:
+                    break;
+
+                case RoomType.WebbedRoom:
+                    break;
+
+                case RoomType.SpinRoom:
+                    break;
+            }
         }
 
        
@@ -228,7 +324,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
                 case 3: return "The  promise  of  wealth  beckons.  Lurking  close  behind  is  the  promise  of  peril.";
 
-                default: return "Bravery  or  madness;  challenging  the  castle  is  both";
+                default: return "Bravery  or  madness;  to challenge  the  castle  is  both";
             }
         }
     }
