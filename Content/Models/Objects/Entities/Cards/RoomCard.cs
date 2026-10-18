@@ -28,17 +28,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             Texture2D      CardImage
             Rectangle      BoundingBox
         
+            int            _width
+            int            _height
         */
 
         public int Id { get; set; }
 
-        public int CardNumber { get; private set; }
+        public int CardNumber { get; private set; } // DEBUG
 
         public RoomCardEvent CardEvent { get; private set; }
-
-        private int _width;
-
-        private int _height;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public RoomCard(int cNr, Texture2D cardImage, RoomCardEvent cardEvent): base()
@@ -49,9 +47,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             CardEvent = cardEvent;
 
-            _width = 300;
-
-            _height = 370;
         }
 
         //============================================ METHODS ===================================================//

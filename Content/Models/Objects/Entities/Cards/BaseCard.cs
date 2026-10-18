@@ -29,6 +29,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         internal virtual Vector2 CardPosition { get; set; }
 
+        internal int _width = 300;
+
+        internal int _height = 370;
+
 
         //============================================ METHODS ===================================================//
 

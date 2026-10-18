@@ -1,10 +1,12 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace dragon_hoard.Content.Models.Managers
 {
@@ -28,17 +30,31 @@ namespace dragon_hoard.Content.Models.Managers
     {
         //========================================== PROPERTIES ==================================================//
 
+        private MainGame _game;
+
         public Stack<RoomTile> TileStack { get; private set; }
 
         private Random _randomizer;
 
         private int _totalTileCount;
 
-
+        // ROOMTILE EVENT IMAGES
+        private Texture2D _empty;
+        private Texture2D _exit;
+        private Texture2D _corridor;
+        private Texture2D _darkRoom;
+        private Texture2D _treasureRoom;
+        private Texture2D _rubble;
+        private Texture2D _bottomlessPit;
+        private Texture2D _bridgeRoom;
+        private Texture2D _webbedRoom;
+        private Texture2D _spinRoom;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomTileStack(Random random, int totalCount)
+        public RoomTileStack(MainGame game, Random random, int totalCount)
         {
+            _game = game;
+
             _randomizer = random;
 
             _totalTileCount = totalCount;
@@ -63,6 +79,9 @@ namespace dragon_hoard.Content.Models.Managers
             Load2DoorTextures();
 
             LoadDeadEndTextures();
+
+            // Load special RoomTile images
+            LoadRoomTileEventTextures();
 
             CreateStack();
 
@@ -103,6 +122,20 @@ namespace dragon_hoard.Content.Models.Managers
             // TODO
         }
 
+        private void LoadRoomTileEventTextures()
+        {
+            _empty = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_EmptyRoom");
+            _exit = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_ExitRoom");
+            _corridor = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_CorridorRoom");
+            _darkRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_DarkRoom");
+            _treasureRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_TreasureRoom");
+            _rubble = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_RubbleRoom");
+            _bottomlessPit = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_BottomlessPitRoom");
+            _bridgeRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_BridgeRoom");
+            _webbedRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_WebbedRoom");
+            _spinRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_SpinRoom");
+        }
+
         /*----------------------------------------------------------------------------------------------------------
                                                 Create Stack				   
         ------------------------------------------------------------------------------------------------------------
@@ -126,31 +159,32 @@ namespace dragon_hoard.Content.Models.Managers
             //    tiles.Add(new RoomTile(1, RoomType.Empty, 1));
             //}
 
-            tiles.Add(new RoomTile(1, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(2, RoomType.Corridor, 1));
-            tiles.Add(new RoomTile(3, RoomType.DarkRoom, 1));
-            tiles.Add(new RoomTile(4, RoomType.TreasureRoom, 1));
-            tiles.Add(new RoomTile(5, RoomType.Rubble, 1));
-            tiles.Add(new RoomTile(6, RoomType.TrapRoom, 1));
-            tiles.Add(new RoomTile(7, RoomType.BottomLessPit, 7));
-            tiles.Add(new RoomTile(8, RoomType.BridgeRoom, 7));
-            tiles.Add(new RoomTile(9, RoomType.WebbedRoom, 1));
-            tiles.Add(new RoomTile(10, RoomType.SpinRoom, 8));
-            tiles.Add(new RoomTile(11, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(12, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(13, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(14, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(15, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(16, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(17, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(18, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(19, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(20, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(21, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(22, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(23, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(24, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(25, RoomType.Empty, 1));
+            tiles.Add(new RoomTile(1, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(2, RoomType.Corridor, _corridor, 1));
+            tiles.Add(new RoomTile(3, RoomType.DarkRoom, _darkRoom, 1));
+            tiles.Add(new RoomTile(4, RoomType.TreasureRoom, _treasureRoom, 1));
+            tiles.Add(new RoomTile(5, RoomType.Rubble, _rubble, 1));
+            tiles.Add(new RoomTile(6, RoomType.TrapRoom,_empty,1));
+            tiles.Add(new RoomTile(7, RoomType.BottomLessPit, _bottomlessPit,7));
+            tiles.Add(new RoomTile(8, RoomType.BridgeRoom, _bridgeRoom,7));
+            tiles.Add(new RoomTile(9, RoomType.WebbedRoom, _webbedRoom,1));
+            tiles.Add(new RoomTile(10, RoomType.SpinRoom, _spinRoom,8));
+            tiles.Add(new RoomTile(11, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(12, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(13, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(14, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(15, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(16, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(17, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(18, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(19, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(20, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(21, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(22, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(23, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(24, RoomType.Empty, _empty, 1));
+            tiles.Add(new RoomTile(25, RoomType.Empty, _empty, 1));
+
 
             //TileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
             //TileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)

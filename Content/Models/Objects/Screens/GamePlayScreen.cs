@@ -71,6 +71,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private float _eventMessageTimer;
 
+        private Vector2 _eventMessagePosition;
+
         // DEBUG
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -117,6 +119,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _sunDial.Load(_sunDialPosition);
 
             _currentCardPosition = new Vector2(150, 120);
+
+            _eventMessagePosition = new Vector2(250, 400);
             IsContentLoaded = true;
 
 
@@ -192,15 +196,22 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 DrawMoveButtons(spriteBatch);
 
 
+
                 //DEBUG
-                if(_currentCard != null)
-                {
+                if (_currentRoom.RoomImage != null)
+                    spriteBatch.Draw(_currentRoom.RoomImage, _currentCardPosition, Color.White);
+                else
+                    //DEBUG
+                    spriteBatch.Draw(_ui.RectangleTexture, new Rectangle((int)_currentCardPosition.X, (int)_currentCardPosition.Y, 300, 370), Color.White);
+
+
+                if (_currentCard != null)
                     _currentCard.Draw(spriteBatch, _ui.Text);
 
-                    DrawEventMessage(spriteBatch, _gameSession.DisplayEventMessage, _gameSession.EventMessage, new Vector2(_currentCardPosition.X + (_gameSession.CurrentRoomCard.BoundingBox.Width / 2), _game.CenterY));
-                }
-                    
 
+
+
+                DrawEventMessage(spriteBatch, _gameSession.DisplayEventMessage, _gameSession.EventMessage, _eventMessagePosition);
                 DrawFlavorMessage(spriteBatch, _gameSession.DisplayFlavorMessage, _gameSession.FlavorMessage, new Vector2(_game.CenterX, _sunDial.Position.Y));
 
                 

@@ -105,7 +105,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             ExploredRooms = new List<RoomTile>();
 
-            RoomTileStack = new RoomTileStack(Randomizer, 25);
+            RoomTileStack = new RoomTileStack(_game, Randomizer, 25);
 
             RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
         }
@@ -252,7 +252,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (CurrentRoom.RoomType == RoomType.Empty)
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
-                DoRoomCardEvent(CurrentRoomCard);
+                //DoRoomCardEvent(CurrentRoomCard);
             }
 
             // If the RoomTile is a corridor, keep moving in an available direction.
@@ -277,6 +277,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // No RoomCard pulled.
                     // End turn
                     // Next turn roll to see which door to exit at
+                    EventMessage = "The room is pitch black";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TreasureRoom:
@@ -291,6 +293,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Do Card Event
                     // End turn
                     // Next turn try move: Success move direction. Failure remain in place. End turn
+                    EventMessage = "The room is full of rubble";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TrapRoom:
@@ -300,12 +304,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // End turn
 
                     // Trap event triggers only once upon 1st enter. Can't search in room: No RoomCard pulled.
+                    EventMessage = "A trap has triggered!";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BottomLessPit:
                     // No RoomCard pulled
                     // Roll T12 vs DEX. Success = Survive. Turn ends.  Failure = instant death
                     // If success: can proceed next turn.
+                    EventMessage = "A bottomless pit!";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BridgeRoom:
@@ -313,6 +321,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Move back or try cross bridge. If crossing bridge: T10 vs DEX. 
                     // If success: Turn ends. Next turn proceed.
                     // If failure: Instant death.
+                    EventMessage = "A narrow bridge over a dark pit";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.WebbedRoom:
@@ -321,6 +331,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Next turn either move back or try force way through webs. T12 vs. STR
                     // If success: Exit through door
                     // If failure: End turn. Try again next.
+                    EventMessage = "The room is full of spider webs";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.SpinRoom:
@@ -328,6 +340,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Exit changes 2 steps clockwise.
                     // Turn ends.
                     // Next turn: Proceed or search room (can do 2 times max, then death).
+                    EventMessage = "The room begins to turn";
+                    DisplayEventMessage = true;
                     break;
             }
         }// End -----------------------------------------------------------------------------------------------------

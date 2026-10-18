@@ -31,7 +31,9 @@ namespace dragon_hoard.Content.Models.Managers
         //========================================== PROPERTIES ==================================================//
         public Stack<RoomCard> CardStack { get; private set; }
 
-        private UiManager _ui;
+        private UiManager _ui;      //TODO Remove reference later?
+
+        private MainGame _game;
 
         private Random _randomizer;
 
@@ -42,7 +44,7 @@ namespace dragon_hoard.Content.Models.Managers
         
         // Containers
         private Texture2D _chest;
-        private Texture2D _sSarcophagus;
+        private Texture2D _sarcophagus;
         private Texture2D _fallenWarrior;
 
         // Traps
@@ -79,11 +81,12 @@ namespace dragon_hoard.Content.Models.Managers
         // private Texture2D _wayDown;
         // private Texture2D _reshuffle;
 
-
+       
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public RoomCardStack(UiManager uiManager, Random randomizer, int totalCardCount)
         {
             _ui = uiManager;
+
             _randomizer = randomizer;
 
             _totalCardCount = totalCardCount;
@@ -100,6 +103,7 @@ namespace dragon_hoard.Content.Models.Managers
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
+
             CreateStack();
 
         }// End -----------------------------------------------------------------------------------------------------
@@ -136,7 +140,7 @@ namespace dragon_hoard.Content.Models.Managers
 
             List<RoomCard> cards = new List<RoomCard>();
 
-            int cardNumber = 0;
+            //int cardNumber = 0;
             //for (int i = 0; i < _totalCardCount; i++)
             //{
             //    cards.Add(new RoomCard(cardNumber, _ui.RectangleTexture, RoomCardEvent.Empty));
@@ -180,8 +184,8 @@ namespace dragon_hoard.Content.Models.Managers
                 cards.RemoveAt(result);
             }
 
-
         }// End -----------------------------------------------------------------------------------------------------
+
         #endregion
     }
 }
