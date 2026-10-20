@@ -76,6 +76,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // Misc
         public int GameTurn { get; private set; }                   // The amount of game turns since start.
 
+        public RoomImage ImageDisplay { get; private set; }
 
         // Messages
         public bool DisplayFlavorMessage { get; set; }              // Flag switch for displaying 'flavor' message
@@ -108,6 +109,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             RoomTileStack = new RoomTileStack(_game, Randomizer, 25);
 
             RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
+
+            ImageDisplay = new RoomImage(_game);
         }
 
 
@@ -192,15 +195,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // DEBUG
         private void CreateTestInitialization()
         {
-            //CreateRoomTileStack(10, 13);
             RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
             GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 120);
             GameMap.Initialize();
+
+            ImageDisplay.Initialize(Randomizer);
+
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
+            ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
         }
 
         public void CreateTestRound()
@@ -252,18 +258,22 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (CurrentRoom.RoomType == RoomType.Empty)
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
-                //DoRoomCardEvent(CurrentRoomCard);
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+                DoRoomCardEvent(CurrentRoomCard);
             }
 
             // If the RoomTile is a corridor, keep moving in an available direction.
             else if(CurrentRoom.RoomType == RoomType.Corridor)
             {
                 //TODO: Allow extra movement (1 RoomTile)
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
             }
             // If the RoomTile has an event type of some kind, run the event.
             else
+            {
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
                 DoRoomTileEvent(CurrentRoom);
-
+            }
 
             SetPlayerCanMove(true);
         }
@@ -386,7 +396,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 #endregion
 
                 #region TRAPS -------------------------------------
-                case RoomCardEvent.PitTrap:
+                case RoomCardEvent.TrapDoor:
                     // DoTrapEvent
                     // End Turn
                     EventMessage = "TRAP!";
@@ -555,6 +565,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case 2: return "Take  heed  to  escape  the  castle  before  sunset,  for  none  have  survived  the  horrors  of  the  night.";
 
                 case 3: return "The  promise  of  wealth  beckons.  Lurking  close  behind  is  the  promise  of  peril.";
+
+                case 4: return "Night  draws  ever  closer,  as  another  hour  passes.";
 
                 default: return "Bravery  or  madness;  to challenge  the  castle  is  both";
             }

@@ -54,11 +54,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private SunDial _sunDial;
 
+        private RoomImage _imageDisplay;
+
         // FUNCTIONALITY
         private ClickButton _goUp;
         private ClickButton _goDown;
         private ClickButton _goLeft;
         private ClickButton _goRight;
+
+
+        private float _eventMessageTimer;
 
         // GRAPHICS
         //private Vector2 _mapPosition;
@@ -67,11 +72,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
         private Vector2 _sunDialPosition;
 
-        private Vector2 _currentCardPosition;
-
-        private float _eventMessageTimer;
+        private Vector2 _flavorMessagePosition;
 
         private Vector2 _eventMessagePosition;
+
+        private Vector2 _imageDisplayPosition;
 
         // DEBUG
 
@@ -106,6 +111,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             _eventMessageTimer = 3f;
 
+            _imageDisplay = _gameSession.ImageDisplay;
+
             // DEBUG
             CreateMoveButtons();
             //-------------------------------------------------
@@ -118,9 +125,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
             _sunDial.Load(_sunDialPosition);
 
-            _currentCardPosition = new Vector2(150, 120);
+            _flavorMessagePosition = new Vector2(_game.CenterX, _sunDial.Position.Y);
 
-            _eventMessagePosition = new Vector2(250, 400);
+            _eventMessagePosition = new Vector2(300, 550);
+
+            _imageDisplayPosition = new Vector2(150, 120);
+            
             IsContentLoaded = true;
 
 
@@ -146,15 +156,17 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 }
 
                 _currentRoom = _gameSession.CurrentRoom;
+
                 _sunDial.Update(gameTime, _gameSession.Randomizer);
+
                 _map.Update(gameTime);
+
                 _healthbar.Update(_character.CurrentHealth);
+
+                _imageDisplay.Update(gameTime, _imageDisplayPosition);
 
                 UpdateScreenButtons(gameTime, _gameSession.PlayerCanMove);
 
-                _currentCard = _gameSession.CurrentRoomCard;
-                if (_currentCard != null) 
-                    _currentCard.Update(_currentCardPosition);
 
                 // DEBUG
                 if(!string.IsNullOrEmpty(_gameSession.EventMessage) && _gameSession.DisplayEventMessage)
@@ -189,33 +201,23 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 _sunDial.Draw(spriteBatch);
 
                 _map.Draw(spriteBatch);
+
                 _healthbar.Draw(spriteBatch);
 
                 spriteBatch.Draw(_ui.RectangleTexture, _currentRoom.MiniSquare, Color.White);
                 
                 DrawMoveButtons(spriteBatch);
 
-
+                _imageDisplay.Draw(spriteBatch);
 
                 //DEBUG
-                if (_currentRoom.RoomImage != null)
-                    spriteBatch.Draw(_currentRoom.RoomImage, _currentCardPosition, Color.White);
-                else
-                    //DEBUG
-                    spriteBatch.Draw(_ui.RectangleTexture, new Rectangle((int)_currentCardPosition.X, (int)_currentCardPosition.Y, 300, 370), Color.White);
 
-
-                if (_currentCard != null)
-                    _currentCard.Draw(spriteBatch, _ui.Text);
-
-
-
+                //if (_currentCard != null)
+                //    _currentCard.Draw(spriteBatch, _ui.Text);
 
                 DrawEventMessage(spriteBatch, _gameSession.DisplayEventMessage, _gameSession.EventMessage, _eventMessagePosition);
-                DrawFlavorMessage(spriteBatch, _gameSession.DisplayFlavorMessage, _gameSession.FlavorMessage, new Vector2(_game.CenterX, _sunDial.Position.Y));
 
-                
-
+                DrawFlavorMessage(spriteBatch, _gameSession.DisplayFlavorMessage, _gameSession.FlavorMessage, _flavorMessagePosition);
             }
 
             base.Draw(spriteBatch);
@@ -449,6 +451,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             bool displayCardEvent = true;
 
+            bool displayRoomTileEvent = true;
+
             if (showContentLoaded)
             {
                 spriteBatch.DrawString(_ui.DebugText, $"Content loaded: {IsContentLoaded}",
@@ -518,7 +522,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             }
 
             if(displayCardEvent && _currentCard != null)
-                spriteBatch.DrawString(_ui.DebugText, $"Event: {_currentCard.CardEvent}", new Vector2(_currentCardPosition.X + 10, _currentCardPosition.Y + 25), Color.Black);
+                spriteBatch.DrawString(_ui.DebugText, $"Event: {_currentCard.CardEvent}", new Vector2(200,  550), Color.Yellow);
+
+            if(displayRoomTileEvent)
+                spriteBatch.DrawString(_ui.DebugText, $"RooMTileEvent: {_gameSession.CurrentRoom.RoomType}", new Vector2(200, 650), Color.Magenta);
         }// End -----------------------------------------------------------------------------------------------------
         #endregion
 

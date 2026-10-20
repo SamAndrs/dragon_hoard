@@ -16,7 +16,7 @@ namespace dragon_hoard.Content.Models.Enums
         FallenWarrior,
 
         // Traps
-        PitTrap,
+        TrapDoor,
         SpearTrap,
         CaveIn,
         WallArrows,

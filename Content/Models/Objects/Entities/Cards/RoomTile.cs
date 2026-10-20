@@ -55,8 +55,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Rectangle MiniSquare { get; private set; }   // Tile representation on minimap
 
-        public Texture2D RoomImage { get; private set; }    // GamePlayScreen visual representation
-
         private Color _miniSquareColor;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -78,7 +76,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         }
 
         // For RoomTile Stack
-        public RoomTile(int tileId, RoomType roomType, Texture2D roomImage, int doorValue)
+        public RoomTile(int tileId, RoomType roomType, int doorValue)
         //public RoomTile(int tileId, Texture2D roomImage, RoomType roomType, int doorValue)
         {
             TileId = tileId;
@@ -88,8 +86,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             DoorValue = doorValue;
 
             //Doors = doors;
-
-            RoomImage = roomImage;
         }
 
 
