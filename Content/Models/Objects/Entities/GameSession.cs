@@ -76,6 +76,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // Misc
         public int GameTurn { get; private set; }                   // The amount of game turns since start.
 
+        public RoomImage ImageDisplay { get; private set; }
 
         // Messages
         public bool DisplayFlavorMessage { get; set; }              // Flag switch for displaying 'flavor' message
@@ -105,9 +106,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             ExploredRooms = new List<RoomTile>();
 
-            RoomTileStack = new RoomTileStack(Randomizer, 25);
+            RoomTileStack = new RoomTileStack(_game, Randomizer, 25);
 
             RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
+
+            ImageDisplay = new RoomImage(_game);
         }
 
 
@@ -192,15 +195,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // DEBUG
         private void CreateTestInitialization()
         {
-            //CreateRoomTileStack(10, 13);
             RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
             GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 120);
             GameMap.Initialize();
+
+            ImageDisplay.Initialize(Randomizer);
+
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
+            ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
         }
 
         public void CreateTestRound()
@@ -252,6 +258,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (CurrentRoom.RoomType == RoomType.Empty)
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
                 DoRoomCardEvent(CurrentRoomCard);
             }
 
@@ -259,11 +266,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             else if(CurrentRoom.RoomType == RoomType.Corridor)
             {
                 //TODO: Allow extra movement (1 RoomTile)
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
             }
             // If the RoomTile has an event type of some kind, run the event.
             else
+            {
+                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
                 DoRoomTileEvent(CurrentRoom);
-
+            }
 
             SetPlayerCanMove(true);
         }
@@ -277,6 +287,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // No RoomCard pulled.
                     // End turn
                     // Next turn roll to see which door to exit at
+                    EventMessage = "The room is pitch black";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TreasureRoom:
@@ -291,6 +303,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Do Card Event
                     // End turn
                     // Next turn try move: Success move direction. Failure remain in place. End turn
+                    EventMessage = "The room is full of rubble";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TrapRoom:
@@ -300,12 +314,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // End turn
 
                     // Trap event triggers only once upon 1st enter. Can't search in room: No RoomCard pulled.
+                    EventMessage = "A trap has triggered!";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BottomLessPit:
                     // No RoomCard pulled
                     // Roll T12 vs DEX. Success = Survive. Turn ends.  Failure = instant death
                     // If success: can proceed next turn.
+                    EventMessage = "A bottomless pit!";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BridgeRoom:
@@ -313,6 +331,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Move back or try cross bridge. If crossing bridge: T10 vs DEX. 
                     // If success: Turn ends. Next turn proceed.
                     // If failure: Instant death.
+                    EventMessage = "A narrow bridge over a dark pit";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.WebbedRoom:
@@ -321,6 +341,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Next turn either move back or try force way through webs. T12 vs. STR
                     // If success: Exit through door
                     // If failure: End turn. Try again next.
+                    EventMessage = "The room is full of spider webs";
+                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.SpinRoom:
@@ -328,6 +350,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Exit changes 2 steps clockwise.
                     // Turn ends.
                     // Next turn: Proceed or search room (can do 2 times max, then death).
+                    EventMessage = "The room begins to turn";
+                    DisplayEventMessage = true;
                     break;
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -372,7 +396,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 #endregion
 
                 #region TRAPS -------------------------------------
-                case RoomCardEvent.PitTrap:
+                case RoomCardEvent.TrapDoor:
                     // DoTrapEvent
                     // End Turn
                     EventMessage = "TRAP!";
@@ -541,6 +565,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case 2: return "Take  heed  to  escape  the  castle  before  sunset,  for  none  have  survived  the  horrors  of  the  night.";
 
                 case 3: return "The  promise  of  wealth  beckons.  Lurking  close  behind  is  the  promise  of  peril.";
+
+                case 4: return "Night  draws  ever  closer,  as  another  hour  passes.";
 
                 default: return "Bravery  or  madness;  to challenge  the  castle  is  both";
             }

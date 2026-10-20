@@ -1,10 +1,12 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace dragon_hoard.Content.Models.Managers
 {
@@ -28,17 +30,21 @@ namespace dragon_hoard.Content.Models.Managers
     {
         //========================================== PROPERTIES ==================================================//
 
+        private MainGame _game;
+
         public Stack<RoomTile> TileStack { get; private set; }
 
         private Random _randomizer;
 
         private int _totalTileCount;
 
-
+        
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomTileStack(Random random, int totalCount)
+        public RoomTileStack(MainGame game, Random random, int totalCount)
         {
+            _game = game;
+
             _randomizer = random;
 
             _totalTileCount = totalCount;
@@ -103,6 +109,8 @@ namespace dragon_hoard.Content.Models.Managers
             // TODO
         }
 
+       
+
         /*----------------------------------------------------------------------------------------------------------
                                                 Create Stack				   
         ------------------------------------------------------------------------------------------------------------
@@ -129,16 +137,16 @@ namespace dragon_hoard.Content.Models.Managers
             tiles.Add(new RoomTile(1, RoomType.Empty, 1));
             tiles.Add(new RoomTile(2, RoomType.Corridor, 1));
             tiles.Add(new RoomTile(3, RoomType.DarkRoom, 1));
-            tiles.Add(new RoomTile(4, RoomType.TreasureRoom, 1));
+            tiles.Add(new RoomTile(4, RoomType.TreasureRoom,  1));
             tiles.Add(new RoomTile(5, RoomType.Rubble, 1));
-            tiles.Add(new RoomTile(6, RoomType.TrapRoom, 1));
+            tiles.Add(new RoomTile(6, RoomType.TrapRoom,1));
             tiles.Add(new RoomTile(7, RoomType.BottomLessPit, 7));
             tiles.Add(new RoomTile(8, RoomType.BridgeRoom, 7));
             tiles.Add(new RoomTile(9, RoomType.WebbedRoom, 1));
             tiles.Add(new RoomTile(10, RoomType.SpinRoom, 8));
-            tiles.Add(new RoomTile(11, RoomType.Empty, 1));
+            tiles.Add(new RoomTile(11, RoomType.Empty,  1));
             tiles.Add(new RoomTile(12, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(13, RoomType.Empty, 1));
+            tiles.Add(new RoomTile(13, RoomType.Empty,  1));
             tiles.Add(new RoomTile(14, RoomType.Empty, 1));
             tiles.Add(new RoomTile(15, RoomType.Empty, 1));
             tiles.Add(new RoomTile(16, RoomType.Empty, 1));
@@ -151,6 +159,7 @@ namespace dragon_hoard.Content.Models.Managers
             tiles.Add(new RoomTile(23, RoomType.Empty, 1));
             tiles.Add(new RoomTile(24, RoomType.Empty, 1));
             tiles.Add(new RoomTile(25, RoomType.Empty, 1));
+
 
             //TileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
             //TileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)

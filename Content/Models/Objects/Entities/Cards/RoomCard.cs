@@ -28,58 +28,29 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             Texture2D      CardImage
             Rectangle      BoundingBox
         
+            int            _width
+            int            _height
         */
 
         public int Id { get; set; }
 
-        public int CardNumber { get; private set; }
+        public int CardNumber { get; private set; } // DEBUG
 
         public RoomCardEvent CardEvent { get; private set; }
 
-        private int _width;
-
-        private int _height;
-
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomCard(int cNr, Texture2D cardImage, RoomCardEvent cardEvent): base()
+        public RoomCard(int cNr, RoomCardEvent cardEvent): base()
         {
             CardNumber = cNr; // DEBUG
 
-            CardImage = cardImage;
-
             CardEvent = cardEvent;
 
-            _width = 300;
-
-            _height = 370;
         }
 
         //============================================ METHODS ===================================================//
         #region methods
 
 
-        /*----------------------------------------------------------------------------------------------------------
-                                                  Update				   
-        ------------------------------------------------------------------------------------------------------------
-           - Class specific method.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void Update(Vector2 position)
-        {
-            BoundingBox = new Rectangle((int)position.X, (int)position.Y, _width, _height);
-        }// End -----------------------------------------------------------------------------------------------------
-
-        /*----------------------------------------------------------------------------------------------------------
-                                                  Draw				   
-        ------------------------------------------------------------------------------------------------------------
-           - Class specific method.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void Draw(SpriteBatch spriteBatch, SpriteFont font)
-        {
-            spriteBatch.Draw(CardImage, BoundingBox, Color.White);
-            //spriteBatch.DrawString(font, $"CardNumber: {CardNumber}", new Vector2(BoundingBox.Width/2, BoundingBox.Height/2), Color.Black);
-            spriteBatch.DrawString(font, $"CardNumber: {CardNumber}", new Vector2(BoundingBox.X + 10, BoundingBox.Y + (_height/2)), Color.Black);
-
-        }// End -----------------------------------------------------------------------------------------------------
         #endregion
     }
 }

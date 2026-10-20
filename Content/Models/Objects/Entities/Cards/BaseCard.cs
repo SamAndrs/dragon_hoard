@@ -27,7 +27,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         internal virtual Rectangle BoundingBox { get; set; }
 
-        internal virtual Vector2 CardPosition { get; set; }
+        internal int _width = 307;
+
+        internal int _height = 461;
 
 
         //============================================ METHODS ===================================================//
