@@ -31,6 +31,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         :: DONE ---------------------------
             (2026)
+            v.001d /10/17) Remade RoomTile stack into a class of its own. Added RoomCard event functionality.
             v.001c (10/15) Addition of properties for the Flavor message functionality.
             v.001b (10/12) Additions to facilitate RoomTile system functionality.
             v.001a (10/07) Setup of basic core properties and methods.
@@ -87,7 +88,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         
         // CARD STACKS
-        public Stack<RoomTile> RoomTileStack { get; private set; }   //TODO turn into a proper class?
+        public RoomTileStack RoomTileStack { get; private set; }
 
         public RoomCardStack RoomCardStack { get; private set; }
 
@@ -103,6 +104,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Randomizer = new Random();
 
             ExploredRooms = new List<RoomTile>();
+
+            RoomTileStack = new RoomTileStack(Randomizer, 25);
 
             RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
         }
@@ -189,7 +192,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // DEBUG
         private void CreateTestInitialization()
         {
-            CreateRoomTileStack(10, 13);
+            //CreateRoomTileStack(10, 13);
+            RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
@@ -226,7 +230,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (nextTile.RoomType == RoomType.Undiscovered)
             {
                 // Pull next RoomTile from the stack
-                RoomTile fromStack = RoomTileStack.Pop();
+                RoomTile fromStack = RoomTileStack.PullTile();
 
                 // Update the new RoomTile's information.
                 nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue);
@@ -326,7 +330,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Next turn: Proceed or search room (can do 2 times max, then death).
                     break;
             }
-        }
+        }// End -----------------------------------------------------------------------------------------------------
+
 
         private void DoRoomCardEvent(RoomCard roomCard)
         {
@@ -521,34 +526,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     break;
                 #endregion
             }
-        }
-       
-        private void CreateRoomTileStack(int rows, int columns)
-        {
-            int amount = (rows * columns)/2;
-            RoomTileStack = new Stack<RoomTile>();
-            for (int i = 0; i < amount; i++)
-            {
-                RoomTileStack.Push(new RoomTile(1, RoomType.Empty, 1));
-                //    RoomTileStack.Push(new RoomTile(i, RoomType.Empty, 74, new bool[4] { true, false, false, true }));
-            }
-
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 4)); // (entrance, up, down)
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 7)); //(entrance, down, opposite end)
-
-            //RoomTileStack.Push(new RoomTile(2, RoomType.Empty, 2, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(3, RoomType.TrapRoom, 3, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(4, RoomType.WebbedRoom, 4, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(5, RoomType.Empty, 5, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(6, RoomType.BridgeRoom, 6, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(7, RoomType.Empty, 7, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(8, RoomType.Rubble, 8, new bool[4] { false, false, false, false }));
-            //RoomTileStack.Push(new RoomTile(9, RoomType.DarkRoom, 1, new bool[4] { false, false, false, false }));
-        }
-
+        }// End -----------------------------------------------------------------------------------------------------
 
         private string RandomFlavorMessage(Random randomizer)
         {
@@ -566,6 +544,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
                 default: return "Bravery  or  madness;  to challenge  the  castle  is  both";
             }
-        }
+        }// End -----------------------------------------------------------------------------------------------------
     }
 }

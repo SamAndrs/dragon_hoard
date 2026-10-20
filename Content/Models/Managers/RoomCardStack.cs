@@ -95,7 +95,8 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                  Initialize				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method.
+          - Class specific method. Loads all the necessary textures and delegates the creation of the stack of
+            RoomCards to sub-method.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
@@ -107,7 +108,7 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                 Pull Card				   
         ------------------------------------------------------------------------------------------------------------
-         - Class specific method.
+         - Class specific method. Returns the topmost RoomCard of the stack of cards.
         ----------------------------------------------------------------------------------------------------------*/
         public RoomCard PullCard()
         {
@@ -121,7 +122,10 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                 Create Stack				   
         ------------------------------------------------------------------------------------------------------------
-         - Class specific method.
+         - Class specific method. TODO: Fetch all cards in database.
+            Places all available cards in a temporary list then uses for x[_totalCardCount] amount of times
+            randomly picks a card to push onto the card stack.
+            IMPORTANT! [_totalCardCount] must not exceed the number of actual RoomCard objects in the database.
         ----------------------------------------------------------------------------------------------------------*/
         private void CreateStack()
         {
