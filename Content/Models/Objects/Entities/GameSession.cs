@@ -1,6 +1,7 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
 
-            ImageDisplay = new RoomImage(_game);
+            ImageDisplay = new RoomImage(_game, Randomizer);
         }
 
 
@@ -219,11 +220,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
-            GameMap = new GameMap(10, 13, _ui.RectangleTexture);
-            GameMap.MapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 220);
-            GameMap.Initialize(GameMap.MapPosition);
-
-            ImageDisplay.Initialize(Randomizer);
+            GameMap = new GameMap(10, 13);
+            GameMap.Initialize();
 
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();

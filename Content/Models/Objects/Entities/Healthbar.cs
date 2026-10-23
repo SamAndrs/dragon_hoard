@@ -30,15 +30,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private Texture2D _barImage;
 
-        public Vector2 Position { get; private set; }
+        private Point _position;
 
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public Healthbar(UiManager uiManager, Vector2 position)
+        public Healthbar(UiManager uiManager, Point position)
         {
             _ui = uiManager;
-            Position = position;
+            _position = position;
         }
 
         //============================================ METHODS ===================================================//
@@ -67,10 +67,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
 
                 //spriteBatch.Draw(_barImage, _healthBoxes[i], Color.Red);
-                spriteBatch.Draw(_barImage, new Rectangle((int)Position.X, (int)Position.Y - i * (_healthBoxSize + 3), _healthBoxSize, _healthBoxSize), Color.DarkBlue);
+                spriteBatch.Draw(_barImage, new Rectangle((int)_position.X, (int)_position.Y - i * (_healthBoxSize + 3), _healthBoxSize, _healthBoxSize), Color.DarkBlue);
 
                 if (i <= _currentHealth)
-                    spriteBatch.Draw(_barImage, new Rectangle((int)Position.X, (int)Position.Y - i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
+                    spriteBatch.Draw(_barImage, new Rectangle((int)_position.X, (int)_position.Y - i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
 
                 
             }

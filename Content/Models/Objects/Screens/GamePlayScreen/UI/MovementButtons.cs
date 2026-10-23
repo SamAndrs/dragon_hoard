@@ -78,7 +78,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                       Load					   
         ------------------------------------------------------------------------------------------------------------
-         - Description
+         - Class method for loading and initiating the movement buttons specific UI content and 
+            assosciated resources.
         ----------------------------------------------------------------------------------------------------------*/
         public void Load(Point position)
         {

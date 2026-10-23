@@ -10,11 +10,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
     ///////////////////////////////////////// GAME MAP CLASS ///////////////////////////////////////////////
     /*
         - Data container class for game map information and functionality.
-            Consists of a (default) 12x15 grid of RoomTile objects. Two rows and two columns make up the untraceable 
-            outer wall (save for the four corners which acts as starting- and exit squares).
+            Consists of a (default) 12x15 grid of RoomTile objects. Two rows and two columns make up the 
+            untraversable outer wall.
+            The 4 corners of the GameMap grid proper acts as starting- and exit squares.
              
-        
-            
     :: TODO ---------------------------
         
         
@@ -44,18 +43,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         //public Vector2 MapPosition { get; set; }                // Position of the map on the screen
         public Point MapPosition { get; set; }
 
-        public Texture2D SquareTexture { get; private set; }    // Texture used to draw squares on the minimap
-
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public GameMap(int rows, int columns, Texture2D squareTexture)
+        public GameMap(int rows, int columns)
         {
             // Add 2 rows and columns for outer walls & exit rooms.
             Rows = rows +2;
             Columns = columns +2;
 
             _mapGrid = new RoomTile[Rows, Columns];
-            SquareTexture = squareTexture;
         }
 
 
@@ -70,14 +66,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Each RoomTile is assigned a position on the map is calculated 
             based on its row and column on the grid.	
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize(Point position)
+        public void Initialize()
         {
             // Loop through the rows and columns of the map grid to create Room objects
             for (int row = 0; row < Rows; row++)
             {
                 for (int col = 0; col < Columns; col++)
                 {
-                    _mapGrid[row, col] = CreateRoom(position, row, col, 15);
+                    _mapGrid[row, col] = CreateRoom(row, col, 15);
                 }
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -90,11 +86,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            foreach (var roomTile in _mapGrid)
-            {
-                roomTile.Update(gameTime);
-
-            }
+            
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -105,39 +97,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void DrawGameMap(SpriteBatch spriteBatch)
         {
-          //foreach (var room in _mapGrid)
-          //      room.DrawOnMiniMap(spriteBatch, SquareTexture);
-
+          
           
 
-        }// End -----------------------------------------------------------------------------------------------------
-
-
-
-        /*----------------------------------------------------------------------------------------------------------
-                                               Draw Mini Map			   
-        ------------------------------------------------------------------------------------------------------------
-        - Main public method to draw a mini map on the GamePlayScreen.
-        ----------------------------------------------------------------------------------------------------------*/
-        //public void DrawMiniMap(SpriteBatch spriteBatch, Point position)
-        public void DrawMiniMap(SpriteBatch spriteBatch)
-        {
-            //Point calcPos;
-            //int posX = position.X;
-            //int posY = position.Y;
-            //for(int row = 0; row < Rows; row++)
-            //{
-            //    for (int col =0; col < Columns; col++)
-            //    {
-            //        posX = position.X * row;
-            //        posY = position.Y * col;
-            //        calcPos = new Point(posX, posY);
-            //        _mapGrid[row, col].DrawOnMiniMap(spriteBatch, SquareTexture, calcPos);
-            //    }
-            //}
-
-            foreach (var room in _mapGrid)
-                room.DrawOnMiniMap(spriteBatch, SquareTexture);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -150,30 +112,20 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             certain conditions.
             Sets initial properties such as the position of the room's 'texture square' on the minimap and its type.
         ----------------------------------------------------------------------------------------------------------*/
-        private RoomTile CreateRoom(Point position, int row, int col, int squareSize)
+        private RoomTile CreateRoom(int row, int col, int squareSize)
         {
-            //int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
-            //int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
-
-            int mapPosX = (int)position.X + col * (squareSize + 3);
-            int mapPosY = (int)position.Y + row * (squareSize + 3);
-
-            //Vector2 position = new Vector2(mapPosX, mapPosY);
-            Vector2 roomPosition = new Vector2(mapPosX, mapPosY);
-
             // Default room for every position.
-            //RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, position);
-            RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, roomPosition);
+            RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize);
 
             // Outer walls.
             if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)
-                newRoom = new RoomTile(RoomType.OuterWall, row, col, squareSize, new Vector2(mapPosX, mapPosY));
+                newRoom = new RoomTile(RoomType.OuterWall, row, col, squareSize);
 
             // Exits - If room is a corner, set it as an exit;
             else if ((row == 1 || row == Rows - 2) && (col == 1 || col == Columns -2 ) )
             {
                 // If room is a corner, set it as an exit;
-                newRoom = new RoomTile(RoomType.Exit, row, col, squareSize, new Vector2(mapPosX, mapPosY));
+                newRoom = new RoomTile(RoomType.Exit, row, col, squareSize);
                 CreateExitDoors(newRoom);
             }
             

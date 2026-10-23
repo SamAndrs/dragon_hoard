@@ -41,7 +41,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private Texture2D _sunSkull;
 
-        public Vector2 Position { get; set; }
+        private Point _position;
 
         private int _iconSize;
 
@@ -74,12 +74,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
           - Class specific method. Initializes the array of rectangles for the position of the sun icons.
             Also ensures they are visible at start.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Load(Vector2 setPosition)
+        public void Load(Point position)
         {
-            Position = setPosition;
+            _position = position;
             for (int i = 0; i < Steps.Length; i++)
             {
-                Steps[i] = new Rectangle((int)Position.X + (i * 36), (int)Position.Y,_iconSize,_iconSize);
+                Steps[i] = new Rectangle((int)_position.X + (i * 36), (int)_position.Y,_iconSize,_iconSize);
             }
 
             _isVisible = true;

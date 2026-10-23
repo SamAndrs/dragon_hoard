@@ -102,7 +102,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                       Update					   
         ------------------------------------------------------------------------------------------------------------
-         - Description
+         - Class method to update represented player character property values.
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {

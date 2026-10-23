@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace dragon_hoard.Content.Models.Objects.Entities
+namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 {
     //////////////////////////////////////////// ROOM IMAGE CLASS /////////////////////////////////////////////////////
     /*
@@ -43,7 +43,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private Random _random;
 
-        public Vector2 Position { get; set; }
+        private Point _position;
 
         public Texture2D CurrentImage { get; private set; }
 
@@ -116,7 +116,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomImage(MainGame game)
+        public RoomImage(MainGame game, Random randomizer)
         {
             _game = game;
 
@@ -124,6 +124,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             Height = 461;
 
+            _random = randomizer;
+
+            CurrentImage = _exit;
+
+            LoadRoomTileEventTextures();
+
+            LoadRoomCardEventTextures();
         }
 
 
@@ -136,34 +143,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
           - Class specific method. Loads all the necessary textures and delegates the creation of the stack of
             RoomTiles to sub-method.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize(Random randomizer)
+        public void Initialize(Point position)
         {
-            Position = new Vector2(0, 0);
-            _imageBox = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
-
-            _random = randomizer;
-
-            CurrentImage = _exit;
-
-            LoadRoomTileEventTextures();
-
-            LoadRoomCardEventTextures();
-
+            _position = position;
+            _imageBox = new Rectangle(position.X, position.Y, Width, Height);
         }// End -----------------------------------------------------------------------------------------------------
 
-
-        /*----------------------------------------------------------------------------------------------------------
-                                                 Update				   
-        ------------------------------------------------------------------------------------------------------------
-          - Class specific method for updating the position of the image display on the GamePlayScreen.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void Update(GameTime gameTime, Vector2 position)
-        {
-            _imageBox = new Rectangle((int)position.X, (int)position.Y, Width, Height);
-
-        }// End -----------------------------------------------------------------------------------------------------
-
-
+             
         /*----------------------------------------------------------------------------------------------------------
                                                  Draw				   
         ------------------------------------------------------------------------------------------------------------

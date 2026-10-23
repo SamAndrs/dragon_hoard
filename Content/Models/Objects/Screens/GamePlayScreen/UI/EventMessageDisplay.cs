@@ -15,6 +15,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
     :: TODO ---------------------------
 
+        * Add strings for RoomCard events.
+        * Read strings from database?
+        * Modify the length of textlines automatically based on size.
+        * Add support for TrapCard events.
 
     :: DONE ---------------------------
         v.001a (10/23) Setup of basic core properties and methods.
@@ -62,7 +66,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                        Load					   
         ------------------------------------------------------------------------------------------------------------
-          - Description
+          - Class method for setting up the properties of the message display. 
         ----------------------------------------------------------------------------------------------------------*/
         public void Load(Point position)
         {
@@ -80,7 +84,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                        Update					   
         ------------------------------------------------------------------------------------------------------------
-          - Description
+          - Class method for updating the display message based on RoomTile type or RoomCarde event type.
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
@@ -92,7 +96,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                        Draw					   
         ------------------------------------------------------------------------------------------------------------
-          - Description
+          - Class method for drawing the event message onto the screen, upon a background texture.
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -105,7 +109,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         /*----------------------------------------------------------------------------------------------------------
                                                       Return Message					   
         ------------------------------------------------------------------------------------------------------------
-         - Description
+         - Class support method for returning an event message.
+            If there is no RoomCard or the RoomCard is of the 'Empty' variety, then a message based on the
+            [RoomType] of the current RoomTile is returned.
+            Otherwise a message based on the current RoomCard [CardEvent] is returned.
         ----------------------------------------------------------------------------------------------------------*/
         private string ReturnTileMessage(RoomType tileEvent, RoomCard currentCard)
         {
@@ -140,12 +147,63 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             }
             else
                 return ReturnCardMessage(currentCard);
-        }
+        }// End -----------------------------------------------------------------------------------------------------
 
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Return Card Message				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class support method. Returns an event message based on the current RoomCard [CardEvent] type.
+        ----------------------------------------------------------------------------------------------------------*/
         private string ReturnCardMessage(RoomCard currentCard)
         {
-            return string.Empty;
-        }
+            return string.Empty; //TODO
+
+            /*
+                 // Containers
+        Chest,
+        Sarcophagus,
+        FallenWarrior,
+
+        // Item
+        Item,
+
+        // Traps
+        TrapDoor,
+        SpearTrap,
+        CaveIn,
+        WallArrows,
+
+        // Damage
+        VampireBats,
+
+        // Ambush
+        AmbushSkeleton,
+        AmbushOgre,
+        AmbushOrc,
+
+        // Monsters (static)
+        GiantSpider,
+        PosionCaterpillar,
+        CorpseEaters,
+
+        // Monsters (dynamic)
+        Darkelf,
+        Ogre,
+        Skeleton,
+        Orc,
+        TwoOrcs,
+
+        // Special events
+        TorchOut,
+        CurseOfMadMage,
+        PursuingShadow,
+        // Reshuffle,
+        // WayDown,
+             */
+        }// End -----------------------------------------------------------------------------------------------------
+
 
         /*----------------------------------------------------------------------------------------------------------
                                                        Method					   
@@ -155,7 +213,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
 
 
-                        // End -----------------------------------------------------------------------------------------------------
-                        #endregion
-                }
-            }
+        // End -----------------------------------------------------------------------------------------------------
+        #endregion
+    }
+}
