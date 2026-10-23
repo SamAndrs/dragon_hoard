@@ -41,7 +41,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         // GRAPHICS
-        public Vector2 MapPosition { get; set; }                // Position of the map on the screen
+        //public Vector2 MapPosition { get; set; }                // Position of the map on the screen
+        public Point MapPosition { get; set; }
 
         public Texture2D SquareTexture { get; private set; }    // Texture used to draw squares on the minimap
 
@@ -69,14 +70,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Each RoomTile is assigned a position on the map is calculated 
             based on its row and column on the grid.	
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize()
+        public void Initialize(Point position)
         {
             // Loop through the rows and columns of the map grid to create Room objects
             for (int row = 0; row < Rows; row++)
             {
                 for (int col = 0; col < Columns; col++)
                 {
-                    _mapGrid[row, col] = CreateRoom(row, col, 15);
+                    _mapGrid[row, col] = CreateRoom(position, row, col, 15);
                 }
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -98,17 +99,45 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                               Draw					   
+                                               Draw Game Map			   
         ------------------------------------------------------------------------------------------------------------
         - Main public method to draw game map on the screen.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Draw(SpriteBatch spriteBatch)
+        public void DrawGameMap(SpriteBatch spriteBatch)
         {
-          foreach (var room in _mapGrid)
-                room.DrawOnMiniMap(spriteBatch, SquareTexture);
+          //foreach (var room in _mapGrid)
+          //      room.DrawOnMiniMap(spriteBatch, SquareTexture);
 
           
 
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                               Draw Mini Map			   
+        ------------------------------------------------------------------------------------------------------------
+        - Main public method to draw a mini map on the GamePlayScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        //public void DrawMiniMap(SpriteBatch spriteBatch, Point position)
+        public void DrawMiniMap(SpriteBatch spriteBatch)
+        {
+            //Point calcPos;
+            //int posX = position.X;
+            //int posY = position.Y;
+            //for(int row = 0; row < Rows; row++)
+            //{
+            //    for (int col =0; col < Columns; col++)
+            //    {
+            //        posX = position.X * row;
+            //        posY = position.Y * col;
+            //        calcPos = new Point(posX, posY);
+            //        _mapGrid[row, col].DrawOnMiniMap(spriteBatch, SquareTexture, calcPos);
+            //    }
+            //}
+
+            foreach (var room in _mapGrid)
+                room.DrawOnMiniMap(spriteBatch, SquareTexture);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -121,15 +150,20 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             certain conditions.
             Sets initial properties such as the position of the room's 'texture square' on the minimap and its type.
         ----------------------------------------------------------------------------------------------------------*/
-        private RoomTile CreateRoom(int row, int col, int squareSize)
+        private RoomTile CreateRoom(Point position, int row, int col, int squareSize)
         {
-            int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
-            int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
+            //int mapPosX = (int)MapPosition.X + col * (squareSize + 3);
+            //int mapPosY = (int)MapPosition.Y + row * (squareSize + 3);
 
-            Vector2 position = new Vector2(mapPosX, mapPosY);
+            int mapPosX = (int)position.X + col * (squareSize + 3);
+            int mapPosY = (int)position.Y + row * (squareSize + 3);
+
+            //Vector2 position = new Vector2(mapPosX, mapPosY);
+            Vector2 roomPosition = new Vector2(mapPosX, mapPosY);
 
             // Default room for every position.
-            RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, position);
+            //RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, position);
+            RoomTile newRoom = new RoomTile(RoomType.Undiscovered, row, col, squareSize, roomPosition);
 
             // Outer walls.
             if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)

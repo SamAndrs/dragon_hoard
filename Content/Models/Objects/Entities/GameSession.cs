@@ -50,7 +50,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public Random Randomizer { get; private set; }
 
-        public PlayerCharacter PlayerCharacter { get;  set; }
+        public Player CurrentPlayer { get; private set; }           // TODO
+
+        public PlayerCharacter PlayerCharacter { get; set; }
 
         // Game- / mini map
         public Direction MoveDirection { get; set; }
@@ -58,6 +60,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         public GameMap GameMap { get; private set; }
 
         public List<RoomTile> ExploredRooms { get; private set; }   // What rooms the player have visited.
+
+        public RoomTile PreviousRoom { get; private set; }
 
         public RoomTile CurrentRoom { get; private set; }           // The current room in which the player resides.
 
@@ -70,8 +74,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public bool PlayerCanMove { get; private set; }            // Determine if the player can progress to another room.
 
-        public int PlayerCanSearch { get; private set; }          // Determine amount of times left the player can search a room.
-         
+        public int PlayerCanSearch { get; private set; }           // Determine amount of times left the player can search a room.
+        
+        public bool PlayerInCombat { get; private set; }           // Flag for if the player character is fighting.
+
+        public int CombatRound {  get; private set; }              // Current round of combat
         
         // Misc
         public int GameTurn { get; private set; }                   // The amount of game turns since start.
@@ -96,11 +103,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public RoomCard CurrentRoomCard { get; private set; }
 
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GameSession(MainGame game, UiManager ui)
         {
             _game = game;
             _ui = ui;
+
+            // CurrentPlayer = player;
 
             Randomizer = new Random();
 
@@ -173,6 +183,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         public void SetCurrentRoom(RoomTile roomTile) => CurrentRoom = roomTile;
         // End -----------------------------------------------------------------------------------------------------
 
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                      Set Previous Room					   
+       ------------------------------------------------------------------------------------------------------------
+         - Class specific method to assign the PreviousRoom property the current RoomTile object.
+       ----------------------------------------------------------------------------------------------------------*/
+        public void SetPreviousRoom(RoomTile roomTile) => PreviousRoom = roomTile;
+        // End -----------------------------------------------------------------------------------------------------
+
+
+
         /*----------------------------------------------------------------------------------------------------------
                                                        Discard Current RoomCard					   
         ------------------------------------------------------------------------------------------------------------
@@ -199,8 +220,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             RoomCardStack.Initialize();
 
             GameMap = new GameMap(10, 13, _ui.RectangleTexture);
-            GameMap.MapPosition = new Vector2((_game.GraphicsDevice.Viewport.Width - 300), 120);
-            GameMap.Initialize();
+            GameMap.MapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 220);
+            GameMap.Initialize(GameMap.MapPosition);
 
             ImageDisplay.Initialize(Randomizer);
 
@@ -241,17 +262,22 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 // Update the new RoomTile's information.
                 nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue);
 
+                // Set the current RoomTile as the previous room
+                SetPreviousRoom(CurrentRoom);
+                // Reset room stats
+                ResetRoomStats();
                 // Progress to the new RoomTile
                 SetCurrentRoom(nextTile);
             }
             // If already visited, then just move.
             else
             {
+                SetPreviousRoom(CurrentRoom);
+                ResetRoomStats();
                 SetCurrentRoom(nextTile);
             }
 
             GameTurn++;
-            FlavorMessage = RandomFlavorMessage(Randomizer);
             DisplayFlavorMessage = true;
 
             // If the RoomTile is empty, pull a room card. 
@@ -259,7 +285,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
                 ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
-                DoRoomCardEvent(CurrentRoomCard);
+                DoRoomCardEvent(CurrentRoomCard);                
             }
 
             // If the RoomTile is a corridor, keep moving in an available direction.
@@ -276,6 +302,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             }
 
             SetPlayerCanMove(true);
+           
+        }
+
+
+        private void ResetRoomStats()
+        {
+            PlayerCanSearch = 2;
+            PlayerInCombat = false;
         }
 
 
@@ -365,6 +399,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     EventMessage = "The room is empty";
                     DisplayEventMessage = true;
                     break;
+
+                #region ITEMS -------------------------------------
+                case RoomCardEvent.Item:
+                    // DoItemEvent
+                    // End Turn
+                    EventMessage = "You found an item.";
+                    DisplayEventMessage = true;
+                    break;
+                #endregion
 
                 #region CONTAINERS ----------------------------------------
                 case RoomCardEvent.Chest:
@@ -552,24 +595,5 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             }
         }// End -----------------------------------------------------------------------------------------------------
 
-        private string RandomFlavorMessage(Random randomizer)
-        {
-            int result = randomizer.Next(3);
-
-            switch (result)
-            {
-                case 0: return "Mind the path of the sun. As night draws closer the denizens of the castle grows fiercer";
-
-                case 1: return "The  brave,  the  foolhardy,  the  desperate.  The  promise  of  the  hoard  calls  to  them  each.";
-
-                case 2: return "Take  heed  to  escape  the  castle  before  sunset,  for  none  have  survived  the  horrors  of  the  night.";
-
-                case 3: return "The  promise  of  wealth  beckons.  Lurking  close  behind  is  the  promise  of  peril.";
-
-                case 4: return "Night  draws  ever  closer,  as  another  hour  passes.";
-
-                default: return "Bravery  or  madness;  to challenge  the  castle  is  both";
-            }
-        }// End -----------------------------------------------------------------------------------------------------
     }
 }

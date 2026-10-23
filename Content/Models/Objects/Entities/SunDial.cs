@@ -94,7 +94,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             in favor of displaying a flavor message.
             Also keeps track of the current game turn.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Update(GameTime gameTime, Random randomizer)
+        public void Update(GameTime gameTime)
         {
             if (_gameSession.DisplayFlavorMessage)
                 _isVisible = false;

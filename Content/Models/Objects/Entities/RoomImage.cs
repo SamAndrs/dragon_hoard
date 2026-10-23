@@ -31,9 +31,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         private MainGame _game;
 
-        private int _width;
+        //private int _width;
 
-        private int _height;
+        public int Width { get; private set; }
+        
+        public int Height { get; private set; }
+
+        //private int _height;
 
         private Rectangle _imageBox;
 
@@ -116,9 +120,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             _game = game;
 
-            _width = 307;
+            Width = 307;
 
-            _height = 461;
+            Height = 461;
 
         }
 
@@ -135,7 +139,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         public void Initialize(Random randomizer)
         {
             Position = new Vector2(0, 0);
-            _imageBox = new Rectangle((int)Position.X, (int)Position.Y, _width, _height);
+            _imageBox = new Rectangle((int)Position.X, (int)Position.Y, Width, Height);
 
             _random = randomizer;
 
@@ -155,7 +159,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime, Vector2 position)
         {
-            _imageBox = new Rectangle((int)position.X, (int)position.Y, _width, _height);
+            _imageBox = new Rectangle((int)position.X, (int)position.Y, Width, Height);
 
         }// End -----------------------------------------------------------------------------------------------------
 

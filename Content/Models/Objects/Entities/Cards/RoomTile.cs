@@ -43,6 +43,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public int DoorValue { get; private set; }          // Value that determines which directions have exits
 
+
+        public int RoomSearched { get; private set; }       // Flag for the RoomActionsBar UI class of the GamePlayScreen
+
+
         // FUNCTIONAL
         public int Row { get; set; }                        // Row-position on gamemap grid
 
@@ -55,9 +59,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Rectangle MiniSquare { get; private set; }   // Tile representation on minimap
 
+        private int _squareSize;
+
         private Color _miniSquareColor;
 
+
+
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
+        #region Constructors
         // For RoomTile-placement
         public RoomTile() { }
         
@@ -72,7 +82,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             MiniSquare = new Rectangle((int)roomPosition.X, (int)roomPosition.Y, squareSize, squareSize);
 
+            _squareSize = squareSize;
+
             _miniSquareColor = SetMiniMapColor(RoomType);
+
         }
 
         // For RoomTile Stack
@@ -87,7 +100,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             //Doors = doors;
         }
-
+        #endregion
 
         //============================================ METHODS ===================================================//
         #region methods
@@ -128,8 +141,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             _miniSquareColor = SetMiniMapColor(RoomType);
 
+            RoomTypeCheck(RoomType);
+
         }// End -----------------------------------------------------------------------------------------------------
 
+
+        public void PlayerSearchesRoom()
+        {
+            if (RoomSearched > 0)
+                RoomSearched--;
+        }
 
 
         private Direction DetermineEnteredFrom(Direction moveDirection)
@@ -245,16 +266,33 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         }// End -----------------------------------------------------------------------------------------------------
 
 
-      
+        /*----------------------------------------------------------------------------------------------------------
+                                                      Room Type Check					   
+       ------------------------------------------------------------------------------------------------------------
+         - Class specific method. Sets the flag to allow a room to be searched depending on the type of room.
+            Only a RoomTile that is empty, has rubble or is a spinroom can be searched.
+       ----------------------------------------------------------------------------------------------------------*/
+        private void RoomTypeCheck(RoomType roomType)
+        {
+            if (roomType == RoomType.Empty || roomType == RoomType.Rubble || roomType == RoomType.SpinRoom)
+                RoomSearched = 2;
+
+            else
+                RoomSearched = 0;
+        }// End -----------------------------------------------------------------------------------------------------
+
+
         /*----------------------------------------------------------------------------------------------------------
                                                        Draw On Mini Map					   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method. Draws the RoomTile's representation square on the GamePlayScreen minimap.
             Different kinds of rooms are displayed in different colors.
         ----------------------------------------------------------------------------------------------------------*/
+        //public void DrawOnMiniMap(SpriteBatch spriteBatch, Texture2D squareTexture, Point position)
         public void DrawOnMiniMap(SpriteBatch spriteBatch, Texture2D squareTexture)
         {
             spriteBatch.Draw(squareTexture, MiniSquare, _miniSquareColor);
+            //spriteBatch.Draw(squareTexture, new Rectangle(position.X, position.Y,_squareSize, _squareSize), _miniSquareColor);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -304,8 +342,28 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             //return setColor;
         }// End -----------------------------------------------------------------------------------------------------
-
-
         #endregion
+
+        public void DisplayRoomTileData(SpriteBatch spriteBatch, Point position, Texture2D squareTexture, SpriteFont font)
+        {
+            Rectangle background = new Rectangle(position.X, position.Y, 200, 250);
+
+            spriteBatch.Draw(squareTexture, background, Color.DarkGreen);
+
+            spriteBatch.DrawString(font, "RoomTile data", new Vector2(position.X + 55, position.Y + 5), Color.White);
+
+            spriteBatch.DrawString(font, $"Grid (row,col): [{Row},{Col}]", new Vector2(position.X + 5, position.Y + 25), Color.White);
+
+            spriteBatch.DrawString(font, $"RoomType: {RoomType.ToString()}", new Vector2(position.X + 5, position.Y + 45), Color.White);
+
+            spriteBatch.DrawString(font, $"EnteredFrom: {EnteredFrom}", new Vector2(position.X + 5, position.Y + 65), Color.White);
+
+            spriteBatch.DrawString(font, $"DoorValue: {DoorValue.ToString()}", new Vector2(position.X + 5, position.Y + 85), Color.White);
+
+            spriteBatch.DrawString(font, $"Exits: Up: {ExitUp}\n Right: {ExitRight}\n Down: {ExitDown}\n " +
+                $"Left: {ExitLeft}", new Vector2(position.X + 5, position.Y + 115), Color.White);
+
+            spriteBatch.DrawString(font, $"Search Left: {RoomSearched.ToString()}", new Vector2(position.X + 5, position.Y + 205), Color.White);
+        }
     }
 }
