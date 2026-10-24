@@ -1,5 +1,4 @@
-﻿using dragon_hoard.Content.Models.Objects.Entities;
-using dragon_hoard.Content.Models.Objects.Screens;
+﻿using dragon_hoard.Content.Models.Objects.Screens;
 using dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

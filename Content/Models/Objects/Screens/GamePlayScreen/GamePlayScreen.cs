@@ -53,6 +53,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
         private RoomCard _currentCard;                          // Reference to the current RoomCard pulled from the stack.
 
+
+        // FUNCTIONALITY
         private MiniMap _miniMap;
 
         private Healthbar _healthbar;
@@ -77,13 +79,13 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
         private CharacterStatDisplay _characterStats;
 
-        // FUNCTIONALITY
 
+        // GRAPHICS
         private Point _miniMapPosition;
 
         private Point _healthBarPosition;
 
-        private Point _sunDialPosition;                   
+        private Point _sunDialPosition;
 
         private Point _flavorMessagePosition;
 
@@ -102,16 +104,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         private Point _charStatsPosition;
 
         private Point _optMenuPosition;
-   
-        
-        // GRAPHICS
-
-       
-
-
-
-
-        // DEBUG
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)
@@ -132,70 +124,19 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         /*----------------------------------------------------------------------------------------------------------
                                                   Load Content					   
         ------------------------------------------------------------------------------------------------------------
-           - Override of derived method. Loads the screen specific content, connects the game minimap, health bar, 
-            and other UI elements for the game play screen.
+           - Override of derived method. Supervises the initiation, position setup, loading and connectivity
+                of the screen specific content.
         ----------------------------------------------------------------------------------------------------------*/
         public override void LoadContent()
         {
             _gameSession = _game.GameSession;
             _character = _gameSession.PlayerCharacter;
 
-            _miniMap = new MiniMap(_ui, _gameSession, _gameSession.GameMap);
-            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 240);
-            _miniMap.Load(_miniMapPosition);
-
-            _currentRoom = _gameSession.CurrentRoom;
-
-            _imageDisplay = _gameSession.ImageDisplay;
-
-            _movementButtons = new MovementButtons(_game, _ui, _gameSession);
-            _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
-            _movementButtons.Load(_moveButtonPosition);
-          
-            _healthBarPosition = new Point((int)_game.CenterX - 75, (int)_game.CenterY + 150);
-            _healthbar = new Healthbar(_ui, _healthBarPosition);
-            _healthbar.Load(_character.MaxHealth, _character.CurrentHealth, 20);
-
-            _sunDialPosition = new Point((int)_game.CenterX - 486, 35);
-            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
-            _sunDial.Load(_sunDialPosition);
-
-            _flavorMessageDisplay = new FlavorMessageDisplay(_gameSession, _ui.HeadLine);
-            _flavorMessagePosition = new Point((int)_game.CenterX, _sunDialPosition.Y);
-            _flavorMessageDisplay.Load(_flavorMessagePosition, _gameSession.Randomizer);
-
-            _optionsbar = new OptionsBar(_game, _ui, _gameSession);
-            _optMenuPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y - 80);
-            _optionsbar.Load(_optMenuPosition, 50);
-
-            _characterStats = new CharacterStatDisplay(_ui, _gameSession);
-            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 300);
-            _characterStats.Load(_character, _charStatsPosition, 50);
-
-
-            _eventMessageDisplay = new EventMessageDisplay(_ui, _gameSession, _ui.Text);
-            _eventMessagePosition = new Point((int)_game.CenterX + 50, 150);
-            _eventMessageDisplay.Load(_eventMessagePosition);
-
-            _imageDisplayPosition = new Point(150, 120);
-            _imageDisplay.Initialize(_imageDisplayPosition);
-
-            _combatOptions = new CombatOptions(_game, _ui, _gameSession);
-            _combatOptPosition = new Point(_imageDisplayPosition.X + _imageDisplay.Width/ 2, (int)_imageDisplayPosition.Y + (_imageDisplay.Height/2 - 25));
-            _combatOptions.Load(_combatOptPosition, _ui.Text);
-
-
-            _combatButtonsBar = new CombatButtonsBar(_game, _ui, _gameSession);
-            _attackButtonPosition = new Point(325, 600);
-            _combatButtonsBar.Load(_attackButtonPosition, _ui.Text);
-
-            _roomActsPosition = new Point(150, 600); // DEBUG // TODO
-            _roomActions = new RoomActionsBar(_ui, _gameSession);
-            _roomActions.Load(_roomActsPosition);
+            CreateContent();
+            SetPositions();
+            LoadScreenContent();
 
             IsContentLoaded = true;
-
-
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -339,7 +280,106 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         }// End -----------------------------------------------------------------------------------------------------
 
 
+        /*----------------------------------------------------------------------------------------------------------
+                                               Create Content					   
+       ------------------------------------------------------------------------------------------------------------
+         - Class support method. Initiates the various UI elements of the GamePlayScreen.
+       ----------------------------------------------------------------------------------------------------------*/
+        private void CreateContent()
+        {
+            _miniMap = new MiniMap(_ui, _gameSession, _gameSession.GameMap);
 
+            _imageDisplay = _gameSession.ImageDisplay;
+
+            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
+
+            _movementButtons = new MovementButtons(_game, _ui, _gameSession);
+
+            _flavorMessageDisplay = new FlavorMessageDisplay(_gameSession, _ui.HeadLine);
+
+            _optionsbar = new OptionsBar(_game, _ui, _gameSession);
+
+            _healthbar = new Healthbar(_ui.RectangleTexture);
+
+            _characterStats = new CharacterStatDisplay(_ui, _gameSession);
+
+            _eventMessageDisplay = new EventMessageDisplay(_ui, _gameSession, _ui.Text);
+
+            _combatOptions = new CombatOptions(_game, _ui, _gameSession);
+
+            _combatButtonsBar = new CombatButtonsBar(_game, _ui, _gameSession);
+
+            _roomActions = new RoomActionsBar(_ui, _gameSession);
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                Set Positions					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class support method. Sets the X & Y coordinates (Point) for the various UI elements of the
+            GamePlayScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void SetPositions()
+        {
+            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 240);
+
+            _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
+
+            _healthBarPosition = new Point((int)_game.CenterX - 75, (int)_game.CenterY + 150);
+
+            _sunDialPosition = new Point((int)_game.CenterX - 486, 35);
+
+            _flavorMessagePosition = new Point((int)_game.CenterX, _sunDialPosition.Y);
+
+            _optMenuPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y - 80);
+
+            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 300);
+
+            _eventMessagePosition = new Point((int)_game.CenterX + 50, 150);
+
+            _imageDisplayPosition = new Point(150, 120);
+
+            _combatOptPosition = new Point(_imageDisplayPosition.X + _imageDisplay.Width / 2, (int)_imageDisplayPosition.Y + (_imageDisplay.Height / 2 - 25));
+
+            _attackButtonPosition = new Point(325, 600);
+
+            _roomActsPosition = new Point(150, 600); // DEBUG // TODO
+        }// End -----------------------------------------------------------------------------------------------------
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Load Screen Content					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class support method. Loads the specific UI components and sets additional required properties.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void LoadScreenContent()
+        {
+            _miniMap.Load(_miniMapPosition);
+
+            _currentRoom = _gameSession.CurrentRoom;
+
+            _movementButtons.Load(_moveButtonPosition);
+
+            _healthbar.Load(_healthBarPosition ,_character.MaxHealth, _character.CurrentHealth, 20);
+
+            _sunDial.Load(_sunDialPosition);
+
+            _flavorMessageDisplay.Load(_flavorMessagePosition, _gameSession.Randomizer);
+
+            _optionsbar.Load(_optMenuPosition, 50);
+
+            _characterStats.Load(_character, _charStatsPosition, 50);
+
+            _eventMessageDisplay.Load(_eventMessagePosition);
+
+            _imageDisplay.Initialize(_imageDisplayPosition);
+
+            _combatOptions.Load(_combatOptPosition, _ui.Text);
+
+            _combatButtonsBar.Load(_attackButtonPosition, _ui.Text);
+
+            _roomActions.Load(_roomActsPosition);
+        }// End -----------------------------------------------------------------------------------------------------
 
         /*----------------------------------------------------------------------------------------------------------
                                                Debug Screen				   

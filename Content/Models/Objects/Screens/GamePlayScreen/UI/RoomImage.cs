@@ -149,6 +149,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             _imageBox = new Rectangle(position.X, position.Y, Width, Height);
         }// End -----------------------------------------------------------------------------------------------------
 
+
+
+
              
         /*----------------------------------------------------------------------------------------------------------
                                                  Draw				   

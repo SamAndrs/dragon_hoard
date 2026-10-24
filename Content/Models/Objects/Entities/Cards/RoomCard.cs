@@ -11,13 +11,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
     :: TODO ---------------------------
 
-        v.001a (v.001a (10/16) Setup of basic core properties and methods.
+       * Rework once database is implemented.
 
 
     :: DONE ---------------------------
 
         (2026)
-        
+         v.001a (v.001a (10/16) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class RoomCard: BaseCard
@@ -32,18 +32,23 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             int            _height
         */
 
+        // DATA
         public int Id { get; set; }
 
         public int CardNumber { get; private set; } // DEBUG
 
         public RoomCardEvent CardEvent { get; private set; }
 
+        //public string CardMessage { get; private set; }   // TODO Property via database. Replaces the need for EventMessage to look up message based on CardEvent. To Replace CardEvent
 
+        // FUNCTIONAL
         public bool ChestOpened { get; private set; }       // Flag for the RoomActionsBar UI class of the GamePlayScreen
 
         public bool CorpseSearched { get; private set; }    // Flag for the RoomActionsBar UI class of the GamePlayScreen
 
         public bool ItemPickedUp { get; private set; }      // Flag for the RoomActionsBar UI class of the GamePlayScreen
+
+
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public RoomCard(int cNr, RoomCardEvent cardEvent) : base()

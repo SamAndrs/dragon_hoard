@@ -137,7 +137,7 @@ namespace dragon_hoard.Content.Models.Managers
             tiles.Add(new RoomTile(1, RoomType.Empty, 1));
             tiles.Add(new RoomTile(2, RoomType.Corridor, 1));
             tiles.Add(new RoomTile(3, RoomType.DarkRoom, 1));
-            tiles.Add(new RoomTile(4, RoomType.TreasureRoom,  1));
+            tiles.Add(new RoomTile(4, RoomType.Corridor, 1));
             tiles.Add(new RoomTile(5, RoomType.Rubble, 1));
             tiles.Add(new RoomTile(6, RoomType.TrapRoom,1));
             tiles.Add(new RoomTile(7, RoomType.BottomLessPit, 7));

@@ -7,13 +7,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
     //////////////////////////////////////////// ROOM TILE CLASS /////////////////////////////////////////////////////
     /*
       
-        Small data container class to represent a room tile being drawn from the RoomTile-stack.
+        Data container class to represent a room tile drawn from the RoomTile-stack.
         Assigns certain values to a RoomTile object such as number of exits and type of room.
 
         :: TODO ---------------------------
-
             
-
+            * Additions/ rework due to database implementation.
 
 
         :: DONE ---------------------------
@@ -56,15 +55,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Rectangle LargeSquare { get; private set; }  // Tile representation on gamemap
 
-
-
+        //public string TileMessage { get; private set; }   // TODO Property via database. Replaces the need for EventMessage to look up EventMessage based on RoomType.
+        
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         #region Constructors
         // For RoomTile-placement
         public RoomTile() { }
         
         // For gamemap
-        public RoomTile(RoomType roomType, int row, int col, int squareSize)
+        public RoomTile(RoomType roomType, int row, int col)
         {
             RoomType = roomType;
             

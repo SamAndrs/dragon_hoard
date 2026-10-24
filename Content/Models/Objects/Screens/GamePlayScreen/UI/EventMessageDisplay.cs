@@ -120,27 +120,27 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             {
                 switch (tileEvent)
                 {
-                    case RoomType.Empty: return "  Empty room\nYou have come upon an\n empty room\nStill and dark.\n...For now.";
+                    case RoomType.Empty: return "  Empty room\n\nYou have come upon an\n empty room\nStill and dark.\n...For now.";
 
-                    case RoomType.Corridor: return "  Corridor\nA long corridor opens\nbefore you.\nYou may move again.";
+                    case RoomType.Corridor: return "  Corridor\n\nA long corridor opens\nbefore you.\nYou may move again.";
 
-                    case RoomType.DarkRoom: return "  Dark room\nThe darkness in this room\nis so thick one can almost\ntouch it.\nThe light of your torch\n manage not to penetrate\n it.";
+                    case RoomType.DarkRoom: return "  Dark room\n\nThe darkness in this room\nis so thick one can almost\ntouch it.\nThe light of your torch\n manage not to penetrate\n it.";
 
-                    case RoomType.TreasureRoom: return "  Treasure Room\nThe heart of the castle opens\nbefore your eyes!\nYou have found your way\nto the hoard.\nWealth beyond measure is\n yours for the taking!";
+                    case RoomType.TreasureRoom: return "  Treasure Room!\n\nYou have found your way\nto the hoard.\nWealth beyond measure is\n yours for the taking!";
 
-                    case RoomType.Rubble: return "  Rubble\nThe room is full of rubble.\nTraversing it will be\nchallenging.";
+                    case RoomType.Rubble: return "  Rubble\n\nThe room is full of rubble.\nTraversing it will be\nchallenging.";
 
                     case RoomType.BottomLessPit: return "  Bottomless Pit!\n\nA pit of darkness opens\nat your feet!\nWill you avoid falling\ninto it?";
 
-                    case RoomType.BridgeRoom: return "  Narrow Bridge\nA narrow bridge stretches\nacross a dark, ominous\n pit.\nCrossing it will be a\nperilous challenge.";
+                    case RoomType.BridgeRoom: return "  Narrow Bridge\n\nA narrow bridge stretches\nacross a dark, ominous\n pit.\nCrossing it will be a\nperilous challenge.";
 
                     //case RoomType.TrapRoom: return "ILL FORTUNE!";  // Not used since TrapCard should have the message.
 
-                    case RoomType.WebbedRoom: return "  Webbed Room\nLayers upon layers of thick\nspiderweb covers this room.\nTraversing it will be\ndifficult.";
+                    case RoomType.WebbedRoom: return "  Webbed Room\n\nLayers upon layers of thick\nspiderweb covers this room.\nTraversing it will be\ndifficult.";
 
-                    case RoomType.Exit: return "  Castle Entrance\nA stair leads up into the\ndarkness.\nYou may leave the castle\n this way.";
+                    case RoomType.Exit: return "  Castle Entrance\n\nA stair leads up into the\ndarkness.\nYou may leave the castle\n this way.";
 
-                    case RoomType.SpinRoom: return "  Rotating room!\nYou have stepped into a\n small room.\nYou can feel how it\nsuddenly begin to rotate!\nYou may not leave the\nsame direction you\nentered.";
+                    case RoomType.SpinRoom: return "  Rotating room!\n\nYou have stepped into a\n small room.\nYou can feel how it\nsuddenly begin to rotate!\nYou may not leave the\nsame direction you\nentered.";
 
                     default: return string.Empty;
                 }

@@ -35,19 +35,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public Healthbar(UiManager uiManager, Point position)
+        public Healthbar(Texture2D squareTexture)
         {
-            _ui = uiManager;
-            _position = position;
+            //_ui = uiManager;
+            _barImage = squareTexture;
         }
 
         //============================================ METHODS ===================================================//
         #region methods
 
 
-        public void Load(int maxHealth, int currentHealth, int squareSize)
+        public void Load(Point position, int maxHealth, int currentHealth, int squareSize)
         {
-            _barImage = _ui.RectangleTexture;
+            _position = position;
+
+            //_barImage = _ui.RectangleTexture;
 
             _maxHealth = maxHealth;
 
