@@ -49,8 +49,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             _position = position;
 
-            //_barImage = _ui.RectangleTexture;
-
             _maxHealth = maxHealth;
 
             _currentHealth = currentHealth;

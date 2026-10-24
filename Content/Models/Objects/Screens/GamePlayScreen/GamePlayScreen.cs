@@ -105,6 +105,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
         private Point _optMenuPosition;
 
+        //private float _timer = 3f;
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)
         {
@@ -152,12 +154,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
             {               
                 _currentRoom = _gameSession.CurrentRoom;
 
-                if(_gameSession.CurrentRoomCard != null)
+                if (_gameSession.CurrentRoomCard != null)
                     _currentCard = _gameSession.CurrentRoomCard;
+                else
+                    _currentCard = null;
 
-                _miniMap.Update(gameTime);
+                    _miniMap.Update(gameTime);
 
                 _flavorMessageDisplay.Update(gameTime);
+
+                _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _gameSession.PickedImage, _currentRoom.RoomType, _currentCard);
 
                 _eventMessageDisplay.Update(gameTime);
 
@@ -239,6 +245,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
             if(_currentCard != null)
                 _currentCard.ResetStats();
 
+            _eventMessageDisplay.MessageTimer = 2f;
+
             // Progress to next round
             _gameSession.CreateTestRound();
             
@@ -270,7 +278,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         /*----------------------------------------------------------------------------------------------------------
                                                Load Textures				   
         ------------------------------------------------------------------------------------------------------------
-         - Class specific support method for loading all the texture content related to the GamePlayScreen
+         - Class specific support method for loading all the texture content related to the GamePlayScreen proper.
         ----------------------------------------------------------------------------------------------------------*/
         private void LoadTextures()
         {
@@ -400,7 +408,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             //bool mapNumbers = false;
 
-            bool displayCardData = false;
+            bool displayCardData = true;
 
             bool displayRoomTileData = false;
 
@@ -478,11 +486,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 _currentRoom.DisplayRoomTileData(spriteBatch, new Point(400, 100), _ui.RectangleTexture, _ui.DebugText);
 
             if (displayCardData && _currentCard != null)
-                _currentCard.DisplayCardData(spriteBatch, new Point(700, 100), _ui.RectangleTexture, _ui.DebugText);
+                _currentCard.DisplayCardData(spriteBatch, new Point(900, 300), _ui.RectangleTexture, _ui.DebugText);
 
-            {
+            spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
 
-            }
+
+
         }// End -----------------------------------------------------------------------------------------------------
         #endregion
     }

@@ -86,16 +86,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public RoomImage ImageDisplay { get; private set; }
 
+        public int PickedImage { get; private set; }
+
         // Messages
         public bool DisplayFlavorMessage { get; set; }              // Flag switch for displaying 'flavor' message
-
-        public string FlavorMessage { get; private set; }           // Flavor message text
-
-        public bool DisplayEventMessage { get; set; }               // Flag switch for displaying event message
-
-        public string EventMessage { get; private set; }            // Text explaining what event is transpiring.
-
-        
+       
         // CARD STACKS
         public RoomTileStack RoomTileStack { get; private set; }
 
@@ -103,6 +98,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         public RoomCard CurrentRoomCard { get; private set; }
+
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -225,7 +221,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
-            ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+            //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
         }
 
         public void CreateTestRound()
@@ -282,7 +278,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (CurrentRoom.RoomType == RoomType.Empty)
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
-                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+                PickedImage = Randomizer.Next(3);
+                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
                 DoRoomCardEvent(CurrentRoomCard);                
             }
 
@@ -290,12 +287,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             else if(CurrentRoom.RoomType == RoomType.Corridor)
             {
                 //TODO: Allow extra movement (1 RoomTile)
-                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
             }
             // If the RoomTile has an event type of some kind, run the event.
             else
             {
-                ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
+                PickedImage = Randomizer.Next(3);
                 DoRoomTileEvent(CurrentRoom);
             }
 
@@ -319,8 +317,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // No RoomCard pulled.
                     // End turn
                     // Next turn roll to see which door to exit at
-                    EventMessage = "The room is pitch black";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TreasureRoom:
@@ -335,8 +331,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Do Card Event
                     // End turn
                     // Next turn try move: Success move direction. Failure remain in place. End turn
-                    EventMessage = "The room is full of rubble";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.TrapRoom:
@@ -346,16 +340,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // End turn
 
                     // Trap event triggers only once upon 1st enter. Can't search in room: No RoomCard pulled.
-                    EventMessage = "A trap has triggered!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BottomLessPit:
                     // No RoomCard pulled
                     // Roll T12 vs DEX. Success = Survive. Turn ends.  Failure = instant death
                     // If success: can proceed next turn.
-                    EventMessage = "A bottomless pit!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.BridgeRoom:
@@ -363,8 +353,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Move back or try cross bridge. If crossing bridge: T10 vs DEX. 
                     // If success: Turn ends. Next turn proceed.
                     // If failure: Instant death.
-                    EventMessage = "A narrow bridge over a dark pit";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.WebbedRoom:
@@ -373,8 +361,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Next turn either move back or try force way through webs. T12 vs. STR
                     // If success: Exit through door
                     // If failure: End turn. Try again next.
-                    EventMessage = "The room is full of spider webs";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomType.SpinRoom:
@@ -382,8 +368,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Exit changes 2 steps clockwise.
                     // Turn ends.
                     // Next turn: Proceed or search room (can do 2 times max, then death).
-                    EventMessage = "The room begins to turn";
-                    DisplayEventMessage = true;
                     break;
             }
         }// End -----------------------------------------------------------------------------------------------------
@@ -393,17 +377,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         {
             switch (roomCard.CardEvent)
             {
-                case RoomCardEvent.Empty:
-                    EventMessage = "The room is empty";
-                    DisplayEventMessage = true;
-                    break;
+                case RoomCardEvent.Empty: break;
 
                 #region ITEMS -------------------------------------
                 case RoomCardEvent.Item:
                     // DoItemEvent
                     // End Turn
-                    EventMessage = "You found an item.";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -413,8 +392,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Pull ChestCard
                     // DoChestCardEvent
                     // End turn
-                    EventMessage = "A Chest";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.Sarcophagus:
@@ -422,8 +399,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Pull ChestCard
                     // DoChestCardEvent
                     // End turn
-                    EventMessage = "A Sarcophagus";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.FallenWarrior:
@@ -431,8 +406,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // Pull CorpseCard
                     // DoCorpseCardEvent
                     // End turn
-                    EventMessage = "A Fallen warrior";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -440,29 +413,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case RoomCardEvent.TrapDoor:
                     // DoTrapEvent
                     // End Turn
-                    EventMessage = "TRAP!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.SpearTrap:
                     // DoTrapEvent
                     // End Turn
-                    EventMessage = "TRAP!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.CaveIn:
                     // DoTrapEvent
                     // End Turn
-                    EventMessage = "TRAP!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.WallArrows:
                     // DoTrapEvent
                     // End Turn
-                    EventMessage = "TRAP!";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -470,8 +435,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case RoomCardEvent.VampireBats:
                     // DoDamageEvent
                     // End Turn
-                    EventMessage = "Vampire bats!";
-                    DisplayEventMessage = true;
                     break;
 
                 #endregion
@@ -481,8 +444,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // DoAmbushEvent
                     // Combat
                     // End Turn
-                    EventMessage = "AMBUSHED!";
-                    DisplayEventMessage = true;
                     break;
 
 
@@ -490,16 +451,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // DoAmbushEvent
                     // Combat
                     // End Turn
-                    EventMessage = "AMBUSHED!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.AmbushOrc:
                     // DoAmbushEvent
                     // Combat
                     // End Turn
-                    EventMessage = "AMBUSHED!";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -507,22 +464,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case RoomCardEvent.GiantSpider:
                     // DoSpiderEvent
                     // End Turn
-                    EventMessage = "Giant spider!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.PosionCaterpillar:
                     // DoPoisonCaterpillarEvent
                     // End Turn
-                    EventMessage = "Poisonous Caterpillar";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.CorpseEaters:
                     // DoCorpseEaterEvent
                     // End Turn
-                    EventMessage = "Corpse eaters!";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -535,36 +486,26 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     // If Player: flee = resolve success.  (failure = dmg)
                     // If Player: combat = resolve combat
                     // End Turn
-                    EventMessage = "A Darkelf!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.Ogre:
                     // Pull MonsterCard(Ogre)
                     // Same as above
-                    EventMessage = "An Ogre!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.Skeleton:
                     // Pull MonsterCard(Skeleton)
                     // Same as above
-                    EventMessage = "A Skeleton!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.Orc:
                     // Pull MonsterCard(Orc)
                     // Same as above
-                    EventMessage = "An Orc!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.TwoOrcs:
                     // Pull MonsterCard(TwoOrcs)
                     // Same as above
-                    EventMessage = "Two Orcs!!";
-                    DisplayEventMessage = true;
                     break;
                 #endregion
 
@@ -572,24 +513,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 case RoomCardEvent.TorchOut:
                     // End Turn
                     // Next turn: DoTorchOutEvent
-                    EventMessage = "The Torch is out!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.CurseOfMadMage:
                     // DoCurseOfMadMageEvent
                     // End Turn (???)
-                    EventMessage = "Curse of the mad mage!";
-                    DisplayEventMessage = true;
                     break;
 
                 case RoomCardEvent.PursuingShadow:
                     // DoPursuingShadowEvent
                     // End Turn
-                    EventMessage = "A shadow pursues you!";
-                    DisplayEventMessage = true;
                     break;
-                #endregion
+                    #endregion
             }
         }// End -----------------------------------------------------------------------------------------------------
 

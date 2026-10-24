@@ -114,7 +114,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         // private Texture2D _wayDown;
         // private Texture2D _reshuffle;
 
-
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public RoomImage(MainGame game, Random randomizer)
         {
@@ -147,12 +146,28 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             _position = position;
             _imageBox = new Rectangle(position.X, position.Y, Width, Height);
+
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Update				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class method. Sets and updates the image representing the current RoomTile type event and/ or 
+            card event type. If both images are used; the Tile event image will be replaced by the 
+            Card event image, once the referenced (class)EventMessageDisplay.[MessageTimer] reaches zero.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void Update(GameTime gameTime, float timer, int randomResult, RoomType roomType, RoomCard roomCard)
+        {
+            SetTileEventImage(roomType);
+
+            if (roomCard != null && timer <= 0)
+                SetRoomCardEventImage(randomResult, roomCard);
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
 
-
-             
         /*----------------------------------------------------------------------------------------------------------
                                                  Draw				   
         ------------------------------------------------------------------------------------------------------------
@@ -166,149 +181,149 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
 
         /*----------------------------------------------------------------------------------------------------------
-                                                 Set Current Image				   
+                                                 Set Tile Event Image				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. Checks wether a RoomCard is actively picked or not. 
-            If no RoomCard then the class will display a default RoomTile image coresponding to the RoomType.
-            If there IS an active RoomCard, the class will set the active image to display to the texture 
-            assosciated with the RoomCard's [CardEvent].
+          - Class support method. Sets the current image to be displayed based on a RoomTile's
+            [RoomType] property.
         ----------------------------------------------------------------------------------------------------------*/
-        public void SetCurrentImage(RoomType roomType, RoomCard roomCard)
+        private void SetTileEventImage(RoomType roomType)
         {
-            if (roomCard == null)
+            switch (roomType)
             {
-                switch (roomType)
-                {
-                    //case RoomType.Empty:
-                    //    CurrentImage = _empty; break;
+                //case RoomType.Empty:
+                //    CurrentImage = _empty; break;
 
-                    case RoomType.Exit:
-                        CurrentImage = _exit; break;
+                case RoomType.Exit:
+                    CurrentImage = _exit; break;
 
-                    case RoomType.Corridor:
-                        int result = _random.Next(1);
-                        if(result == 0)
-                            CurrentImage = _corridor;
-                        else
-                            CurrentImage = _corridor2; 
-                        break;
+                case RoomType.Corridor:
+                    int result = _random.Next(1);
+                    if (result == 0)
+                        CurrentImage = _corridor;
+                    else
+                        CurrentImage = _corridor2;
+                    break;
 
-                    case RoomType.DarkRoom:
-                                CurrentImage = _darkRoom; break;
+                case RoomType.DarkRoom:
+                    CurrentImage = _darkRoom; break;
 
-                            case RoomType.Rubble:
-                                CurrentImage = _rubble; break;
+                case RoomType.Rubble:
+                    CurrentImage = _rubble; break;
 
-                            case RoomType.TrapRoom:
-                                CurrentImage = _empty; break;
+                case RoomType.TrapRoom:
+                    CurrentImage = _empty; break;
 
-                            case RoomType.BottomLessPit:
-                                CurrentImage = _bottomlessPit; break;
+                case RoomType.BottomLessPit:
+                    CurrentImage = _bottomlessPit; break;
 
-                            case RoomType.BridgeRoom:
-                                CurrentImage = _bridgeRoom; break;
+                case RoomType.BridgeRoom:
+                    CurrentImage = _bridgeRoom; break;
 
-                            case RoomType.WebbedRoom:
-                                CurrentImage = _webbedRoom; break;
+                case RoomType.WebbedRoom:
+                    CurrentImage = _webbedRoom; break;
 
-                            case RoomType.SpinRoom:
-                                CurrentImage = _spinRoom; break;
+                case RoomType.SpinRoom:
+                    CurrentImage = _spinRoom; break;
 
-                            case RoomType.TreasureRoom:
-                                CurrentImage = _treasureRoom; break;
+                case RoomType.TreasureRoom:
+                    CurrentImage = _treasureRoom; break;
 
-                            default:
-                                CurrentImage = _empty; break;
-                            }
-            }
-
-            else
-            {
-                //CurrentImage = roomCard.CardImage;
-                CurrentImage = SetRoomCardEventImage(_random, roomCard);
+                default:
+                    CurrentImage = _empty; break;
             }
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        private Texture2D SetRoomCardEventImage(Random randomizer, RoomCard roomCard)
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Set Room Card Event Image				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class support method. Sets the current image to be displayed based on a RoomCard's
+            [CardEvent] property.
+        ----------------------------------------------------------------------------------------------------------*/
+        //private void SetRoomCardEventImage(Random randomizer, RoomCard roomCard)
+        private void SetRoomCardEventImage(int result, RoomCard roomCard)
         {
             switch (roomCard.CardEvent)
             {
                 case RoomCardEvent.Empty:
-                    int result = randomizer.Next(2);
-                    if (result == 0)
-                        return _empty;
-                    else if (result == 1)
-                        return _empty2;
-                    else
-                        return _empty3;
+                    //int result = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _empty;
+                    else if (result == 1) CurrentImage = _empty2;
+                    else CurrentImage = _empty3;
+                    break;
 
                 // Containers
-                case RoomCardEvent.Chest: return _chest;
-                case RoomCardEvent.Sarcophagus: return _sarcophagus;
-                case RoomCardEvent.FallenWarrior: return _fallenWarrior;
+                case RoomCardEvent.Chest: CurrentImage = _chest; break;
+                case RoomCardEvent.Sarcophagus: CurrentImage = _sarcophagus; break;
+                case RoomCardEvent.FallenWarrior: CurrentImage = _fallenWarrior; break;
                 
                 // Traps
-                case RoomCardEvent.TrapDoor: return _trapDoor;
-                case RoomCardEvent.SpearTrap: return _spearTrap;
-                case RoomCardEvent.CaveIn: return _caveIn;
-                case RoomCardEvent.WallArrows: return _wallArrows;
+                case RoomCardEvent.TrapDoor: CurrentImage = _trapDoor; break;
+                case RoomCardEvent.SpearTrap: CurrentImage = _spearTrap; break;
+                case RoomCardEvent.CaveIn: CurrentImage = _caveIn; break;
+                case RoomCardEvent.WallArrows: CurrentImage = _wallArrows; break;
                 
                 // Damage
-                case RoomCardEvent.VampireBats: return _vampirBats;
+                case RoomCardEvent.VampireBats: CurrentImage = _vampirBats; break;
 
                 // Ambushes
-                case RoomCardEvent.AmbushSkeleton: return _ambushSkeleton;
-                case RoomCardEvent.AmbushOgre: return _ambushOgre;
-                case RoomCardEvent.AmbushOrc: return _ambushOrc;
+                case RoomCardEvent.AmbushSkeleton: CurrentImage = _ambushSkeleton; break;
+                case RoomCardEvent.AmbushOgre: CurrentImage = _ambushOgre; break;
+                case RoomCardEvent.AmbushOrc: CurrentImage = _ambushOrc; break;
 
                 // Monsters (static)
-                case RoomCardEvent.GiantSpider: return _giantSpider;
-                case RoomCardEvent.PosionCaterpillar: return _poisonCaterpillar;
-                case RoomCardEvent.CorpseEaters: return _corpseEaters;
+                case RoomCardEvent.GiantSpider: CurrentImage = _giantSpider; break;
+                case RoomCardEvent.PosionCaterpillar: CurrentImage = _poisonCaterpillar; break;
+                case RoomCardEvent.CorpseEaters: CurrentImage = _corpseEaters; break;
 
                 // Monsters (dynamic)
                 case RoomCardEvent.Darkelf:
-                    int dElf = randomizer.Next(2);
-                    if (dElf == 0) return _darkElf;
-                    if (dElf == 1) return _darkElf2;
-                    else return _darkElf3;
+                    //int dElf = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _darkElf;
+                    if (result == 1) CurrentImage = _darkElf2;
+                    else CurrentImage = _darkElf3;
+                    break;
 
                 case RoomCardEvent.Ogre:
-                    int ogre = randomizer.Next(2);
-                    if (ogre == 0) return _ogre;
-                    if (ogre == 1) return _ogre2;
-                    else return _ogre3;
-
+                    //int ogre = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _ogre;
+                    if (result == 1) CurrentImage = _ogre2;
+                    else CurrentImage = _ogre3;
+                    break;
 
                 case RoomCardEvent.Skeleton:
-                    int skel = randomizer.Next(2);
-                    if (skel == 0) return _skeleton;
-                    if (skel == 1) return _skeleton2;
-                    else return _skeleton3;
+                    //int skel = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _skeleton;
+                    if (result == 1) CurrentImage = _skeleton2;
+                    else CurrentImage =  _skeleton3;
+                    break;
 
                 case RoomCardEvent.Orc:
-                    int orc = randomizer.Next(2);
-                    if (orc == 0) return _orc;
-                    if (orc == 1) return _orc2;
-                    else return _orc3;
+                    //int orc = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _orc;
+                    if (result == 1) CurrentImage = _orc2;
+                    else CurrentImage = _orc3;
+                    break;
                 
                 case RoomCardEvent.TwoOrcs:
-                    int tOrcs = randomizer.Next(2);
-                    if (tOrcs == 0) return _twoOrcs;
-                    if (tOrcs == 1) return _twoOrcs2;
-                    else return _twoOrcs3;
+                    //int tOrcs = randomizer.Next(2);
+                    if (result == 0) CurrentImage = _twoOrcs;
+                    if (result == 1) CurrentImage = _twoOrcs2;
+                    else CurrentImage = _twoOrcs3;
+                    break;
 
                 // Special
-                case RoomCardEvent.TorchOut: return _torchOut;
-                case RoomCardEvent.CurseOfMadMage: return _curseMadMage;
+                case RoomCardEvent.TorchOut: CurrentImage = _torchOut; break;
+                case RoomCardEvent.CurseOfMadMage: CurrentImage = _curseMadMage; break;
                 
                 case RoomCardEvent.PursuingShadow:
-                    int shadow = randomizer.Next(1);
-                    if (shadow == 0) return _pursuingShadow;
-                    else return _pursuingShadow2;
-
-                default: return null;
+                    //int shadow = randomizer.Next(1);
+                    if (result <= 1) CurrentImage = _pursuingShadow;
+                    else CurrentImage = _pursuingShadow2;
+                    break;
+              
+                default:
+                    CurrentImage = _empty; break;
 
             }
         }// End -----------------------------------------------------------------------------------------------------
