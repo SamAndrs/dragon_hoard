@@ -163,7 +163,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
                 _flavorMessageDisplay.Update(gameTime);
 
-                _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _gameSession.PickedImage, _currentRoom.RoomType, _currentCard);
+                _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _currentRoom.RoomType, _currentCard);
 
                 _eventMessageDisplay.Update(gameTime);
 

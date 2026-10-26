@@ -154,6 +154,32 @@
 /processorParam:Version=3.8.5.1
 /build:Images/RoomCardImages/img_roomAmbushSkeleton.jpg
 
+#begin Images/RoomCardImages/img_roomAmulet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Images/RoomCardImages/img_roomAmulet.png
+
+#begin Images/RoomCardImages/img_roomArmRing.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Images/RoomCardImages/img_roomArmRing.png
+
 #begin Images/RoomCardImages/img_roomBottomlessPit.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -179,6 +205,19 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Images/RoomCardImages/img_roomBridge.jpg
+
+#begin Images/RoomCardImages/img_roomBrooch.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Images/RoomCardImages/img_roomBrooch.png
 
 #begin Images/RoomCardImages/img_roomCaveIn.jpg
 /importer:TextureImporter
@@ -478,6 +517,19 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Images/RoomCardImages/img_roomPoisonCaterpillar.png
+
+#begin Images/RoomCardImages/img_roomPotion.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Images/RoomCardImages/img_roomPotion.png
 
 #begin Images/RoomCardImages/img_roomPursuingShadow.png
 /importer:TextureImporter

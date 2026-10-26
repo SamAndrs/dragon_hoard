@@ -22,7 +22,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
     {
        
         // DATA
+        public int Id { get; set; }
 
+        public string Name { get; set; } = "";
 
         // FUNCTIONAL
 

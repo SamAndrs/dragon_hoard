@@ -27,18 +27,25 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
          v.001a (v.001a (10/16) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class RoomCard
+    public sealed class RoomCard
     {
         //========================================== PROPERTIES ==================================================//
 
         // DATA
-        public int Id { get; set; }
+        public int Id { get; init; }
 
-        public string EventName { get; private set; }           // A headline for the card of the type of event taking place.
+        public string EventName { get; init; }                  // A headline for the card of the type of event taking place.
 
-        public RoomCardEvent CardEvent { get; private set; }    // The actual type of event taking place.
+        public RoomCardEvent CardEvent { get; init; }           // The actual type of event taking place.
 
-        public string CardDescription { get; private set; }     // Text describing the event of the card. TODO Property via database. Replaces the need for EventMessage to look up message based on CardEvent.
+        public string EventText { get; init; }                  // Text describing the event of the card. TODO Property via database. Replaces the need for EventMessage to look up message based on CardEvent.
+
+        public int? ItemId { get; init; }                       // Reference to any item attached to the RoomCard.
+
+        public Item? Item { get; set; }                         // Assigns an Item for: [CardEvent.Item]  // TODO remove and use separate method to pull item from DB/ List<Item> using [ItemId]?
+
+        public bool Persistent { get; init; }                   // Flag denoting if a card event is to remain in play due to special conditions.
+
 
         // FUNCTIONAL
         public bool ChestOpened { get; private set; }           // Flag for the RoomActionsBar UI class of the GamePlayScreen
@@ -47,12 +54,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public bool ItemPickedUp { get; private set; }          // Flag for the RoomActionsBar UI class of the GamePlayScreen
 
-        public bool Item { get; private set; }                  // Assigns an Item for: [CardEvent.Item]
 
-        public bool Persistent { get; private set; }            // Flag denoting if a card event is to remain in play due to special conditions.
 
         // GRAPHICS
-        public Texture2D CardImage { get; private set; }
+        public string TextureReference { get; init; } = "";     // Database reference to which [CardImage] to use for the RoomCard.
+
+        public Texture2D? CardImage { get; set; }       
 
         private int _width;
 
@@ -60,9 +67,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomCard(RoomCardEvent cardEvent) : base()
+        //public RoomCard(RoomCardEvent cardEvent)
+        public RoomCard()
         {
-            CardEvent = cardEvent;
+            //CardEvent = cardEvent;
 
             ChestOpened = false;
 

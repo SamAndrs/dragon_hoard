@@ -21,21 +21,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             v.001a (10/08) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class RoomTile
+    public sealed class RoomTile
     {
         //========================================== PROPERTIES ==================================================//
 
         // DATA
-        public int TileId { get; private set; }             // Unique ID
+        public int Id { get; init; }                    // Unique ID
 
-        public RoomType RoomType { get; private set; }      // Determine the type of room
+        public RoomType RoomType { get; private set; }             // Determine the type of room
 
         public bool ExitUp { get; set; }
         public bool ExitRight { get; set; }
         public bool ExitDown { get; set; }
         public bool ExitLeft { get; set; }
 
-        //public bool[] Doors { get; private set; }           // Determine what exits have a door.
+        //public bool[] Doors { get; private set; }          // Determine what exits have a door.
 
         public Direction EnteredFrom {  get; set; }         // Direction Player entered from initially
 
@@ -55,8 +55,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Rectangle LargeSquare { get; private set; }  // Tile representation on gamemap
 
-        //public string TileMessage { get; private set; }   // TODO Property via database. Replaces the need for EventMessage to look up EventMessage based on RoomType.
+        public string TileMessage { get; private set; }   // TODO Property via database. Replaces the need for EventMessage to look up EventMessage based on RoomType.
         
+
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         #region Constructors
         // For RoomTile-placement
@@ -73,10 +75,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         }
 
         // For RoomTile Stack
-        public RoomTile(int tileId, RoomType roomType, int doorValue)
+        public RoomTile(RoomType roomType, int doorValue)
+        //public RoomTile(int tileId, RoomType roomType, int doorValue)
         //public RoomTile(int tileId, Texture2D roomImage, RoomType roomType, int doorValue)
         {
-            TileId = tileId;
+            //TileId = tileId;
 
             RoomType = roomType;
 
@@ -101,7 +104,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         {
             //TileImage = tileImage;
 
-            TileId = roomTile.TileId;
+            //TileId = roomTile.TileId;
 
             RoomType = roomTile.RoomType;
 
