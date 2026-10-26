@@ -87,7 +87,7 @@ namespace dragon_hoard
         public GameSession GameSession { get; private set; }
 
         // SERVICES
-        // public RoomTileService _roomTileService { get; private set; } = null!;
+        public RoomTileService RoomTileService { get; private set; } = null!;
         public RoomCardService RoomCardService { get; private set; } = null!;
 
         // DEVICES
@@ -101,11 +101,11 @@ namespace dragon_hoard
             _database = new GameDatabase();
 
             // Connect repositories to the database.
-            //IRoomTileRepository roomTileRepository = new RoomTileRepository(_database);
+            IRoomTileRepository roomTileRepository = new RoomTileRepository(this, _database);
             IRoomCardRepository roomCardRepository = new RoomCardRepository(this, _database);
 
             // Connect services to repositories.
-            //RoomTileService = new RoomTileService(roomTileRepository);
+            RoomTileService = new RoomTileService(roomTileRepository);
             RoomCardService = new RoomCardService(roomCardRepository);
 
             _graphics = new GraphicsDeviceManager(this);

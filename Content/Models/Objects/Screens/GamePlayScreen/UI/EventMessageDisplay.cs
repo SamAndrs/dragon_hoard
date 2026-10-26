@@ -93,7 +93,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            _eventMessage = ReturnTileMessage(_session.CurrentRoom.RoomType);
+            //_eventMessage = ReturnTileMessage(_session.CurrentRoom.RoomType);
+            _eventMessage = $"{_session.CurrentRoom.EventName}\n\n{_session.CurrentRoom.EventText}";
 
             if (_session.CurrentRoomCard == null)
                 return;

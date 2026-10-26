@@ -26,37 +26,49 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         //========================================== PROPERTIES ==================================================//
 
         // DATA
-        public int Id { get; init; }                    // Unique ID
+        public int Id { get; init; }                                // Unique ID
 
-        public RoomType RoomType { get; private set; }             // Determine the type of room
+        public RoomType RoomType { get; set; }                      // Determine the type of room
 
-        public bool ExitUp { get; set; }
+        public bool ExitUp { get; set; }                            // Directional exits
         public bool ExitRight { get; set; }
         public bool ExitDown { get; set; }
         public bool ExitLeft { get; set; }
 
-        //public bool[] Doors { get; private set; }          // Determine what exits have a door.
+        public DoorType DoorUp { get; set; }                        // Type of doors at each exit (0 = None, 1 = Closed, 2 = Portcullis).
+        public DoorType DoorRight { get; set; }
+        public DoorType DoorDown { get; set; }
+        public DoorType DoorLeft { get; set; }
 
-        public Direction EnteredFrom {  get; set; }         // Direction Player entered from initially
+        public Direction EnteredFrom {  get; set; }                 // Direction Player entered from initially
 
-        public int DoorValue { get; private set; }          // Value that determines which directions have exits
+        public int DoorValue { get; set; }                         // Value that determines which directions have exits
 
-        public int RoomSearched { get; private set; }       // Flag for the RoomActionsBar UI class of the GamePlayScreen
+        public int RoomSearched { get; private set; }               // Flag for the RoomActionsBar UI class of the GamePlayScreen
 
+        public string TileImageReference { get; set; } = "";       // Database reference for what Texture2D used as the [TileImage] on the GameMap.
+
+        public string TileRoomImageReference { get; set; } = "";   // Database reference for what Texture2D used as the [TileRoomImage] with the RoomImage-class.
+
+        public string EventName { get; set; }                      // A headline of any event related to the type of RoomTile.
+
+        public string EventText { get; set; }                      // Text describing any event related to the type of RoomTile.
+
+        
 
         // FUNCTIONAL
-        public int Row { get; set; }                        // Row-position on gamemap grid
+        public int Row { get; set; }                                // Row-position on gamemap grid
 
-        public int Col { get; set; }                        // Column-position on gamemap grid
+        public int Col { get; set; }                                // Column-position on gamemap grid
 
 
         // GRAPHICS
-        public Texture2D TileImage { get; private set; }    // Tile visual representation on gamemap
+        public Texture2D TileImage { get; set; }                    // Tile visual representation on gamemap      
 
-        public Rectangle LargeSquare { get; private set; }  // Tile representation on gamemap
+        public Rectangle LargeSquare { get; set; }                  // Tile representation on gamemap
 
-        public string TileMessage { get; private set; }   // TODO Property via database. Replaces the need for EventMessage to look up EventMessage based on RoomType.
-        
+        public Texture2D TileRoomImage { get; set; }                // Image displayed via the RoomImage-class on the GamePlayScreen.
+
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -75,18 +87,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         }
 
         // For RoomTile Stack
-        public RoomTile(RoomType roomType, int doorValue)
-        //public RoomTile(int tileId, RoomType roomType, int doorValue)
-        //public RoomTile(int tileId, Texture2D roomImage, RoomType roomType, int doorValue)
-        {
-            //TileId = tileId;
+        //public RoomTile(RoomType roomType, int doorValue)
+        ////public RoomTile(int tileId, RoomType roomType, int doorValue)
+        ////public RoomTile(int tileId, Texture2D roomImage, RoomType roomType, int doorValue)
+        //{
+        //    //TileId = tileId;
 
-            RoomType = roomType;
+        //    RoomType = roomType;
 
-            DoorValue = doorValue;
+        //    DoorValue = doorValue;
 
-            //Doors = doors;
-        }
+        //    //Doors = doors;
+        //}
         #endregion
 
         //============================================ METHODS ===================================================//
@@ -100,26 +112,38 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
           - Class specific method representing the room tile being pulled from the stack and placed on the 
             game board.
         ----------------------------------------------------------------------------------------------------------*/
-        public void PlaceTile(Direction moveDirection, RoomTile roomTile, int doorValue)
+        public void PlaceTile(Direction moveDirection, RoomTile roomTile)
         {
-            //TileImage = tileImage;
-
-            //TileId = roomTile.TileId;
-
             RoomType = roomTile.RoomType;
 
-            DoorValue = doorValue;
+            DoorValue = roomTile.DoorValue;
+
+            DoorUp = roomTile.DoorUp;
+
+            DoorDown = roomTile.DoorDown;
+
+            DoorRight = roomTile.DoorRight;
+
+            DoorLeft = roomTile.DoorLeft;
 
             // Only check entrance direction and number of available exits of a room, if it isn't a Castle Exit.
             if (RoomType != RoomType.Exit)
             {
                 EnteredFrom = DetermineEnteredFrom(moveDirection);
-                DetermineRoomExits(doorValue);
+                DetermineRoomExits(roomTile.DoorValue);
             }
 
             //DoorErrorCheck();
 
             RoomTypeCheck(RoomType);
+
+            EventName = roomTile.EventName;
+
+            EventText = roomTile.EventText;
+
+            TileImage = roomTile.TileImage;
+
+            TileRoomImage = roomTile.TileRoomImage;
 
         }// End -----------------------------------------------------------------------------------------------------
 

@@ -38,7 +38,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             v.001a (10/07) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class GameSession
+    public sealed class GameSession
     {
         //========================================== PROPERTIES ==================================================//
 
@@ -91,7 +91,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         // CARD STACKS
-        private int _roomTileCount = 25;                            // The total amount of RoomTile objects in the database.
+        private int _roomTileCount = 16;                            // The total amount of RoomTile objects in the database.
 
         private int _roomCardCount = 89;                            // The total amount of RoomCard objects in the database.
 
@@ -130,7 +130,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             ExploredRooms = new List<RoomTile>();
 
-            RoomTileStack = new RoomTileStack(_game, Randomizer, _roomTileCount);
+            RoomTileStack = new RoomTileStack(_game.RoomTileService, Randomizer, _roomTileCount);
 
             RoomCardStack = new RoomCardStack(_game.RoomCardService , Randomizer, _roomCardCount);
 
@@ -233,7 +233,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
-            GameMap = new GameMap(10, 13);
+            GameMap = new GameMap(_game, 10, 13);
             GameMap.Initialize();
 
             DisplayFlavorMessage = false;
@@ -270,7 +270,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 RoomTile fromStack = RoomTileStack.PullTile();
 
                 // Update the new RoomTile's information.
-                nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue);
+                nextTile.PlaceTile(MoveDirection, fromStack);
 
                 // Set the current RoomTile as the previous room
                 SetPreviousRoom(CurrentRoom);

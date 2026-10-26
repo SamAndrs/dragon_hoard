@@ -8,9 +8,10 @@ namespace dragon_hoard.Content.Models.Enums
 {
     public enum DoorType
     {
-        Open,
+        None,
+        
         Closed,
-        Portcullis,
-        Trapped
+        
+        Portcullis
     }
 }

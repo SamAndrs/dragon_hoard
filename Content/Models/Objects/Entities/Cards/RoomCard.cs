@@ -38,7 +38,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public RoomCardEvent CardEvent { get; init; }           // The actual type of event taking place.
 
-        public string EventText { get; init; }                  // Text describing the event of the card. TODO Property via database. Replaces the need for EventMessage to look up message based on CardEvent.
+        public string EventText { get; init; }                  // Text describing the event of the card.
 
         public int? ItemId { get; init; }                       // Reference to any item attached to the RoomCard.
 
@@ -61,17 +61,14 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Texture2D? CardImage { get; set; }       
 
-        private int _width;
+        private readonly int _width;
 
-        private int _height;
+        private readonly int _height;
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        //public RoomCard(RoomCardEvent cardEvent)
         public RoomCard()
         {
-            //CardEvent = cardEvent;
-
             ChestOpened = false;
 
             CorpseSearched = false;

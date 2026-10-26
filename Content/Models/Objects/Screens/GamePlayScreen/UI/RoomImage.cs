@@ -67,12 +67,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             Height = 461;
 
             _random = randomizer;
-
-            CurrentImage = _exit;
-
-            LoadRoomTileEventTextures();
-
-            //LoadRoomCardEventTextures();
         }
 
 
@@ -100,9 +94,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             card event type. If both images are used; the Tile event image will be replaced by the 
             Card event image, once the referenced (class)EventMessageDisplay.[MessageTimer] reaches zero.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Update(GameTime gameTime, float timer, RoomType roomType, RoomCard roomCard)
+        //public void Update(GameTime gameTime, float timer, RoomType roomType, RoomCard roomCard)
+        public void Update(GameTime gameTime, float timer, RoomTile currentTile, RoomCard roomCard)
         {
-            SetTileEventImage(roomType);
+            //SetTileEventImage(roomType);
+            CurrentImage = currentTile.TileRoomImage;
 
             if (roomCard != null && timer <= 0)
                 CurrentImage = roomCard.CardImage;
@@ -123,61 +119,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        /*----------------------------------------------------------------------------------------------------------
-                                                 Set Tile Event Image				   
-        ------------------------------------------------------------------------------------------------------------
-          - Class support method. Sets the current image to be displayed based on a RoomTile's
-            [RoomType] property.
-        ----------------------------------------------------------------------------------------------------------*/
-        private void SetTileEventImage(RoomType roomType)
-        {
-            switch (roomType)
-            {
-                //case RoomType.Empty:
-                //    CurrentImage = _empty; break;
-
-                case RoomType.Exit:
-                    CurrentImage = _exit; break;
-
-                case RoomType.Corridor:
-                    int result = _random.Next(1);
-                    if (result == 0)
-                        CurrentImage = _corridor;
-                    else
-                        CurrentImage = _corridor2;
-                    break;
-
-                case RoomType.DarkRoom:
-                    CurrentImage = _darkRoom; break;
-
-                case RoomType.Rubble:
-                    CurrentImage = _rubble; break;
-
-                case RoomType.TrapRoom:
-                    CurrentImage = _empty; break;
-
-                case RoomType.BottomLessPit:
-                    CurrentImage = _bottomlessPit; break;
-
-                case RoomType.BridgeRoom:
-                    CurrentImage = _bridgeRoom; break;
-
-                case RoomType.WebbedRoom:
-                    CurrentImage = _webbedRoom; break;
-
-                case RoomType.SpinRoom:
-                    CurrentImage = _spinRoom; break;
-
-                case RoomType.TreasureRoom:
-                    CurrentImage = _treasureRoom; break;
-
-                default:
-                    CurrentImage = _empty; break;
-            }
-        }// End -----------------------------------------------------------------------------------------------------
-
-
-       
+              
 
         private void LoadRoomTileEventTextures()
         {
