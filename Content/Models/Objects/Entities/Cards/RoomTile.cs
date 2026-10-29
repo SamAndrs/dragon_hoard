@@ -98,62 +98,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         //============================================ METHODS ===================================================//
         #region methods
 
-        /*
-         * How it works
-rotation: The angle in radians. MonoGame uses radians, not degrees.
-
-MathHelper.PiOver2: 90° clockwise.
-
-MathHelper.Pi: 180°.
-
-MathHelper.PiOver4: 45° clockwise.
-
-origin: The point around which the texture rotates. Using the center makes the room rotate around its middle.
-
-roomPosition: The screen position of the rotation origin, so it represents the room's center in this example.
-
-For a tile-based room system
-If your rooms can face four directions, you can represent their rotation with an enum:
 
 
-csharp
-public enum RoomRotation
-{
-    North,
-    East,
-    South,
-    West
-}
-Then convert the orientation to a rotation angle:
 
-        float rotation = (int)room.Rotation * MathHelper.PiOver2;
-        Assuming North = 0, East = 1, South = 2, and West = 3, this rotates each room in 90° increments.
-
-        One important detail: If your room texture is not square, rotating it 90° swaps its effective width and height.
-        You'll also need to account for that when positioning rooms on your tile grid.
-        */
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Draw					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class method. Draws the rotated TileImage texture onto the GameMapScreen.
+        ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-            switch (EnteredFrom)
-            {
-                case Direction.Up:  // Rotate 180 degrees
-                    _rotation = MathHelper.Pi; break;
-
-                case Direction.Left:   // Rotate 90 degrees
-                    _rotation = MathHelper.PiOver2; break;
-
-                 case Direction.Right:
-                    _rotation = MathHelper.PiOver2 * 3; break;
-            }
-
-
-
-            LargeSquare = new Rectangle(800, 400, _size, _size);
-
-            Vector2 origin = new Vector2(
-                TileImage.Width / 2f,
-                TileImage.Height / 2f
-            );
+            // origin: The point around which the texture rotates. Using the center makes the room rotate around its middle.
+            Vector2 origin = new Vector2(TileImage.Width / 2f, TileImage.Height / 2f);
 
             spriteBatch.Draw(
                 TileImage,
@@ -166,9 +122,9 @@ Then convert the orientation to a rotation angle:
                 SpriteEffects.None,
                 0f
             );
-        }
+        }// End -----------------------------------------------------------------------------------------------------
 
-        
+
         /*----------------------------------------------------------------------------------------------------------
                                                        Place Tile					   
         ------------------------------------------------------------------------------------------------------------
@@ -196,6 +152,8 @@ Then convert the orientation to a rotation angle:
                 DetermineRoomExits(roomTile.DoorValue);
 
                 CheckConnectedExits(_mapGrid, Row, Col);
+
+                RotateAndPositionTile(EnteredFrom);
             }
 
             
@@ -336,6 +294,35 @@ Then convert the orientation to a rotation angle:
 
 
         /*----------------------------------------------------------------------------------------------------------
+                                               Rotate And Position Tile					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class support method. Calculates how many radians to rotate the Tile's TileImage in order to 
+                reflect the RoomTile being placed on the gameboard based on direction entered.
+                Also sets up the 'Square' to display on the GameMapScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        private void RotateAndPositionTile(Direction direction)
+        {
+
+            switch (EnteredFrom)
+            {
+                case Direction.Up:  // Rotate 180°. degrees
+                    _rotation = MathHelper.Pi; break;
+
+                case Direction.Left: // PiOver2: 90° clockwise. 
+                    _rotation = MathHelper.PiOver2; break;
+
+                case Direction.Right:
+                    _rotation = MathHelper.PiOver2 * 3; break;
+            }
+
+            //LargeSquare = new Rectangle(1 + Col * _size, 1 + Row * _size, _size, _size);
+
+            LargeSquare = new Rectangle(800, 400, _size, _size);
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
                                                        Door Error Check					   
         ------------------------------------------------------------------------------------------------------------
           - Class specific method. Compares Exits and Doors to prevent a door being assigned to a non-existent exit.
@@ -352,10 +339,10 @@ Then convert the orientation to a rotation angle:
 
         /*----------------------------------------------------------------------------------------------------------
                                                       Check Connected Exits					   
-       ------------------------------------------------------------------------------------------------------------
+        ------------------------------------------------------------------------------------------------------------
          - Class support method. Checks the four neighboring tiles and adjusts available exits in the current
             RoomTile, preventing the player to walk through walls even if there is an available exit.
-       ----------------------------------------------------------------------------------------------------------*/
+        ----------------------------------------------------------------------------------------------------------*/
         private void CheckConnectedExits(RoomTile[,] mapGrid, int row, int col)
         {
 
