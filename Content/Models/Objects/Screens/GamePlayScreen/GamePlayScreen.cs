@@ -409,7 +409,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             bool displayCardData = false;
 
-            bool displayRoomTileData = false;
+            bool displayRoomTileData = true;
 
             bool displayRoomTile = true;
 
@@ -489,8 +489,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
 
-            if(displayRoomTile && _currentRoom.TileImage != null)
-                spriteBatch.Draw(_currentRoom.TileImage, new Rectangle((int)_game.CenterX+150, 500, 128,128),Color.White);
+            if (displayRoomTile && _currentRoom.TileImage != null)
+                _currentRoom.Draw(spriteBatch);
 
         }// End -----------------------------------------------------------------------------------------------------
         #endregion

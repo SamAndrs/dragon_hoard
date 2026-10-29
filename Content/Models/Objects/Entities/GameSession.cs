@@ -91,7 +91,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         // CARD STACKS
-        private int _roomTileCount = 16;                            // The total amount of RoomTile objects in the database.
+        private int _roomTileCount = 125;                            // The total amount of RoomTile objects in the database.
 
         private int _roomCardCount = 89;                            // The total amount of RoomCard objects in the database.
 
@@ -134,7 +134,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             RoomCardStack = new RoomCardStack(_game.RoomCardService , Randomizer, _roomCardCount);
 
-            ImageDisplay = new RoomImage(_game, Randomizer);
+            ImageDisplay = new RoomImage(_game);
         }
 
 

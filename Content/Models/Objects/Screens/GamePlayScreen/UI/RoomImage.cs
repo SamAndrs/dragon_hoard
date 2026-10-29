@@ -22,6 +22,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         :: DONE ---------------------------
             (2026)
+            v.001b (10/26) Altered to account for database implementation.
             v.001a (10/18) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,36 +38,19 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private Rectangle _imageBox;
 
-        private Random _random;
 
         private Point _position;
 
         public Texture2D CurrentImage { get; private set; }
 
-        // ROOMTILE EVENT IMAGES
-        private Texture2D _empty;
-        private Texture2D _exit;
-        private Texture2D _corridor;
-        private Texture2D _corridor2;
-        private Texture2D _darkRoom;
-        private Texture2D _treasureRoom;
-        private Texture2D _rubble;
-        private Texture2D _bottomlessPit;
-        private Texture2D _bridgeRoom;
-        private Texture2D _webbedRoom;
-        private Texture2D _spinRoom;
-
-
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomImage(MainGame game, Random randomizer)
+        public RoomImage(MainGame game)
         {
             _game = game;
 
             Width = 307;
 
             Height = 461;
-
-            _random = randomizer;
         }
 
 
@@ -94,10 +78,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             card event type. If both images are used; the Tile event image will be replaced by the 
             Card event image, once the referenced (class)EventMessageDisplay.[MessageTimer] reaches zero.
         ----------------------------------------------------------------------------------------------------------*/
-        //public void Update(GameTime gameTime, float timer, RoomType roomType, RoomCard roomCard)
         public void Update(GameTime gameTime, float timer, RoomTile currentTile, RoomCard roomCard)
         {
-            //SetTileEventImage(roomType);
             CurrentImage = currentTile.TileRoomImage;
 
             if (roomCard != null && timer <= 0)
@@ -117,26 +99,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             if(CurrentImage != null)
                 spriteBatch.Draw(CurrentImage, _imageBox, Color.White);
         }// End -----------------------------------------------------------------------------------------------------
-
-
-              
-
-        private void LoadRoomTileEventTextures()
-        {
-            _empty = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomEmpty");
-            _exit = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomExit");
-            _corridor = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomCorridor");
-            _corridor2 = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomCorridor2");
-            _darkRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomDark");
-            _treasureRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomTreasure");
-            _rubble = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomRubble");
-            _bottomlessPit = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomBottomlessPit");
-            _bridgeRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomBridge");
-            _webbedRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomWebbed");
-            _spinRoom = _game.Content.Load<Texture2D>("Images/RoomCardImages/img_roomSpin");
-        }// End -----------------------------------------------------------------------------------------------------
-
-
 
         #endregion
 

@@ -1,6 +1,8 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Reflection.Metadata.Ecma335;
+using System.Xml.Linq;
 
 namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 {
@@ -61,6 +63,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public int Col { get; set; }                                // Column-position on gamemap grid
 
+        private readonly RoomTile[,] _mapGrid;
+
+        private float _rotation;
+
 
         // GRAPHICS
         public Texture2D TileImage { get; set; }                    // Tile visual representation on gamemap      
@@ -69,41 +75,98 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public Texture2D TileRoomImage { get; set; }                // Image displayed via the RoomImage-class on the GamePlayScreen.
 
-
+        private int _size = 256;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         #region Constructors
         // For RoomTile-placement
         public RoomTile() { }
-        
+
         // For gamemap
-        public RoomTile(RoomType roomType, int row, int col)
+        public RoomTile(RoomTile[,] mapGrid, RoomType roomType, int row, int col)
         {
+            _mapGrid = mapGrid;
+
             RoomType = roomType;
             
             Row = row;
             
             Col = col;
         }
-
-        // For RoomTile Stack
-        //public RoomTile(RoomType roomType, int doorValue)
-        ////public RoomTile(int tileId, RoomType roomType, int doorValue)
-        ////public RoomTile(int tileId, Texture2D roomImage, RoomType roomType, int doorValue)
-        //{
-        //    //TileId = tileId;
-
-        //    RoomType = roomType;
-
-        //    DoorValue = doorValue;
-
-        //    //Doors = doors;
-        //}
         #endregion
 
         //============================================ METHODS ===================================================//
         #region methods
 
+        /*
+         * How it works
+rotation: The angle in radians. MonoGame uses radians, not degrees.
+
+MathHelper.PiOver2: 90° clockwise.
+
+MathHelper.Pi: 180°.
+
+MathHelper.PiOver4: 45° clockwise.
+
+origin: The point around which the texture rotates. Using the center makes the room rotate around its middle.
+
+roomPosition: The screen position of the rotation origin, so it represents the room's center in this example.
+
+For a tile-based room system
+If your rooms can face four directions, you can represent their rotation with an enum:
+
+
+csharp
+public enum RoomRotation
+{
+    North,
+    East,
+    South,
+    West
+}
+Then convert the orientation to a rotation angle:
+
+        float rotation = (int)room.Rotation * MathHelper.PiOver2;
+        Assuming North = 0, East = 1, South = 2, and West = 3, this rotates each room in 90° increments.
+
+        One important detail: If your room texture is not square, rotating it 90° swaps its effective width and height.
+        You'll also need to account for that when positioning rooms on your tile grid.
+        */
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            switch (EnteredFrom)
+            {
+                case Direction.Up:  // Rotate 180 degrees
+                    _rotation = MathHelper.Pi; break;
+
+                case Direction.Left:   // Rotate 90 degrees
+                    _rotation = MathHelper.PiOver2; break;
+
+                 case Direction.Right:
+                    _rotation = MathHelper.PiOver2 * 3; break;
+            }
+
+
+
+            LargeSquare = new Rectangle(800, 400, _size, _size);
+
+            Vector2 origin = new Vector2(
+                TileImage.Width / 2f,
+                TileImage.Height / 2f
+            );
+
+            spriteBatch.Draw(
+                TileImage,
+                new Vector2(LargeSquare.X, LargeSquare.Y),
+                null,
+                Color.White,
+                _rotation,
+                origin,
+                1.0f,
+                SpriteEffects.None,
+                0f
+            );
+        }
 
         
         /*----------------------------------------------------------------------------------------------------------
@@ -131,8 +194,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             {
                 EnteredFrom = DetermineEnteredFrom(moveDirection);
                 DetermineRoomExits(roomTile.DoorValue);
+
+                CheckConnectedExits(_mapGrid, Row, Col);
             }
 
+            
             //DoorErrorCheck();
 
             RoomTypeCheck(RoomType);
@@ -141,11 +207,15 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             EventText = roomTile.EventText;
 
+            TileImageReference = roomTile.TileImageReference;
+
             TileImage = roomTile.TileImage;
+
+            TileRoomImageReference = roomTile.TileRoomImageReference;
 
             TileRoomImage = roomTile.TileRoomImage;
 
-        }// End -----------------------------------------------------------------------------------------------------
+         }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
@@ -281,6 +351,53 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
 
         /*----------------------------------------------------------------------------------------------------------
+                                                      Check Connected Exits					   
+       ------------------------------------------------------------------------------------------------------------
+         - Class support method. Checks the four neighboring tiles and adjusts available exits in the current
+            RoomTile, preventing the player to walk through walls even if there is an available exit.
+       ----------------------------------------------------------------------------------------------------------*/
+        private void CheckConnectedExits(RoomTile[,] mapGrid, int row, int col)
+        {
+
+            // Up: neighbor's Down exit
+            if (row > 0)
+            {
+                RoomTile neighbor = mapGrid[row - 1, col];
+
+                if (neighbor.RoomType != RoomType.Undiscovered && neighbor.ExitDown == false)
+                    ExitUp = false;
+            }
+
+            // Right: neighbor's Left exit
+            if (col < mapGrid.GetLength(1))
+            {
+                RoomTile neighbor = mapGrid[row, col + 1];
+
+                if (neighbor.RoomType != RoomType.Undiscovered && neighbor.ExitLeft == false)
+                    ExitRight = false;
+            }
+
+            // Down: neighbor's Up exit
+            if (row < mapGrid.GetLength(0))
+            {
+                RoomTile neighbor = mapGrid[row + 1, col];
+
+                if (neighbor.RoomType != RoomType.Undiscovered && neighbor.ExitUp == false)
+                    ExitDown = false;
+            }
+
+            // Left: neighbor's Right exit
+            if (col > 1)
+            {
+                RoomTile neighbor = mapGrid[row, col - 1];
+
+                if (neighbor.RoomType != RoomType.Undiscovered && neighbor.ExitRight == false)
+                    ExitLeft = false;
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
                                                       Room Type Check					   
         ------------------------------------------------------------------------------------------------------------
          - Class specific method. Sets the flag to allow a room to be searched depending on the type of room.
@@ -317,7 +434,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             spriteBatch.DrawString(font, $"Exits: Up: {ExitUp}\n Right: {ExitRight}\n Down: {ExitDown}\n " +
                 $"Left: {ExitLeft}", new Vector2(position.X + 5, position.Y + 115), Color.White);
 
-            spriteBatch.DrawString(font, $"Search Left: {RoomSearched.ToString()}", new Vector2(position.X + 5, position.Y + 205), Color.White);
+            spriteBatch.DrawString(font, $"Tile texture: {TileImageReference}", new Vector2(position.X + 5, position.Y + 205), Color.White);
+
+            spriteBatch.DrawString(font, $"Search Left: {RoomSearched.ToString()}", new Vector2(position.X + 5, position.Y + 220), Color.White);
         }
     }
 }
