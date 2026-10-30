@@ -33,7 +33,9 @@ namespace dragon_hoard.Content.Data
 
         public GameDatabase()
         {
-            string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDB.db");
+            //string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDB.db");
+
+            string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDBTest.db");
 
             if (!File.Exists(databasePath))
             {
@@ -66,71 +68,3 @@ namespace dragon_hoard.Content.Data
         }
     }
 }
-
-/* USE CASE:
-  
- * Fetch game data
-Let's create a C# class representing an item in your game.
-
-Create GameItem.cs:
-
-
-csharp
-public class GameItem
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-    public string Description { get; set; } = "";
-    public int Damage { get; set; }
-}
-
-* Next, add a method to GameDatabase.cs that fetches a specific item by its ID:
-public GameItem? GetItemById(int id)
-{
-    using var connection = OpenConnection();
-    using var command = connection.CreateCommand();
-
-    command.CommandText = """
-        SELECT Id, Name, Description, Damage
-        FROM Items
-        WHERE Id = $id;
-        """;
-
-    command.Parameters.AddWithValue("$id", id);
-
-    using var reader = command.ExecuteReader();
-
-    if (!reader.Read())
-        return null;
-
-    return new GameItem
-    {
-        Id = reader.GetInt32(0),
-        Name = reader.GetString(1),
-        Description = reader.GetString(2),
-        Damage = reader.GetInt32(3)
-    };
-}
-
-* 
-* protected override void LoadContent()
-    {
-        // Retrieve an item from the database.
-        GameItem? sword = _itemService.GetItem(1);
-
-        if (sword is not null)
-        {
-            System.Diagnostics.Debug.WriteLine(
-                $"Item: {sword.Name}, Damage: {sword.Damage}");
-        }
-
-        // Retrieve all items.
-        IReadOnlyList<GameItem> items =
-            _itemService.GetAllItems();
-
-        foreach (GameItem item in items)
-        {
-            System.Diagnostics.Debug.WriteLine(item.Name);
-        }
-    }
-*/

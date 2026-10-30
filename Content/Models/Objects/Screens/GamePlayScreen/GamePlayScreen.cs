@@ -18,11 +18,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         * Implement combat button feedback
         * Implement room action feedback
 
-        v.001d (10/22) Rework of UI into sub-classes.
+        
         
        
     :: DONE ---------------------------
         (2026)
+        v.001d (10/22) Rework of UI into sub-classes.
         v.001c (10/20) Addition of several UI buttons, features and assosciated methods.
         v.001b (10/09) Implementation of player movement and corresponding minimap updates.
         v.001a (10/01) Setup of basic properties and methods for core functionality.
@@ -105,7 +106,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
         private Point _optMenuPosition;
 
-        //private float _timer = 3f;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)

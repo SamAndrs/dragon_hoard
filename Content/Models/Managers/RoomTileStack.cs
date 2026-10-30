@@ -1,4 +1,5 @@
 ﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Objects.Entities;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using dragon_hoard.Content.Services;
 using Microsoft.Xna.Framework.Graphics;
@@ -103,7 +104,8 @@ namespace dragon_hoard.Content.Models.Managers
             List<RoomTile> tiles = new List<RoomTile>();
 
             tiles.AddRange(_service.GetAllRoomTiles());
-          
+
+
             // Pick random cards from the list and push them onto the stack
             for (int i = 0; i < _totalTileCount; i++)
             {

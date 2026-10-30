@@ -90,7 +90,7 @@ namespace dragon_hoard.Content.Repositories
                 Id = reader.GetInt32(0),
                 RoomType = (RoomType)reader.GetInt64(1),
                 DoorValue = reader.GetInt32(2),
-                
+                //Exits = (RoomExits)reader.GetInt32(2),
                 DoorUp = (DoorType)reader.GetInt32(3),
                 DoorRight = (DoorType)reader.GetInt32(4),
                 DoorDown = (DoorType)reader.GetInt32(5),
