@@ -156,14 +156,13 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
                 if (_gameSession.CurrentRoomCard != null)
                     _currentCard = _gameSession.CurrentRoomCard;
-                else
-                    _currentCard = null;
 
-                    _miniMap.Update(gameTime);
+                 _miniMap.Update(gameTime);
 
                 _flavorMessageDisplay.Update(gameTime);
 
-                _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _gameSession.PickedImage, _currentRoom.RoomType, _currentCard);
+                //_imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _currentRoom.RoomType, _currentCard);
+                _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _currentRoom, _currentCard);
 
                 _eventMessageDisplay.Update(gameTime);
 
@@ -408,11 +407,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             //bool mapNumbers = false;
 
-            bool displayCardData = true;
+            bool displayCardData = false;
 
-            bool displayRoomTileData = false;
+            bool displayRoomTileData = true;
 
-
+            bool displayRoomTile = true;
 
             if (showContentLoaded)
             {
@@ -490,7 +489,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
 
-
+            if (displayRoomTile && _currentRoom.TileImage != null)
+                _currentRoom.Draw(spriteBatch);
 
         }// End -----------------------------------------------------------------------------------------------------
         #endregion

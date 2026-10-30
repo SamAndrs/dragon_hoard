@@ -1,11 +1,7 @@
-﻿using dragon_hoard.Content.Models.Enums;
-using dragon_hoard.Content.Models.Objects.Entities.Cards;
-using Microsoft.Xna.Framework.Graphics;
+﻿using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using dragon_hoard.Content.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dragon_hoard.Content.Models.Managers
 {
@@ -17,13 +13,19 @@ namespace dragon_hoard.Content.Models.Managers
 
     :: TODO ---------------------------
 
-        v.001a (v.001a (10/16) Setup of basic core properties and methods.
+       * Add functionality for loading all the cards from the database via service & repository
+       * CardImages: Load all cards from db. Then foreach card in list load the CardImage (Texture2D) by its [TextureReference]
+        
+        ex. foreach (RoomCard card in roomCards)
+        {
+            card.CardImage = Content.Load<Texture2D>(card.TextureReference);
+        }
 
 
     :: DONE ---------------------------
 
         (2026)
-        
+         v.001a (v.001a (10/16) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class RoomCardStack
@@ -31,19 +33,16 @@ namespace dragon_hoard.Content.Models.Managers
         //========================================== PROPERTIES ==================================================//
         public Stack<RoomCard> CardStack { get; private set; }
 
-        private UiManager _ui;      //TODO Remove reference later?
-
-        private MainGame _game;
-
         private Random _randomizer;
 
         private int _totalCardCount;
 
+        private readonly RoomCardService _service;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomCardStack(UiManager uiManager, Random randomizer, int totalCardCount)
+        public RoomCardStack(RoomCardService service, Random randomizer, int totalCardCount)
         {
-            _ui = uiManager;
+            _service = service;
 
             _randomizer = randomizer;
 
@@ -56,7 +55,7 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                  Initialize				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. Loads all the necessary textures and delegates the creation of the stack of
+          - Class specific method. Loads all the RoomCards and delegates the creation of the stack of
             RoomCards to sub-method.
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
@@ -84,8 +83,8 @@ namespace dragon_hoard.Content.Models.Managers
         /*----------------------------------------------------------------------------------------------------------
                                                 Create Stack				   
         ------------------------------------------------------------------------------------------------------------
-         - Class specific method. TODO: Fetch all cards in database.
-            Places all available cards in a temporary list then uses for x[_totalCardCount] amount of times
+         - Class specific method. Fetches all RoomCard objects from the database.
+            Places them in a temporary list then uses for x[_totalCardCount] amount of times
             randomly picks a card to push onto the card stack.
             IMPORTANT! [_totalCardCount] must not exceed the number of actual RoomCard objects in the database.
         ----------------------------------------------------------------------------------------------------------*/
@@ -93,65 +92,14 @@ namespace dragon_hoard.Content.Models.Managers
         {
 
             CardStack = new Stack<RoomCard>();
-            // 1) Create all cards/ fetch all cards from database and put into temp list
-            // 2) Pick cards from temp list at random and place into Stack.
 
             List<RoomCard> cards = new List<RoomCard>();
 
-            //int cardNumber = 0;
-            //for (int i = 0; i < _totalCardCount; i++)
-            //{
-            //    cards.Add(new RoomCard(cardNumber, _ui.RectangleTexture, RoomCardEvent.Empty));
-            //    cardNumber++;
-            //}
-            cards.Add(new RoomCard(1, RoomCardEvent.PursuingShadow));
-            cards.Add(new RoomCard(2, RoomCardEvent.CurseOfMadMage));
-            cards.Add(new RoomCard(3, RoomCardEvent.TorchOut));
-            cards.Add(new RoomCard(4, RoomCardEvent.TwoOrcs));
-            cards.Add(new RoomCard(5, RoomCardEvent.Orc));
-            cards.Add(new RoomCard(6, RoomCardEvent.Skeleton));
-            cards.Add(new RoomCard(7, RoomCardEvent.Ogre));
-            cards.Add(new RoomCard(8, RoomCardEvent.Darkelf));
-            cards.Add(new RoomCard(9, RoomCardEvent.CorpseEaters));
-            cards.Add(new RoomCard(10, RoomCardEvent.PosionCaterpillar));
-            cards.Add(new RoomCard(11, RoomCardEvent.GiantSpider));
-            cards.Add(new RoomCard(12, RoomCardEvent.AmbushSkeleton));
-            cards.Add(new RoomCard(13, RoomCardEvent.AmbushOgre));
-            cards.Add(new RoomCard(14, RoomCardEvent.AmbushOrc));
-            cards.Add(new RoomCard(15, RoomCardEvent.VampireBats));
-            cards.Add(new RoomCard(16, RoomCardEvent.TrapDoor));
-            cards.Add(new RoomCard(17, RoomCardEvent.SpearTrap));
-            cards.Add(new RoomCard(18, RoomCardEvent.CaveIn));
-            cards.Add(new RoomCard(19, RoomCardEvent.WallArrows));
-            cards.Add(new RoomCard(20, RoomCardEvent.FallenWarrior));
-            cards.Add(new RoomCard(21, RoomCardEvent.Sarcophagus));
-            cards.Add(new RoomCard(22, RoomCardEvent.Chest));
-            cards.Add(new RoomCard(23, RoomCardEvent.Empty));
-            cards.Add(new RoomCard(24, RoomCardEvent.Empty));
-            cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            // Fetch the cards from the database.
+            cards.AddRange(_service.GetAllRoomCards());
 
-            //_totalCardCount = 0;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(22, RoomCardEvent.Chest));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-            //_totalCardCount++;
-            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
-
-            // Pick random cards from the list and push them onto the stack
+            // Pick a random card from the list and push it onto the stack.
+            // Remove the card from the list so it won't be picked again. Rinse repeat.
             for (int i = 0; i < _totalCardCount; i++)
             {
                 // Pick a random card

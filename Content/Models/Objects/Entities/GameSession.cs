@@ -38,7 +38,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             v.001a (10/07) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class GameSession
+    public sealed class GameSession
     {
         //========================================== PROPERTIES ==================================================//
 
@@ -86,12 +86,29 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         public RoomImage ImageDisplay { get; private set; }
 
-        public int PickedImage { get; private set; }
-
         // Messages
         public bool DisplayFlavorMessage { get; set; }              // Flag switch for displaying 'flavor' message
-       
+
+
         // CARD STACKS
+        private int _roomTileCount = 125;                            // The total amount of RoomTile objects in the database.
+
+        private int _roomCardCount = 89;                            // The total amount of RoomCard objects in the database.
+
+        private int _doorCardCount = 0;
+
+        private int _searchCardCount = 0;
+
+        private int _chestCardCount = 0;
+
+        private int _corpseCardCount = 0;
+
+        private int _trapCardCount = 0;
+
+        private int _treasureCardCount = 0;
+
+        private int _dragonCardCount = 0;
+
         public RoomTileStack RoomTileStack { get; private set; }
 
         public RoomCardStack RoomCardStack { get; private set; }
@@ -113,11 +130,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             ExploredRooms = new List<RoomTile>();
 
-            RoomTileStack = new RoomTileStack(_game, Randomizer, 25);
+            RoomTileStack = new RoomTileStack(_game.RoomTileService, Randomizer, _roomTileCount);
 
-            RoomCardStack = new RoomCardStack(_ui, Randomizer, 25);
+            RoomCardStack = new RoomCardStack(_game.RoomCardService , Randomizer, _roomCardCount);
 
-            ImageDisplay = new RoomImage(_game, Randomizer);
+            ImageDisplay = new RoomImage(_game);
         }
 
 
@@ -216,12 +233,11 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             RoomTileStack.Initialize();
             RoomCardStack.Initialize();
 
-            GameMap = new GameMap(10, 13);
+            GameMap = new GameMap(_game, 10, 13);
             GameMap.Initialize();
 
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
-            //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
         }
 
         public void CreateTestRound()
@@ -254,7 +270,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 RoomTile fromStack = RoomTileStack.PullTile();
 
                 // Update the new RoomTile's information.
-                nextTile.PlaceTile(MoveDirection, fromStack, fromStack.DoorValue);
+                nextTile.PlaceTile(MoveDirection, fromStack);
 
                 // Set the current RoomTile as the previous room
                 SetPreviousRoom(CurrentRoom);
@@ -278,8 +294,6 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             if (CurrentRoom.RoomType == RoomType.Empty)
             {
                 CurrentRoomCard = RoomCardStack.PullCard();
-                PickedImage = Randomizer.Next(3);
-                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
                 DoRoomCardEvent(CurrentRoomCard);                
             }
 
@@ -287,13 +301,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             else if(CurrentRoom.RoomType == RoomType.Corridor)
             {
                 //TODO: Allow extra movement (1 RoomTile)
-                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
             }
             // If the RoomTile has an event type of some kind, run the event.
             else
             {
-                //ImageDisplay.SetCurrentImage(CurrentRoom.RoomType, CurrentRoomCard);
-                PickedImage = Randomizer.Next(3);
                 DoRoomTileEvent(CurrentRoom);
             }
 

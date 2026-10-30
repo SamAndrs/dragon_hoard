@@ -1,9 +1,14 @@
-﻿using dragon_hoard.Content.Models.Managers;
+﻿using dragon_hoard.Content.Data;
+using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities;
+using dragon_hoard.Content.Repositories;
+using dragon_hoard.Content.Repositories.Interfaces;
+using dragon_hoard.Content.Services;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.ComponentModel;
 
 namespace dragon_hoard
 {
@@ -18,7 +23,7 @@ namespace dragon_hoard
 
     :: TODO ---------------------------
 
-                
+                v0.001d (10/25) Implementation of database with Data Access- and service layer.
         
         
 
@@ -74,10 +79,16 @@ namespace dragon_hoard
         public Texture2D RectangleTexture { get; set; }     // Pixel
 
         // CONTENT MANAGERS
+        private GameDatabase _database = null!;
+        
         public GameScreenManager GameScreenManager { get; private set; }
         public readonly UiManager _uiManager;
 
         public GameSession GameSession { get; private set; }
+
+        // SERVICES
+        public RoomTileService RoomTileService { get; private set; } = null!;
+        public RoomCardService RoomCardService { get; private set; } = null!;
 
         // DEVICES
         public MouseState currentMouseState { get; private set; }
@@ -86,6 +97,17 @@ namespace dragon_hoard
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public MainGame()
         {
+            // Initialize the database connection provider
+            _database = new GameDatabase();
+
+            // Connect repositories to the database.
+            IRoomTileRepository roomTileRepository = new RoomTileRepository(this, _database);
+            IRoomCardRepository roomCardRepository = new RoomCardRepository(this, _database);
+
+            // Connect services to repositories.
+            RoomTileService = new RoomTileService(roomTileRepository);
+            RoomCardService = new RoomCardService(roomCardRepository);
+
             _graphics = new GraphicsDeviceManager(this);
 
             _graphics.PreferredBackBufferWidth = _resolutionWidth;

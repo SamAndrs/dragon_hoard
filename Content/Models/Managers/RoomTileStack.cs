@@ -1,5 +1,6 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
+using dragon_hoard.Content.Services;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace dragon_hoard.Content.Models.Managers
 
         private MainGame _game;
 
+        private readonly RoomTileService _service;
+
         public Stack<RoomTile> TileStack { get; private set; }
 
         private Random _randomizer;
@@ -41,9 +44,9 @@ namespace dragon_hoard.Content.Models.Managers
         
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomTileStack(MainGame game, Random random, int totalCount)
+        public RoomTileStack(RoomTileService service, Random random, int totalCount)
         {
-            _game = game;
+            _service = service;
 
             _randomizer = random;
 
@@ -61,16 +64,7 @@ namespace dragon_hoard.Content.Models.Managers
         ----------------------------------------------------------------------------------------------------------*/
         public void Initialize()
         {
-            // Load 4-tile Texures
-            Load4DoorTextures();
-
-            Load3DoorTextures();
-
-            Load2DoorTextures();
-
-            LoadDeadEndTextures();
-
-            CreateStack();
+           CreateStack();
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -88,28 +82,7 @@ namespace dragon_hoard.Content.Models.Managers
             return null;
         }// End -----------------------------------------------------------------------------------------------------
 
-
-        private void Load4DoorTextures()
-        {
-            // TODO
-        }
-
-        private void Load3DoorTextures()
-        {
-            // TODO
-        }
-
-        private void Load2DoorTextures()
-        {
-            // TODO
-        }
-
-        private void LoadDeadEndTextures()
-        {
-            // TODO
-        }
-
-       
+      
 
         /*----------------------------------------------------------------------------------------------------------
                                                 Create Stack				   
@@ -129,44 +102,8 @@ namespace dragon_hoard.Content.Models.Managers
 
             List<RoomTile> tiles = new List<RoomTile>();
 
-            //for (int i = 0; i < _totalTileCount; i++)
-            //{
-            //    tiles.Add(new RoomTile(1, RoomType.Empty, 1));
-            //}
-
-            tiles.Add(new RoomTile(1, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(2, RoomType.Corridor, 1));
-            tiles.Add(new RoomTile(3, RoomType.DarkRoom, 1));
-            tiles.Add(new RoomTile(4, RoomType.Corridor, 1));
-            tiles.Add(new RoomTile(5, RoomType.Rubble, 1));
-            tiles.Add(new RoomTile(6, RoomType.TrapRoom,1));
-            tiles.Add(new RoomTile(7, RoomType.BottomLessPit, 7));
-            tiles.Add(new RoomTile(8, RoomType.BridgeRoom, 7));
-            tiles.Add(new RoomTile(9, RoomType.WebbedRoom, 1));
-            tiles.Add(new RoomTile(10, RoomType.SpinRoom, 8));
-            tiles.Add(new RoomTile(11, RoomType.Empty,  1));
-            tiles.Add(new RoomTile(12, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(13, RoomType.Empty,  1));
-            tiles.Add(new RoomTile(14, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(15, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(16, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(17, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(18, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(19, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(20, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(21, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(22, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(23, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(24, RoomType.Empty, 1));
-            tiles.Add(new RoomTile(25, RoomType.Empty, 1));
-
-
-            //TileStack.Push(new RoomTile(2, RoomType.Empty, 8)); // (only entrance)
-            //TileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
-            //TileStack.Push(new RoomTile(2, RoomType.Empty, 4)); // (entrance, up, down)
-            //TileStack.Push(new RoomTile(2, RoomType.Empty, 7)); // (entrance, opposite end)
-            //TileStack.Push(new RoomTile(2, RoomType.Empty, 7)); //(entrance, down, opposite end)
-
+            tiles.AddRange(_service.GetAllRoomTiles());
+          
             // Pick random cards from the list and push them onto the stack
             for (int i = 0; i < _totalTileCount; i++)
             {

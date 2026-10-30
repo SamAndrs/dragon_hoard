@@ -14,16 +14,22 @@
   <ItemGroup>
     <None Remove="Content\Images\dragonhoard_title.png" />
     <None Remove="Content\Images\dragon_title_img.png" />
+    <None Remove="drgHoardDB.db" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="drgHoardDB.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.21" />
     <PackageReference Include="MonoGame.Extended" Version="6.1.1" />
     <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="6.1.1" />
-    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.5.1" />
-    <PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.5.1" />
+    <PackageReference Include="MonoGame.Framework.Native" Version="3.8.6" />
+    <PackageReference Include="MonoGame.Runtime.Windows.DX12" Version="3.8.6" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\Data\" />
     <Folder Include="Content\Models\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
