@@ -674,6 +674,19 @@
 /processorParam:Version=3.8.5.1
 /build:Images/RoomCardImages/img_roomTrapDoor.png
 
+#begin Images/RoomCardImages/img_roomTreasure.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/processorParam:Version=3.8.5.1
+/build:Images/RoomCardImages/img_roomTreasure.png;Images/RoomCardImages/img_roomTreasure
+
 #begin Images/RoomCardImages/img_roomTwoOrcs.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -1453,17 +1466,4 @@
 /processorParam:TextureFormat=Color
 /processorParam:Version=3.8.5.1
 /build:Images/SunIcon.png
-
-#begin img_roomTreasure.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/processorParam:Version=3.8.5.1
-/build:img_roomTreasure.png;Images/RoomCardImages/img_roomTreasure
 

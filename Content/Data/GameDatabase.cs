@@ -33,9 +33,7 @@ namespace dragon_hoard.Content.Data
 
         public GameDatabase()
         {
-            //string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDB.db");
-
-            string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDBTest.db");
+            string databasePath = Path.Combine(AppContext.BaseDirectory, "drgHoardDB.db");
 
             if (!File.Exists(databasePath))
             {
