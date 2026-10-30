@@ -130,6 +130,27 @@ namespace dragon_hoard.Content.Models.Managers
             cards.Add(new RoomCard(24, RoomCardEvent.Empty));
             cards.Add(new RoomCard(25, RoomCardEvent.Empty));
 
+            //_totalCardCount = 0;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(22, RoomCardEvent.Chest));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+            //_totalCardCount++;
+            //cards.Add(new RoomCard(25, RoomCardEvent.Empty));
+
             // Pick random cards from the list and push them onto the stack
             for (int i = 0; i < _totalCardCount; i++)
             {

@@ -27,9 +27,9 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
         // FUNCTIONAL
         internal Rectangle BoundingBox { get; set; } = rect;        // Bounding box of the UI Object
 
-        internal bool IsClickable { get; set; }               // On/Off for when/ if the UI Object can be clicked.
+        internal bool IsClickable { get; set; }                     // On/Off for when/ if the UI Object can be clicked.
 
-        internal UiManager _ui = uiManager;                 // Reference to UIManager for access to Fonts etc.
+        internal UiManager _ui = uiManager;                         // Reference to UIManager for access to Fonts etc.
 
         // VISUAL
         internal bool IsVisible { get; private set; } = visible;             // Option to turn object visibility On/Off 

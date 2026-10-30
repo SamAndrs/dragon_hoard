@@ -15,6 +15,9 @@ namespace dragon_hoard.Content.Models.Enums
         Sarcophagus,
         FallenWarrior,
 
+        // Item
+        Item,
+
         // Traps
         TrapDoor,
         SpearTrap,

@@ -51,6 +51,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         // public Dictionary<Item, int> Treasure { get; private set; }
 
+        public int Gold { get; private set; }
+
         // MISC
         public bool TorchIsOn { get; set; }
 
@@ -73,6 +75,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Armor = arm;
 
             Luck = lck;
+
+            Gold = 0;
         }
 
 

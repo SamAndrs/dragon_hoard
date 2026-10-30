@@ -118,8 +118,16 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
         {
             if(IsVisible)
             {
-                spriteBatch.Draw(Background, BoundingBox, BackgroundColor);
-                spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+                if(IsClickable)
+                {
+                    spriteBatch.Draw(Background, BoundingBox, BackgroundColor);
+                    spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+                }
+                else
+                {
+                    spriteBatch.Draw(Background, BoundingBox, Color.DarkGray);
+                    spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+                }
             }
         }// End -----------------------------------------------------------------------------------------------------
 
