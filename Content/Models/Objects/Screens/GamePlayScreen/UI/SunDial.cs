@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using dragon_hoard.Content.Models.Objects.Entities;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dragon_hoard.Content.Models.Objects.Entities
+namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 {
     ///////////////////////////////////////// SUN DIAL CLASS ////////////////////////////////////////////////////
     /*
@@ -79,7 +80,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             _position = position;
             for (int i = 0; i < Steps.Length; i++)
             {
-                Steps[i] = new Rectangle((int)_position.X + (i * 36), (int)_position.Y,_iconSize,_iconSize);
+                Steps[i] = new Rectangle(_position.X + i * 36, _position.Y,_iconSize,_iconSize);
             }
 
             _isVisible = true;

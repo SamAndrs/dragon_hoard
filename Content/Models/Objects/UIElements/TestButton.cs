@@ -55,8 +55,19 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
                 spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
             }
            
-        }      
-        
+        }
+
+
+        public override void Draw(SpriteBatch spriteBatch, Rectangle sourceRect)
+        {
+            if (IsVisible)
+            {
+                spriteBatch.Draw(Background, BoundingBox, sourceRect, BackgroundColor);
+                spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+            }
+
+        }
+
         //public void IsClicked() => Clicked = true;
 
         //public void ResetClicked() => Clicked = false;

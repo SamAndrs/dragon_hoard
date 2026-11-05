@@ -3,10 +3,7 @@ using dragon_hoard.Content.Models.Objects.Entities;
 using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Screens;
 using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {
@@ -296,19 +293,19 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         private void InitializeButtons()
         {          
-            btn_pilgrim.Initialize(Color.Brown, "", Color.White, Vector2.Zero, true, 0);
+            btn_pilgrim.Initialize(Color.Brown, "", null,Color.White, Vector2.Zero, true, 0);
             btn_pilgrim.Background = img_pilgrim;
 
-            btn_knight.Initialize(Color.Gray, "", Color.Black, Vector2.Zero, true, 0);
+            btn_knight.Initialize(Color.Gray, "", null, Color.Black, Vector2.Zero, true, 0);
             btn_knight.Background = img_knight;
 
-            btn_viking.Initialize(Color.Yellow, "", Color.Black, Vector2.Zero, true, 0);
+            btn_viking.Initialize(Color.Yellow, "", null, Color.Black, Vector2.Zero, true, 0);
             btn_viking.Background = img_viking;
 
-            btn_archer.Initialize(Color.Blue, "", Color.White, Vector2.Zero, true, 0);
+            btn_archer.Initialize(Color.Blue, "", null, Color.White, Vector2.Zero, true, 0);
             btn_archer.Background = img_archer;
 
-            btn_startGame.Initialize(Color.LimeGreen, "Start Game", Color.Black, new Vector2(btn_startGame.BoundingBox.Left + 25,
+            btn_startGame.Initialize(Color.LimeGreen, "Start Game", null, Color.Black, new Vector2(btn_startGame.BoundingBox.Left + 25,
                 btn_startGame.BoundingBox.Top + 10), true, 0);
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -325,28 +322,28 @@ namespace dragon_hoard.Content.Models.Objects.Screens
             switch (heroName)
             {
                 case "pilgrim":
-                    _pcName = "the Pilgrim";
+                    _pcName = "Pilgrim";
                     _pcStats = new int[5] { 15, 4, 7, 4, 8 }; // health, str, dex, armr, lck
                     _equipment = _charGear[0];
                     btn_pilgrim.ResetButton();
                     break;
 
                 case "knight":
-                    _pcName = "the Knight";
+                    _pcName = "Knight";
                     _pcStats = new int[5] { 17, 6, 4, 9, 4 };
                     _equipment = _charGear[1];
                     btn_knight.ResetButton();
                     break;
 
                 case "viking":
-                    _pcName = "the Viking";
+                    _pcName = "Viking";
                     _pcStats = new int[5] { 16, 7, 5, 6, 5 };
                     _equipment = _charGear[2];
                     btn_viking.ResetButton();
                     break;
 
                 case "archer":
-                    _pcName = "the Archer";
+                    _pcName = "Archer";
                     _pcStats = new int[5] { 11, 3, 8, 5, 7 };
                     _equipment = _charGear[3];
                     btn_archer.ResetButton();
@@ -354,7 +351,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
 
                default: // Pilgrim is set as default
-                    _pcName = "the Pilgrim";
+                    _pcName = "Pilgrim";
                     _pcStats = new int[5] { 15, 4, 7, 4, 8 }; // health, str, dex, armr, lck
                     _equipment = _charGear[0];
                     break;
@@ -368,7 +365,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         private void SetDefaultHeroStats()
         {
-            _pcName = "the Pilgrim";
+            _pcName = "Pilgrim";
             _pcStats = new int[5] { 15, 4, 7, 4, 8 };   // health, str, dex, armr, lck
 
             _charGear.AddRange(new List<string>
@@ -438,6 +435,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             // Assign the player character to the game session and initialize the session.
             _gameSession.Initialize(_character);
+            // Load the images to use for the character's combat cards.
+            _character.LoadCardImages(_game);
 
             LoadNextScreen(_screenManager.GamePlay);
 

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace dragon_hoard.Content.Models.Objects.Entities
+namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 {
     ///////////////////////////////////////// HEALTH BAR CLASS ///////////////////////////////////////////////////
     /*
@@ -67,10 +67,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
 
                 //spriteBatch.Draw(_barImage, _healthBoxes[i], Color.Red);
-                spriteBatch.Draw(_barImage, new Rectangle((int)_position.X, (int)_position.Y - i * (_healthBoxSize + 3), _healthBoxSize, _healthBoxSize), Color.DarkBlue);
+                spriteBatch.Draw(_barImage, new Rectangle(_position.X, _position.Y - i * (_healthBoxSize + 3), _healthBoxSize, _healthBoxSize), Color.DarkBlue);
 
                 if (i <= _currentHealth)
-                    spriteBatch.Draw(_barImage, new Rectangle((int)_position.X, (int)_position.Y - i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
+                    spriteBatch.Draw(_barImage, new Rectangle(_position.X, _position.Y - i * (_healthBoxSize +3), _healthBoxSize, _healthBoxSize), Color.Red);
 
                 
             }

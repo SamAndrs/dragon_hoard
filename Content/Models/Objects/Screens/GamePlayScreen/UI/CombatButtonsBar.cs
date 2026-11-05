@@ -14,11 +14,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
     :: TODO ---------------------------
         
-        v.001b (??/??) Add the necessary support for the actual combat management.
+         *(??/??) Add the necessary support for the actual combat management.
          
-
+        
 
     :: DONE ---------------------------
+        v.001b (11/05) Added functionality for the buttons to display the player character's combat cards.
         v.001a (10/22) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private SpriteFont _font;
 
+        private PlayerCharacter _character;
+
 
         // FUNCTIONAL
         private bool _isInCombat;
@@ -50,16 +53,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private ClickButton _btnAtkC;
 
 
+
+
         // GRAPHICS 
         private Point _position;
 
-        private int _buttonSize;
+        private int _buttonWidth;
 
-        private Texture2D _imgAtkA;
-        
-        private Texture2D _imgAtkB;
-        
-        private Texture2D _imgAtkC;
+        private int _buttonHeight;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public CombatButtonsBar(MainGame game, UiManager ui, GameSession session) 
@@ -71,6 +72,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             _ui = ui;
 
             _session = session;
+
+            _character = _session.PlayerCharacter;
         }
 
 
@@ -92,11 +95,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
             _combatRound = _session.CombatRound;
 
-            _buttonSize = 40;
+            _buttonWidth = 150;
 
-            LoadTextures(_game);
+            _buttonHeight = 225;
 
-            LoadButtons(_position, _buttonSize);
+            LoadButtons(_position, _buttonWidth, _buttonHeight);
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -111,8 +115,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             _isInCombat = _session.PlayerInCombat;
 
+            
             if (!_isInCombat)
             {
+                _btnAtkA.SetInvisible();
+                _btnAtkB.SetInvisible();
+                _btnAtkC.SetInvisible();
+
+
                 _btnAtkA.SetNonClickable();
                 _btnAtkB.SetNonClickable();
                 _btnAtkC.SetNonClickable();
@@ -123,6 +133,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             
             if (_combatRound > 0)
             {
+                _btnAtkA.SetVisibility();
+                _btnAtkB.SetVisibility();
+                _btnAtkC.SetVisibility();
+
+
                 _btnAtkA.SetClickable();
                 _btnAtkB.SetClickable();
                 _btnAtkC.SetClickable();
@@ -156,38 +171,28 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        /*----------------------------------------------------------------------------------------------------------
-                                                      Load Textures					   
-        ------------------------------------------------------------------------------------------------------------
-            - Class support method for loading the textures for the buttons.
-        ----------------------------------------------------------------------------------------------------------*/
-        private void LoadTextures(MainGame game)
-        {
-            _imgAtkA = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>(""); // TODO
-            
-            _imgAtkB = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>(""); // TODO
-
-            _imgAtkC = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>(""); // TODO
-        }// End -----------------------------------------------------------------------------------------------------
-
 
         /*----------------------------------------------------------------------------------------------------------
                                                      Load Buttons					   
         ------------------------------------------------------------------------------------------------------------
             - Class support method for creating and initiating the 3 buttons used during a combat sequence.
         ----------------------------------------------------------------------------------------------------------*/
-        private void LoadButtons(Point position, int btnSize)
+        private void LoadButtons(Point position, int btnWidth, int btnHeight)
         {
-            _btnAtkA = new ClickButton(_ui, new Rectangle(position.X, position.Y, btnSize, btnSize + 10), true);
-            _btnAtkA.Initialize(Color.White, "A", Color.Black, new Vector2(position.X + 5, position.Y + 5), false, 0);
+            _btnAtkA = new ClickButton(_ui, new Rectangle(position.X, position.Y, btnWidth, btnHeight), false);
+            _btnAtkA.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnAtkA.Background = _character.CombatCardA;
 
-            float posB_X = position.X + btnSize * 1 + 5;
-            _btnAtkB = new ClickButton(_ui, new Rectangle((int)posB_X, position.Y, btnSize, btnSize + 10), true);
-            _btnAtkB.Initialize(Color.White, "B", Color.Black, new Vector2((int)posB_X + 5, position.Y + 5), false, 0);
+            float posB_X = position.X + (btnWidth + 5) * 1;
+            _btnAtkB = new ClickButton(_ui, new Rectangle((int)posB_X, position.Y, btnWidth, btnHeight), false);
+            _btnAtkB.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnAtkB.Background = _character.CombatCardB;
 
-            float posC_X = position.X + btnSize * 2 + 10;
-            _btnAtkC = new ClickButton(_ui, new Rectangle((int)posC_X, position.Y, btnSize, btnSize + 10), true);
-            _btnAtkC.Initialize(Color.White, "C", Color.Black, new Vector2((int)posC_X + 5, position.Y + 5), false, 0);
+            float posC_X = position.X + (btnWidth + 5) * 2;
+            _btnAtkC = new ClickButton(_ui, new Rectangle((int)posC_X, position.Y, btnWidth, btnHeight), false);
+            _btnAtkC.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnAtkC.Background = _character.CombatCardC;
+
         }// End -----------------------------------------------------------------------------------------------------
 
 

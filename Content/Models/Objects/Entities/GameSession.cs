@@ -225,6 +225,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         public void SetPlayerCanMove(bool setFlag) => PlayerCanMove = setFlag;
         // End -----------------------------------------------------------------------------------------------------
 
+
+        public void PlayerCombatState(int round, bool inCombat)
+        {
+            CombatRound = round;
+            PlayerInCombat = inCombat;
+        }
+
         #endregion
 
         // DEBUG

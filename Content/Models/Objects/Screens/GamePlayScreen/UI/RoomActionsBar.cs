@@ -19,6 +19,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
 
     :: DONE ---------------------------
+         v.001b (10/31) Added textures to buttons.
          v.001a (10/23) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private int _searchTimes;
 
         // FUNCTIONAL
+        private bool _isInCombat;
+
         private ClickButton _btnSearchRoom;
 
         private ClickButton _btnSearchCorpse;
@@ -54,21 +57,33 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private int _buttonHeight;
 
-        private Texture2D _imgSearchRoom;
+        private Texture2D _uiTextures;                      // Reference to texture of UI icon/ button images
 
-        private Texture2D _imgSearchCorpse;
+        private Rectangle _searchRoomOn;                    // Snapshot rectangle of UiTexture for the button image.
 
-        private Texture2D _imgOpen;
-        
-        private Texture2D _imgPickUp;
+        private Rectangle _searchRoomOff;
+
+        private Rectangle _searchCorpseOn;
+
+        private Rectangle _searchCorpseOff;
+
+        private Rectangle _openOn;
+
+        private Rectangle _openOff;
+
+        private Rectangle _pickUpOn;
+
+        private Rectangle _pickUpOff;
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomActionsBar(UiManager ui, GameSession session)
+        public RoomActionsBar(UiManager ui, GameSession session, Texture2D uiTextures)
         {
             _ui = ui;
 
             _session = session;
+
+            _uiTextures = uiTextures;
         }
 
 
@@ -84,9 +99,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             _position = position;
 
-            _buttonWidth = 80;
+            _buttonWidth = 96;
 
-            _buttonHeight = 30;
+            _buttonHeight = 52;
 
             _currentTile = _session.CurrentRoom;
 
@@ -109,6 +124,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
             //if (_currentCard != null)
                 _currentCard = _session.CurrentRoomCard;
+
+            _isInCombat = _session.PlayerInCombat;
 
             _searchTimes = _currentTile.RoomSearched;
 
@@ -141,13 +158,18 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-            _btnSearchRoom.Draw(spriteBatch);
-            
-            _btnSearchCorpse.Draw(spriteBatch);
+            if(_btnSearchRoom.IsClickable) _btnSearchRoom.Draw(spriteBatch, _searchRoomOn);
+            else _btnSearchRoom.Draw(spriteBatch, _searchRoomOff);
 
-            _btnOpen.Draw(spriteBatch);
-            
-            _btnPickUp.Draw(spriteBatch);
+            if (_btnSearchCorpse.IsClickable) _btnSearchCorpse.Draw(spriteBatch, _searchCorpseOn);
+            else _btnSearchCorpse.Draw(spriteBatch, _searchCorpseOff);
+
+            if (_btnOpen.IsClickable) _btnOpen.Draw(spriteBatch, _openOn);
+            else _btnOpen.Draw(spriteBatch, _openOff);
+
+            if (_btnPickUp.IsClickable) _btnPickUp.Draw(spriteBatch, _pickUpOn);
+            else _btnPickUp.Draw(spriteBatch, _pickUpOff);
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -158,7 +180,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         private void HandleRoomSearch(int searches, RoomTile currentTile)
         {
-            if (searches > 0)
+            if (searches > 0 && !_isInCombat)
             {
                 _btnSearchRoom.SetClickable();
                 if (_btnSearchRoom.Clicked)
@@ -178,7 +200,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         private void HandleCorpseSearch()
         {
-            if (_currentCard.CardEvent == RoomCardEvent.FallenWarrior && !_currentCard.CorpseSearched)
+            if (_currentCard.CardEvent == RoomCardEvent.FallenWarrior && !_currentCard.CorpseSearched && !_isInCombat)
             {
                 _btnSearchCorpse.SetClickable();
                 if (_btnSearchCorpse.Clicked)
@@ -202,7 +224,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             if (_currentCard.CardEvent == RoomCardEvent.Chest || _currentCard.CardEvent == RoomCardEvent.Sarcophagus)
             {
-                if (!_currentCard.ChestOpened)
+                if (!_currentCard.ChestOpened && !_isInCombat)
                 {
                     _btnOpen.SetClickable();
                     if (_btnOpen.Clicked)
@@ -226,7 +248,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private void HandlePickUpItem()
         {
             // If the current card has an Item not yet taken...
-            if (_currentCard.CardEvent == RoomCardEvent.Item && !_currentCard.ItemPickedUp)
+            if (_currentCard.CardEvent == RoomCardEvent.Item && !_currentCard.ItemPickedUp && !_isInCombat)
             {
                 _btnPickUp.SetClickable();
                 if (_btnPickUp.Clicked)
@@ -248,13 +270,23 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         private void LoadTextures()
         {
-            _imgSearchRoom = _ui.RectangleTexture;  //_game.Content.Load<Texture2D>("");    //TODO
-            
-            _imgSearchCorpse = _ui.RectangleTexture;  //_game.Content.Load<Texture2D>("");    //TODO
 
-            _imgOpen = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>("");    //TODO
-            
-            _imgPickUp = _ui.RectangleTexture;  //_game.Content.Load<Texture2D>("");    //TODO
+            _searchRoomOn = new Rectangle(0, 197, _buttonWidth, _buttonHeight);
+
+            _searchRoomOff = new Rectangle(0, 145, _buttonWidth, _buttonHeight);
+
+            _searchCorpseOn = new Rectangle(96, 197, _buttonWidth, _buttonHeight);
+
+            _searchCorpseOff = new Rectangle(96, 145, _buttonWidth, _buttonHeight);
+
+            _openOn = new Rectangle(194, 197, _buttonWidth, _buttonHeight);
+
+            _openOff = new Rectangle(194, 145, _buttonWidth, _buttonHeight);
+
+            _pickUpOn = new Rectangle(293, 197, _buttonWidth, _buttonHeight);
+
+            _pickUpOff = new Rectangle(293, 145, _buttonWidth, _buttonHeight);
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -266,19 +298,23 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private void LoadButtons(Point position, int width, int height)
         {
             _btnSearchRoom = new ClickButton(_ui, new Rectangle(position.X, position.Y, width, height), true);
-            _btnSearchRoom.Initialize(Color.White, "Search room", Color.Black, new Vector2(position.X + 5, position.Y + 5), false, 0);
+            _btnSearchRoom.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnSearchRoom.Background = _uiTextures;
 
-            float corpseX = position.X + width * 1 + 5;
+            float corpseX = position.X + (width + 5) * 1;
             _btnSearchCorpse = new ClickButton(_ui, new Rectangle((int)corpseX, position.Y, width, height), true);
-            _btnSearchCorpse.Initialize(Color.White, "Search corpse", Color.Black, new Vector2(corpseX + 5, position.Y + 5), false, 0);
+            _btnSearchCorpse.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnSearchCorpse.Background = _uiTextures;
 
-            float openX = position.X + width * 2 + 10;
+            float openX = position.X + (width +5) * 2;
             _btnOpen = new ClickButton(_ui, new Rectangle((int)openX, position.Y, width, height), true);
-            _btnOpen.Initialize(Color.White, "Open", Color.Black, new Vector2(openX + 5, position.Y + 5), false, 0);
+            _btnOpen.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnOpen.Background = _uiTextures;
 
-            float pickX = position.X + width * 3 + 15;
+            float pickX = position.X + (width + 5) * 3;
             _btnPickUp = new ClickButton(_ui, new Rectangle((int)pickX, position.Y, width, height), true);
-            _btnPickUp.Initialize(Color.White, "Pick up", Color.Black, new Vector2(pickX + 5, position.Y + 5), false, 0);
+            _btnPickUp.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            _btnPickUp.Background = _uiTextures;
         }// End -----------------------------------------------------------------------------------------------------
 
 

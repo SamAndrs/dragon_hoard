@@ -14,11 +14,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
     :: TODO ---------------------------
         
-        v.001b (??/??) Add the necessary support for the actual options events.
+        * (??/??) Add the necessary support for the actual options events.
          
 
 
     :: DONE ---------------------------
+        v.001b (10/31) Added textures to buttons.
         v.001a (10/23) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,12 +56,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private int _buttonHeight;
 
-        private Texture2D _imgFight;
+        private Texture2D _uiTextures;
 
-        private Texture2D _imgFlee;
+        private Rectangle _fleeSourceRect;
+
+        private Rectangle _fightSourceRect;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public CombatOptions(MainGame game, UiManager ui, GameSession session)
+        public CombatOptions(MainGame game, UiManager ui, GameSession session, Texture2D uiTextures)
         {
             _game = game;
 
@@ -69,6 +72,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             _ui = ui;
 
             _session = session;
+
+            _uiTextures = uiTextures;
         }
 
 
@@ -90,9 +95,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
             _combatRound = _session.CombatRound;
 
-            _buttonWidth = 60;
+            _buttonWidth = 105;
 
-            _buttonHeight = 30;
+            _buttonHeight = 26;
 
             LoadTextures(_game);
 
@@ -150,9 +155,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-            _btnFight.Draw(spriteBatch);
+            _btnFight.Draw(spriteBatch, _fightSourceRect);
 
-            _btnFlee.Draw(spriteBatch);
+            _btnFlee.Draw(spriteBatch, _fleeSourceRect);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -163,9 +168,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         private void LoadTextures(MainGame game)
         {
-            _imgFight = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>(""); // TODO
 
-            _imgFlee = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>(""); // TODO
+            _fightSourceRect = new Rectangle(282, 77, _buttonWidth, _buttonHeight);
+
+            _fleeSourceRect = new Rectangle(282, 106, _buttonWidth, _buttonHeight);
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -176,24 +183,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         private void LoadButtons(Point position, int width, int height)
         {
-            _btnFight = new ClickButton(_ui, new Rectangle(position.X - (width + 25), position.Y, width, height), false);
-            _btnFight.Initialize(Color.White, "Fight!", Color.Red, new Vector2(_btnFight.BoundingBox.X + 5, position.Y + 5), false, 0);
+            _btnFight = new ClickButton(_ui, new Rectangle(position.X - (width + 25), position.Y, width, height + 10), false);
+            _btnFight.Initialize(Color.White, "", null, Color.Red, Vector2.Zero, false, 0);
+            _btnFight.Background = _uiTextures;
 
-            _btnFlee = new ClickButton(_ui, new Rectangle(position.X + 25, position.Y, width, height), false);
-            _btnFlee.Initialize(Color.White, "Flee!", Color.Red, new Vector2(_btnFlee.BoundingBox.X + 5, position.Y + 5), false, 0);
+            _btnFlee = new ClickButton(_ui, new Rectangle(position.X + 25, position.Y, width, height + 10), false);
+            _btnFlee.Initialize(Color.White, "", null, Color.Red, Vector2.Zero, false, 0);
+            _btnFlee.Background = _uiTextures;
         }// End -----------------------------------------------------------------------------------------------------
 
 
-
-        /*----------------------------------------------------------------------------------------------------------
-                                                       Method					   
-        ------------------------------------------------------------------------------------------------------------
-          - Description
-        ----------------------------------------------------------------------------------------------------------*/
-
-
-
-        // End -----------------------------------------------------------------------------------------------------
         #endregion
     }
 }
