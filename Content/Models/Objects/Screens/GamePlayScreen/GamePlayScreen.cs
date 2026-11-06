@@ -189,6 +189,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 // DEBUG TODO
                 if (_game.PrevKeyboardState.IsKeyUp(Keys.C) && _game.CurrentKeyboardState.IsKeyDown(Keys.C))
                     _gameSession.PlayerCombatState(1, !_gameSession.PlayerInCombat);
+
+                if (_game.PrevKeyboardState.IsKeyUp(Keys.H) && _game.CurrentKeyboardState.IsKeyDown(Keys.H))
+                    _gameSession.PlayerCharacter.CurrentHealth --;
+                // =================================================================================
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -211,7 +215,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
                 _roomActions.Draw(spriteBatch);
 
-                _healthbar.Draw(spriteBatch);
+                _healthbar.Draw(spriteBatch, _character.MaxHealth, _ui.Digits);
                
                 _movementButtons.Draw(spriteBatch);
 
@@ -305,7 +309,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _imageDisplay = _gameSession.ImageDisplay;
 
-            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
+            _sunDial = new SunDial(_game, _gameSession, _ui.SunIcon, _ui.SunSkull);
 
             _movementButtons = new MovementButtons(_ui, _gameSession, _uiTextures);
 
@@ -313,7 +317,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _optionsbar = new OptionsBar(_game, _ui, _gameSession, _uiTextures);
 
-            _healthbar = new Healthbar(_ui.RectangleTexture);
+            _healthbar = new Healthbar(_uiTextures);
 
             _characterStats = new CharacterStatDisplay(_ui, _gameSession, _uiTextures);
 
@@ -340,7 +344,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
 
-            _healthBarPosition = new Point((int)_game.CenterX - 75, (int)_game.CenterY + 150);
+            _healthBarPosition = new Point((int)_game.CenterX - 150, (int)_game.CenterY + 200);
 
             _sunDialPosition = new Point((int)_game.CenterX - 486, 35);
 
@@ -374,7 +378,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _movementButtons.Load(_moveButtonPosition);
 
-            _healthbar.Load(_healthBarPosition ,_character.MaxHealth, _character.CurrentHealth, 20);
+            _healthbar.Load(_healthBarPosition ,_character.MaxHealth, _character.CurrentHealth, 23);
 
             _sunDial.Load(_sunDialPosition);
 
