@@ -1,5 +1,4 @@
 ﻿using dragon_hoard.Content.Models.Enums;
-using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,6 +21,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
     :: DONE ---------------------------
         (2026)
+        v.001e (10/30) Code-rework to support the new RoomExits enum for handling RoomTile exits.
         v.001d (10/26) Added loading of Exit and Treasure room images to this class, since they exist "outside"
                         the TilerRoomStack.
         v.001c (10/24) Added Treasure hoard rooms to GameMap grid creation process.
@@ -154,7 +154,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             {
                 newRoom = new RoomTile(_mapGrid, RoomType.Exit, row, col);
                 newRoom.EventName = "Castle entrance";
-                newRoom.EventText = "\n\nA set of stairs leads up into the\ndarkness.\nYou may leave the castle\n this way.";
+                newRoom.EventText = "A set of stairs leads up into the darkness.You may leave the castle this way.";
                 newRoom.TileImage = _exitTileImg;
                 newRoom.TileRoomImage = _exitImg;
                 CreateExitDoors(newRoom);
@@ -168,7 +168,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     newRoom = new RoomTile(_mapGrid, RoomType.TreasureRoom, row, col);
                     CreateTreasureExits(newRoom);
                     newRoom.EventName = "Treasure Room!";
-                    newRoom.EventText = "\n\nYou have found your way\nto the hoard.\nWealth beyond measure is\n yours for the taking!";
+                    newRoom.EventText = "You have found your way to the hoard. Wealth beyond measure is yours for the taking!";
                     newRoom.TileImage = _treasureTileImg;
                     newRoom.TileRoomImage = _treasureRoomImg;
                 }
@@ -208,26 +208,34 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         private void CreateExitDoors(RoomTile roomTile)
         {
-            if (roomTile.Row == 1)
+            // Upper left
+            if (roomTile.Row == 1 && roomTile.Col == 1)
             {
-                if (roomTile.Col == 1)
-                    roomTile.ExitRight = true;
-                else
-                    roomTile.ExitLeft = true;
-
-                roomTile.ExitDown = true;
+                roomTile.Exits = RoomExits.Right | RoomExits.Down;
                 roomTile.EnteredFrom = Direction.Up;
             }
-            else
-            {
-                if (roomTile.Col == 1)
-                    roomTile.ExitRight = true;
-                else
-                    roomTile.ExitLeft = true;
 
-                roomTile.ExitUp = true;
+            // Upper right
+            if (roomTile.Row == 1 && roomTile.Col == Columns - 2)
+            {
+                roomTile.Exits = RoomExits.Left | RoomExits.Down;
+                roomTile.EnteredFrom = Direction.Up;
+            }
+
+            // Lower left
+            if(roomTile.Row == Rows - 2 && roomTile.Col == 1)
+            {
+                roomTile.Exits = RoomExits.Right | RoomExits.Up;
                 roomTile.EnteredFrom = Direction.Down;
             }
+
+            // Lower right
+            if (roomTile.Row == Rows - 2 && roomTile.Col == Columns - 2)
+            {
+                roomTile.Exits = RoomExits.Left | RoomExits.Up;
+                roomTile.EnteredFrom = Direction.Down;
+            }
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -238,11 +246,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         private void CreateTreasureExits(RoomTile roomTile)
         {
-            roomTile.ExitUp = true;
-            roomTile.ExitDown = true;
-            roomTile.ExitRight = true;
-            roomTile.ExitLeft = true;
-
+            roomTile.Exits = RoomExits.Up | RoomExits.Right | RoomExits.Down | RoomExits.Left;
         }// End -----------------------------------------------------------------------------------------------------
 
         /*----------------------------------------------------------------------------------------------------------
@@ -255,6 +259,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             Random rand = new Random();
 
             int result = rand.Next(3);
+
+            //int result = 2;
 
             int maxRows = Rows - 2;
             int maxCols = Columns - 2;

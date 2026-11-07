@@ -1,4 +1,5 @@
-﻿using dragon_hoard.Content.Models.Managers;
+﻿using dragon_hoard.Content.Models.Enums;
+using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using dragon_hoard.Content.Models.Objects.UIElements;
@@ -17,6 +18,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
 
     :: DONE ---------------------------
+        v.001b (10/30) Rework and addition of code to support new RoomTile rotated exits behavior.
         v.001a (10/23) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +32,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private UiManager _ui;
 
         private GameSession _session;
+
+        private RoomExits _roomExits;
 
         // FUNCTIONAL
         private bool _playerCanMove;
@@ -109,6 +113,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             _playerCanMove = _session.PlayerCanMove;
             _currentRoom = _session.CurrentRoom;
 
+            if (_currentRoom.RoomType == RoomType.Exit || _currentRoom.RoomType == RoomType.TreasureRoom)
+                _roomExits = _currentRoom.Exits;
+
+            else
+                _roomExits = _currentRoom.RotatedExits;
+
             BtnGoUp.Update(gameTime);
             BtnGoDown.Update(gameTime);
             BtnGoLeft.Update(gameTime);
@@ -120,7 +130,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
                 // Allow only exits that are available
 
                 // Check if there's an exit up and if the current position on gamemap is not on upmost row.
-                if (_currentRoom.ExitUp && _currentRoom.Row > 1)
+                if (_roomExits.HasFlag(RoomExits.Up) && _currentRoom.Row > 1)
                 {
                     BtnGoUp.SetVisibility();
                     BtnGoUp.SetClickable();
@@ -131,7 +141,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
                     BtnGoUp.SetNonClickable();
                 }
 
-                if (_currentRoom.ExitRight && _currentRoom.Col < _session.GameMap.Columns - 2)
+                if (_roomExits.HasFlag(RoomExits.Right) && _currentRoom.Col < _session.GameMap.Columns - 2)
                 {
                     BtnGoRight.SetVisibility();
                     BtnGoRight.SetClickable();
@@ -143,7 +153,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
                     BtnGoRight.SetNonClickable();
                 }
 
-                if (_currentRoom.ExitDown && _currentRoom.Row < _session.GameMap.Rows - 2)
+                if (_roomExits.HasFlag(RoomExits.Down) && _currentRoom.Row < _session.GameMap.Rows - 2)
                 {
                     BtnGoDown.SetVisibility();
                     BtnGoDown.SetClickable();
@@ -155,7 +165,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
                     BtnGoDown.SetNonClickable();
                 }
 
-                if (_currentRoom.ExitLeft && _currentRoom.Col > 1)
+                if (_roomExits.HasFlag(RoomExits.Left) && _currentRoom.Col > 1)
                 {
                     BtnGoLeft.SetVisibility();
                     BtnGoLeft.SetClickable();
