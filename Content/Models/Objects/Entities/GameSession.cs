@@ -2,7 +2,6 @@
 using dragon_hoard.Content.Models.Managers;
 using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI;
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -134,7 +133,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             RoomCardStack = new RoomCardStack(_game.RoomCardService , Randomizer, _roomCardCount);
 
-            ImageDisplay = new RoomImage(_game);
+            ImageDisplay = new RoomImage();
         }
 
 

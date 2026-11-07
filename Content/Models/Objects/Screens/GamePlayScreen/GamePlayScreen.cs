@@ -321,7 +321,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _characterStats = new CharacterStatDisplay(_ui, _gameSession, _uiTextures);
 
-            _eventMessageDisplay = new EventMessageDisplay(_ui, _gameSession, _ui.Text);
+            _eventMessageDisplay = new EventMessageDisplay(_gameSession, _ui.Text, _uiTextures);
 
             _combatOptions = new CombatOptions(_game, _ui, _gameSession, _uiTextures);
 
@@ -340,7 +340,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         ----------------------------------------------------------------------------------------------------------*/
         private void SetPositions()
         {
-            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 240);
+            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 210);
 
             _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
 
@@ -352,9 +352,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _optMenuPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y - 80);
 
-            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 300);
+            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 250);
 
-            _eventMessagePosition = new Point((int)_game.CenterX + 50, 150);
+            _eventMessagePosition = new Point((int)_game.CenterX + 25, 115);
 
             _imageDisplayPosition = new Point(150, 120);
 
@@ -390,7 +390,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _eventMessageDisplay.Load(_eventMessagePosition);
 
-            _imageDisplay.Initialize(_imageDisplayPosition);
+            _imageDisplay.Load(_imageDisplayPosition);
 
             _combatOptions.Load(_combatOptPosition, _ui.Text);
 
@@ -464,7 +464,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             bool displayRoomTile = false;
 
-            bool playerInCombat = true;
+            bool playerInCombat = false;
 
             if (showContentLoaded)
             {

@@ -43,6 +43,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private int _healthBoxSize;
 
+        private float _scaleFactor = 0.6f;
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public Healthbar(Texture2D uiTextures)
         {
@@ -97,10 +99,10 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             // Calculate the position for the health boxes to place them in the middle of the _frameBox.
             int posX = _frameBox.X + ((_frameBox.Width / 2) - _healthBoxSize / 2);
-            int posY = _frameBox.Y + (_frameBox.Height - 60) - _healthBoxSize;
+            int posY = _frameBox.Y + (_frameBox.Height - 40) - _healthBoxSize;
 
             // Draw the health boxes based on the current health and maximum health.
-            for (int i = 0; i < _maxHealth; i++)
+            for (int i = 1; i < _maxHealth; i++)
             {
                 spriteBatch.Draw(_uiTextures, new Rectangle(posX, posY - i * (_healthBoxSize), _healthBoxSize, _healthBoxSize), _healthBoxSource, Color.DarkBlue);
 
@@ -112,12 +114,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             spriteBatch.Draw(_uiTextures, _frameBox, _frameSource, Color.White);
 
             // Measure the size of the text string to center it within the frame box
-            Vector2 textString = font.MeasureString($"{_currentHealth.ToString()}/ {maxHealth.ToString()}");
+
+            Vector2 textString = (font.MeasureString($"{_currentHealth.ToString()}/ {maxHealth.ToString()}") * _scaleFactor);
             int textPosX = _frameBox.X + ((_frameBox.Width / 2) - (int)(textString.X / 2));
             int textPosY = _frameBox.Y + (_frameBox.Height - 25);
 
-            // Adjust the color of the text based on the current health value
-            spriteBatch.DrawString(font, $"{_currentHealth.ToString()}/ {maxHealth.ToString()}", new Vector2(textPosX, textPosY), GetColor(_currentHealth));
+            // Adjust the color of the text based on the current health value, and scale the size of the text.
+            spriteBatch.DrawString(font, $"{_currentHealth.ToString()}/ {maxHealth.ToString()}", new Vector2(textPosX, textPosY), GetColor(_currentHealth),
+                0f, Vector2.Zero, _scaleFactor, SpriteEffects.None, 0f);
 
         }// End -----------------------------------------------------------------------------------------------------
 
