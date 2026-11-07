@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,12 +14,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             
     :: TODO ---------------------------
         
-        v.001a (09/27) Setup of basic core properties and methods.
-
+        
+        v.001b (11/05) Methods for loading graphics assets added..
 
 
     :: DONE ---------------------------
         (2026)
+        v.001a (09/27) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class PlayerCharacter
@@ -58,6 +60,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         // public List<Room> ExploredRooms {get; private set; }
 
+        // GRAPHICS
+        public Texture2D CharacterPortrait { get; private set; }                // Character select screen portrait image
+
+        public Texture2D MapPin { get; private set; }                           // Game map pin image for the character
+
+        public Texture2D CombatCardA { get; private set; }                      // Combat attack option (A) image for the character
+
+        public Texture2D CombatCardB { get; private set; }
+
+        public Texture2D CombatCardC { get; private set; }
+
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public PlayerCharacter(string name, int health, int str, int dex, int arm, int lck)
@@ -82,6 +95,37 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
         //============================================ METHODS ===================================================//
         #region methods
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Set Character Portrait					   
+        ------------------------------------------------------------------------------------------------------------
+          - Description
+        ----------------------------------------------------------------------------------------------------------*/
+        public void SetCharacterPortrait(MainGame game)
+        {
+            CharacterPortrait = game.Content.Load<Texture2D>($"Images/Characters/{Name}_Portrait");
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                       Load CardImages					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class method to load the combat card images for the player character. This method is called during 
+            the game initialization phase to ensure that all necessary graphics assets are loaded and ready 
+            for use in combat scenarios.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void LoadCardImages(MainGame game)
+        {
+            CombatCardA = game.Content.Load<Texture2D>($"Images/Characters/CombatCardImages/{Name}_CardA".ToUpper());
+            CombatCardB = game.Content.Load<Texture2D>($"Images/Characters/CombatCardImages/{Name}_CardB".ToUpper());
+            CombatCardC = game.Content.Load<Texture2D>($"Images/Characters/CombatCardImages/{Name}_CardC".ToUpper());
+
+        }// End -----------------------------------------------------------------------------------------------------
+
 
         /*----------------------------------------------------------------------------------------------------------
                                                        Method					   

@@ -1,6 +1,7 @@
 ﻿using dragon_hoard.Content.Models.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.BitmapFonts;
 
 namespace dragon_hoard.Content.Models.Objects.UIElements
 {
@@ -40,11 +41,15 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
 
         internal Color FontColor { get; set; }              // Main color of the font.
 
+        internal BitmapFont Font { get; set; } = null;      // Font reference for the UI Object.
+
         //============================================ METHODS ===================================================//
 
         public abstract void Update(GameTime gameTime);
 
         public abstract void Draw(SpriteBatch spriteBatch);
+
+        public abstract void Draw(SpriteBatch spriteBatch, Rectangle sourceRect);
 
 
         public void SetVisibility() => IsVisible = true;

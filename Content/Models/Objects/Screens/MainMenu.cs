@@ -262,14 +262,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens
 
             string settingsTxt = "SETTINGS";
 
-            btn_newGame.Initialize(Color.LimeGreen, newGameTxt, Color.White, new Vector2(btn_newGame.BoundingBox.X + 40,
+            btn_newGame.Initialize(Color.LimeGreen, newGameTxt, null, Color.White, new Vector2(btn_newGame.BoundingBox.X + 40,
                btn_newGame.BoundingBox.Y + 8), true, 0);
 
 
-            btn_loadSaved.Initialize(Color.Yellow, savedGameTxt, Color.Black, new Vector2(btn_loadSaved.BoundingBox.X + 40,
+            btn_loadSaved.Initialize(Color.Yellow, savedGameTxt, null, Color.Black, new Vector2(btn_loadSaved.BoundingBox.X + 40,
                 btn_loadSaved.BoundingBox.Y + 8), true, 0);
 
-            btn_settings.Initialize(Color.Orange, settingsTxt, Color.Black, new Vector2(btn_settings.BoundingBox.X + 70,
+            btn_settings.Initialize(Color.Orange, settingsTxt, null, Color.Black, new Vector2(btn_settings.BoundingBox.X + 70,
                 btn_settings.BoundingBox.Y + 8), true, 0);
         }
 

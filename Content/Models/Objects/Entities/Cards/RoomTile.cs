@@ -209,13 +209,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
         private RoomExits GetExits(Direction enteredFrom)
         {
             RoomExits exits = Exits;
-            //RoomExits exits = CheckConnectedExits(_mapGrid, Row, Col, Exits);
 
             for (int i = 0; i < _quarterTurns; i++)
                 exits = RotateClockWise(exits);
-
-            //exits = CheckConnectedExits(_mapGrid, Row, Col, exits);
-
 
             return CheckConnectedExits(_mapGrid, Row, Col, exits);
             //return exits;
@@ -313,8 +309,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             {
                 RoomTile neighbor = mapGrid[row - 1, col];
 
-                // If the neighboring tile is a castle Exit room, we simply abort since those have fixed (non-rotated) exits.
-                if (neighbor.RoomType == RoomType.Exit)
+                // If the neighboring tile is a castle Exit- or treasure hoard room, we simply abort
+                // since those have fixed (non-rotated) exits.
+                if (neighbor.RoomType == RoomType.Exit || neighbor.RoomType == RoomType.TreasureRoom)
                     return adjustedExits;
 
                 else if (neighbor.RoomType != RoomType.Undiscovered && !neighbor.RotatedExits.HasFlag(RoomExits.Down))
@@ -329,7 +326,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             {
                 RoomTile neighbor = mapGrid[row, col + 1];
 
-                if (neighbor.RoomType == RoomType.Exit)
+                if (neighbor.RoomType == RoomType.Exit || neighbor.RoomType == RoomType.TreasureRoom)
                     return adjustedExits;
 
                 if (neighbor.RoomType != RoomType.Undiscovered && !neighbor.RotatedExits.HasFlag(RoomExits.Left))
@@ -344,7 +341,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             {
                 RoomTile neighbor = mapGrid[row + 1, col];
 
-                if (neighbor.RoomType == RoomType.Exit)
+                if (neighbor.RoomType == RoomType.Exit || neighbor.RoomType == RoomType.TreasureRoom)
                     return adjustedExits;
 
                 if (neighbor.RoomType != RoomType.Undiscovered && !neighbor.RotatedExits.HasFlag(RoomExits.Up))
@@ -359,7 +356,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             {
                 RoomTile neighbor = mapGrid[row, col - 1];
 
-                if (neighbor.RoomType == RoomType.Exit)
+                if (neighbor.RoomType == RoomType.Exit || neighbor.RoomType == RoomType.TreasureRoom)
                     return adjustedExits;
 
                 if (neighbor.RoomType != RoomType.Undiscovered && !neighbor.RotatedExits.HasFlag(RoomExits.Right))

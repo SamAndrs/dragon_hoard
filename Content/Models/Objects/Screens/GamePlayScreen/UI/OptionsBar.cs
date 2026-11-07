@@ -12,12 +12,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
             and the menues assosciated with it.
         
 
-    :: TODO ---------------------------
-        v.001b (??/??) Extend and setup functionality for opening the various menues or the map.
-         
-
+    :: TODO ---------------------------   
+        
 
     :: DONE ---------------------------
+        v.001b (10/31) Added textures to buttons, and callback functionality on buttonpresses.
         v.001a (10/22) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,13 +37,12 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         // FUNCTIONAL
         private ClickButton _btnMap;
 
-        private ClickButton _btnQuit;
-        
-        private ClickButton _btnAudio;
-        
-        private ClickButton _btnVideo;
-        
+       
+        private ClickButton _btnSettings;
+               
         private ClickButton _btnSave;
+        
+        private ClickButton _btnQuit;
 
 
         // GRAPHICS
@@ -52,24 +50,26 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private int _buttonSize;
 
-        private Texture2D _optMapImg;
+        private Texture2D _uiTextures;                      // Reference to texture of UI icon/ button images
 
-        private Texture2D _optQuitImg;
-        
-        private Texture2D _optAudioImg;
-        
-        private Texture2D _optVideoImg;
-        
-        private Texture2D _optSaveImg;
+        private Rectangle _optMapSource;                    // Snapshot rectangle of UiTexture for the button image. 
+
+        private Rectangle _optSettingsSource;
+
+        private Rectangle _optSaveSource;
+
+        private Rectangle _optQuitSource;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public OptionsBar(MainGame game, UiManager ui, GameSession session)
+        public OptionsBar(MainGame game, UiManager ui, GameSession session, Texture2D uiTexture)
         {
             _game = game;
 
             _ui = ui;
 
             _session = session;
+
+            _uiTextures = uiTexture;
         }
 
 
@@ -88,7 +88,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
             _buttonSize = buttonSize;
 
-            LoadTextures(_game);
+            LoadTextures();
 
             LoadButtons(position, _buttonSize);
 
@@ -104,24 +104,24 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         public void Update(GameTime gameTime)
         {
             _btnMap.Update(gameTime);
-            
-            _btnQuit.Update(gameTime);
-            
-            _btnAudio.Update(gameTime);
-            
-            _btnVideo.Update(gameTime);
+                                   
+            _btnSettings.Update(gameTime);
             
             _btnSave.Update(gameTime);
 
-            // if (_btnMap.Clicked)     // TODO     Switch to GameMapScreen.
+            _btnQuit.Update(gameTime);
 
-            // if (_btnQuit.Clicked)    // TODO     Quit prompt. Get back to main menu
+            if (_btnMap.Clicked)
+                _game.GameScreenManager.GamePlay.OpenGameMapScreen();   // TODO     Switch to GameMapScreen.
 
-            // if (_btnAudio.Clicked)   // TODO     Open Audio menu
+            if (_btnSettings.Clicked)
+                _game.GameScreenManager.GamePlay.OpenSettingsScreen();  // TODO     Open Settings menu
 
-            // if (_btnVideo.Clicked)   // TODO     Open video menu
+            if (_btnSave.Clicked)
+                _game.GameScreenManager.GamePlay.OpenSaveGameScreen();  // TODO     Conditional: Save possible. Savegame menu.
 
-            // if (_btnSave.Clicked)    // TODO     Conditional: Save possible. Savegame menu.
+            if (_btnQuit.Clicked)
+                _game.GameScreenManager.GamePlay.OpenQuitPrompt();      // TODO     Quit prompt. Get back to main menu
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -132,15 +132,13 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-            _btnMap.Draw(spriteBatch);
+            _btnMap.Draw(spriteBatch, _optMapSource);
+                      
+            _btnSettings.Draw(spriteBatch, _optSettingsSource);
             
-            _btnQuit.Draw(spriteBatch);
-            
-            _btnAudio.Draw(spriteBatch);
-            
-            _btnVideo.Draw(spriteBatch);
-            
-            _btnSave.Draw(spriteBatch);
+            _btnSave.Draw(spriteBatch, _optSaveSource);
+
+            _btnQuit.Draw(spriteBatch, _optQuitSource);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -150,17 +148,17 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ------------------------------------------------------------------------------------------------------------
          - Class specific support method for loading the textures for the buttons.
         ----------------------------------------------------------------------------------------------------------*/
-        private void LoadTextures(MainGame game)
+        private void LoadTextures()
         {
-            _optMapImg = _ui.RectangleTexture;     //_game.Content.Load<Texture2D>("");
-            
-            _optQuitImg = _ui.RectangleTexture;     //_game.Content.Load<Texture2D>("");
-            
-            _optAudioImg = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>("");
-            
-            _optVideoImg = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>("");
-            
-            _optSaveImg = _ui.RectangleTexture;     //_game.Content.Load<Texture2D>("");
+            _optMapSource = new Rectangle(340, 4, _buttonSize, _buttonSize);
+
+            _optSettingsSource = new Rectangle(402, 4, _buttonSize, _buttonSize);
+
+            _optSaveSource = new Rectangle(464, 4, _buttonSize, _buttonSize);
+
+            _optQuitSource = new Rectangle(526, 4, _buttonSize, _buttonSize);
+
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -173,23 +171,23 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         private void LoadButtons(Point position, int btnSize)
         {
             _btnMap = new ClickButton(_ui, new Rectangle(position.X, position.Y, btnSize, btnSize), true);
-            _btnMap.Initialize(Color.White, "", Color.Black, Vector2.Zero, true, 0);
+            _btnMap.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, true, 0);
+            _btnMap.Background = _uiTextures;
 
-            float quitX = position.X + btnSize * 1 + 5;
-            _btnQuit = new ClickButton(_ui, new Rectangle((int)quitX, position.Y, btnSize, btnSize), true);
-            _btnQuit.Initialize(Color.White, "", Color.Black, Vector2.Zero, true, 0);
+            float settingsX = position.X + (btnSize + 5) * 1;
+            _btnSettings = new ClickButton(_ui, new Rectangle((int)settingsX, position.Y, btnSize, btnSize), true);
+            _btnSettings.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, true, 0);
+            _btnSettings.Background = _uiTextures;
 
-            float audioX = position.X + btnSize * 2 + 10;
-            _btnAudio = new ClickButton(_ui, new Rectangle((int)audioX, position.Y, btnSize, btnSize), true);
-            _btnAudio.Initialize(Color.White, "", Color.Black, Vector2.Zero, true, 0);
-
-            float videoX = position.X + btnSize * 3 + 15;
-            _btnVideo = new ClickButton(_ui, new Rectangle((int)videoX, position.Y, btnSize, btnSize), true);
-            _btnVideo.Initialize(Color.White, "", Color.Black, Vector2.Zero, true, 0);
-
-            float saveX = position.X + btnSize * 4 + 20;
+            float saveX = position.X + (btnSize + 5) * 2;
             _btnSave = new ClickButton(_ui, new Rectangle((int)saveX, position.Y, btnSize, btnSize), true);
-            _btnSave.Initialize(Color.White, "", Color.Black, Vector2.Zero, true, 0);
+            _btnSave.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, true, 0);
+            _btnSave.Background = _uiTextures;
+
+            float quitX = position.X + (btnSize + 5) * 3;
+            _btnQuit = new ClickButton(_ui, new Rectangle((int)quitX, position.Y, btnSize, btnSize), true);
+            _btnQuit.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, true, 0);
+            _btnQuit.Background = _uiTextures;
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -198,7 +196,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ------------------------------------------------------------------------------------------------------------
           - Description
         ----------------------------------------------------------------------------------------------------------*/
-
+       
 
 
         // End -----------------------------------------------------------------------------------------------------

@@ -1,13 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using dragon_hoard.Content.Models.Objects.Entities;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace dragon_hoard.Content.Models.Objects.Entities
+namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 {
     ///////////////////////////////////////// SUN DIAL CLASS ////////////////////////////////////////////////////
     /*
@@ -15,11 +10,13 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         Displays an mulit-colored array of "sun icons" at the top of the GamePlayScreen.
       
        :: TODO ---------------------------
-
+        
+        
         
         :: DONE ---------------------------
             (2026)
-        v.001a (10/15) Setup of basic core properties and methods.
+            v.001b (11/05) Update to textures displayed as steps on the sundial.
+            v.001a (10/15) Setup of basic core properties and methods.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class SunDial
@@ -29,7 +26,9 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // DATA
         public Rectangle[] Steps { get; private set; }
         
-        private GameSession _gameSession;
+        private MainGame _game;
+
+        private GameSession _session;
 
         private int _currentStep;
         
@@ -37,9 +36,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
         // GRAPHICAL
-        private Texture2D _sunIcon;
+        private Texture2D _sunsTexture;
 
-        private Texture2D _sunSkull;
+        private Rectangle _yellowSource;
+
+        private Rectangle _orangeSource;
+
+        private Rectangle _redSource;
+
+        private Rectangle _whiteSource;
+
+        private Rectangle _skullSource;
+
 
         private Point _position;
 
@@ -49,16 +57,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
 
 
+
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public SunDial(GameSession thisSession, Texture2D sunTexture, Texture2D sunSkullImage)
+        public SunDial(MainGame game, GameSession session, Texture2D sunTexture, Texture2D sunSkullImage)
         {
-            _gameSession = thisSession;
+            _game = game;
+
+            _session = session;
 
             Steps = new Rectangle[27];
-
-            _sunIcon = sunTexture;
-
-            _sunSkull = sunSkullImage;
 
             _iconSize = 32;
         }
@@ -79,10 +87,23 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             _position = position;
             for (int i = 0; i < Steps.Length; i++)
             {
-                Steps[i] = new Rectangle((int)_position.X + (i * 36), (int)_position.Y,_iconSize,_iconSize);
+                Steps[i] = new Rectangle(_position.X + i * 36, _position.Y, _iconSize, _iconSize);
             }
 
+
             _isVisible = true;
+
+            _sunsTexture = _game.Content.Load<Texture2D>("Images/sunDialSteps");
+
+            _yellowSource = new Rectangle(0, 0, 32, 32);
+
+            _orangeSource = new Rectangle(35, 0, 32, 32);
+
+            _redSource = new Rectangle(68, 0, 32, 32);
+
+            _whiteSource = new Rectangle(102, 0, 32, 32);
+
+            _skullSource = new Rectangle(138, 0, 32, 32);
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -96,12 +117,12 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            if (_gameSession.DisplayFlavorMessage)
+            if (_session.DisplayFlavorMessage)
                 _isVisible = false;
             else
                 _isVisible = true;
   
-            _currentStep = _gameSession.GameTurn;
+            _currentStep = _session.GameTurn;
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -115,36 +136,40 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
+            
             if (_isVisible)
             {
                 for (int i = 0; i < Steps.Length - 1; i++)
                 {
-                    spriteBatch.Draw(_sunIcon, Steps[i], CheckColor(i));
-                    if (i == _currentStep)
-                        spriteBatch.Draw(_sunIcon, Steps[i], Color.White);
+                    if (i != _currentStep)
+                        spriteBatch.Draw(_sunsTexture, Steps[i], GetSourceRectangle(i), Color.White);
+                    else
+                        spriteBatch.Draw(_sunsTexture, Steps[i], _whiteSource, Color.White);
                 }
 
-                spriteBatch.Draw(_sunSkull, Steps[26], Color.White);
+                spriteBatch.Draw(_sunsTexture, Steps[26], _skullSource, Color.White);
             }
 
         }// End -----------------------------------------------------------------------------------------------------
 
 
+        
         /*----------------------------------------------------------------------------------------------------------
-                                                 Check Color				   
+                                                Get Source Rectangle
         ------------------------------------------------------------------------------------------------------------
-          - Class specific support method for returning a specific color depending on position in the 
-            sun step array, when a sun icon is drawn onto the GamePlayScreen.
+          - Class support method for returning a specific version of the texture to display based on 
+            source rectangle and  determined by the position in the sun step array, when a sun icon is drawn 
+            onto the GamePlayScreen.
         ----------------------------------------------------------------------------------------------------------*/
-        private Color CheckColor(int step)
+        private Rectangle GetSourceRectangle(int step)
         {
-            if (step < 2 || step > 23)
-                return Color.Orange;
-
+            if (step < 2 || (step > 22 && step < 25))
+                return _orangeSource;
+            
             if (step == 25)
-                return Color.Red;
+                return _redSource;
 
-            return Color.Yellow;
+            return _yellowSource;
         }// End -----------------------------------------------------------------------------------------------------
 
         #endregion

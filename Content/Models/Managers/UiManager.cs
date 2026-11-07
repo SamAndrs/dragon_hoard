@@ -37,6 +37,8 @@ namespace dragon_hoard.Content.Models.Managers
 
         public KeyboardState keyboard { get; private set; }
 
+        public KeyboardState prevKeyboard { get; private set; }
+
 
         // GRAPHICS
 
@@ -44,7 +46,7 @@ namespace dragon_hoard.Content.Models.Managers
 
         public SpriteFont HeadLine { get; private set; }
 
-        //public SpriteFont Digits { get; private set; }
+        public BitmapFont Digits { get; private set; }
 
         public SpriteFont DebugText { get; private set; }
 
@@ -53,8 +55,6 @@ namespace dragon_hoard.Content.Models.Managers
         public Texture2D SunIcon { get; private set; }
 
         public Texture2D SunSkull { get; private set; }
-
-        public BitmapFont bitFont;
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -67,6 +67,8 @@ namespace dragon_hoard.Content.Models.Managers
             DebugText = game.Content.Load<SpriteFont>("Fonts/Roboto_Condensed-Bold");
 
             HeadLine = game.Content.Load<SpriteFont>("Fonts/twoforjuannf.regular");
+
+            Digits = game.Content.Load<BitmapFont>("Fonts/mathfont");
 
             RectangleTexture = new Texture2D(game.GraphicsDevice, 1, 1); // Pixel rectangle
             RectangleTexture.SetData(new[] { Color.White }); // Pixel rectangle color
@@ -88,10 +90,11 @@ namespace dragon_hoard.Content.Models.Managers
         ----------------------------------------------------------------------------------------------------------*/
         public void Update(GameTime gameTime)
         {
-            keyboard = Keyboard.GetState();
+            prevKeyboard = _game.PrevKeyboardState;
+            keyboard = _game.CurrentKeyboardState;
 
             PrevMouse = _game.PrevMouseState;
-            Mouse = _game.currentMouseState;
+            Mouse = _game.CurrentMouseState;
                         
             MousePos = new Point(Mouse.X, Mouse.Y);
         }// End -----------------------------------------------------------------------------------------------------

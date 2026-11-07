@@ -5,6 +5,7 @@ using dragon_hoard.Content.Models.Objects.Entities.Cards;
 using dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 {
@@ -106,6 +107,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
         private Point _optMenuPosition;
 
+        private Texture2D _uiTextures;
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public GamePlayScreen(MainGame game, GameScreenManager screenManager, UiManager ui) : base(game, screenManager, ui)
@@ -134,6 +136,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
             _gameSession = _game.GameSession;
             _character = _gameSession.PlayerCharacter;
 
+            _uiTextures = _game.Content.Load<Texture2D>("Images/ui_textures");
+
             CreateContent();
             SetPositions();
             LoadScreenContent();
@@ -161,7 +165,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
                 _flavorMessageDisplay.Update(gameTime);
 
-                //_imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _currentRoom.RoomType, _currentCard);
                 _imageDisplay.Update(gameTime, _eventMessageDisplay.MessageTimer, _currentRoom, _currentCard);
 
                 _eventMessageDisplay.Update(gameTime);
@@ -182,6 +185,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 _optionsbar.Update(gameTime);
 
                 _characterStats.Update(gameTime);
+
+                // DEBUG TODO
+                if (_game.PrevKeyboardState.IsKeyUp(Keys.C) && _game.CurrentKeyboardState.IsKeyDown(Keys.C))
+                    _gameSession.PlayerCombatState(1, !_gameSession.PlayerInCombat);
+
+                if (_game.PrevKeyboardState.IsKeyUp(Keys.H) && _game.CurrentKeyboardState.IsKeyDown(Keys.H))
+                    _gameSession.PlayerCharacter.CurrentHealth --;
+                // =================================================================================
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -204,11 +215,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
                 _roomActions.Draw(spriteBatch);
 
-                _healthbar.Draw(spriteBatch);
+                _healthbar.Draw(spriteBatch, _character.MaxHealth, _ui.Digits);
                
                 _movementButtons.Draw(spriteBatch);
-
-                _combatButtonsBar.Draw(spriteBatch);
 
                 _imageDisplay.Draw(spriteBatch);
 
@@ -221,6 +230,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 _optionsbar.Draw(spriteBatch);
 
                 _characterStats.Draw(spriteBatch);
+
+                _combatButtonsBar.Draw(spriteBatch);
             }
 
             base.Draw(spriteBatch);
@@ -298,25 +309,25 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _imageDisplay = _gameSession.ImageDisplay;
 
-            _sunDial = new SunDial(_gameSession, _ui.SunIcon, _ui.SunSkull);
+            _sunDial = new SunDial(_game, _gameSession, _ui.SunIcon, _ui.SunSkull);
 
-            _movementButtons = new MovementButtons(_game, _ui, _gameSession);
+            _movementButtons = new MovementButtons(_ui, _gameSession, _uiTextures);
 
             _flavorMessageDisplay = new FlavorMessageDisplay(_gameSession, _ui.HeadLine);
 
-            _optionsbar = new OptionsBar(_game, _ui, _gameSession);
+            _optionsbar = new OptionsBar(_game, _ui, _gameSession, _uiTextures);
 
-            _healthbar = new Healthbar(_ui.RectangleTexture);
+            _healthbar = new Healthbar(_uiTextures);
 
-            _characterStats = new CharacterStatDisplay(_ui, _gameSession);
+            _characterStats = new CharacterStatDisplay(_ui, _gameSession, _uiTextures);
 
-            _eventMessageDisplay = new EventMessageDisplay(_ui, _gameSession, _ui.Text);
+            _eventMessageDisplay = new EventMessageDisplay(_gameSession, _ui.Text, _uiTextures);
 
-            _combatOptions = new CombatOptions(_game, _ui, _gameSession);
+            _combatOptions = new CombatOptions(_game, _ui, _gameSession, _uiTextures);
 
             _combatButtonsBar = new CombatButtonsBar(_game, _ui, _gameSession);
 
-            _roomActions = new RoomActionsBar(_ui, _gameSession);
+            _roomActions = new RoomActionsBar(_ui, _gameSession, _uiTextures);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -329,11 +340,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         ----------------------------------------------------------------------------------------------------------*/
         private void SetPositions()
         {
-            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 240);
+            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 210);
 
             _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
 
-            _healthBarPosition = new Point((int)_game.CenterX - 75, (int)_game.CenterY + 150);
+            _healthBarPosition = new Point((int)_game.CenterX - 150, (int)_game.CenterY + 200);
 
             _sunDialPosition = new Point((int)_game.CenterX - 486, 35);
 
@@ -341,15 +352,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _optMenuPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y - 80);
 
-            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 300);
+            _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 250);
 
-            _eventMessagePosition = new Point((int)_game.CenterX + 50, 150);
+            _eventMessagePosition = new Point((int)_game.CenterX + 25, 115);
 
             _imageDisplayPosition = new Point(150, 120);
 
             _combatOptPosition = new Point(_imageDisplayPosition.X + _imageDisplay.Width / 2, (int)_imageDisplayPosition.Y + (_imageDisplay.Height / 2 - 25));
 
-            _attackButtonPosition = new Point(325, 600);
+            _attackButtonPosition = new Point((int)_game.CenterX - 150, 300);
 
             _roomActsPosition = new Point(150, 600); // DEBUG // TODO
         }// End -----------------------------------------------------------------------------------------------------
@@ -367,19 +378,19 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _movementButtons.Load(_moveButtonPosition);
 
-            _healthbar.Load(_healthBarPosition ,_character.MaxHealth, _character.CurrentHealth, 20);
+            _healthbar.Load(_healthBarPosition ,_character.MaxHealth, _character.CurrentHealth, 23);
 
             _sunDial.Load(_sunDialPosition);
 
             _flavorMessageDisplay.Load(_flavorMessagePosition, _gameSession.Randomizer);
 
-            _optionsbar.Load(_optMenuPosition, 50);
+            _optionsbar.Load(_optMenuPosition, 61);
 
-            _characterStats.Load(_character, _charStatsPosition, 50);
+            _characterStats.Load(_character, _charStatsPosition, 70);
 
             _eventMessageDisplay.Load(_eventMessagePosition);
 
-            _imageDisplay.Initialize(_imageDisplayPosition);
+            _imageDisplay.Load(_imageDisplayPosition);
 
             _combatOptions.Load(_combatOptPosition, _ui.Text);
 
@@ -387,6 +398,46 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _roomActions.Load(_roomActsPosition);
         }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Open Game Map Screen					   
+        ------------------------------------------------------------------------------------------------------------
+          - Inherited class method. Derived from GameScreen class. Callback method utilized by the OptionsBar
+            UI class's button for opening the GameMapScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void OpenGameMapScreen() => LoadNextScreen(_game.GameScreenManager.NewGame); // TODO change later to GameMapScreen
+        // End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Open Settings Screen					   
+        ------------------------------------------------------------------------------------------------------------
+          - Inherited class method. Derived from GameScreen class. Callback method utilized by the OptionsBar
+            UI class's button for opening the SettingsScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void OpenSettingsScreen() => LoadNextScreen(_game.GameScreenManager.NewGame); // TODO change later to GameMapScreen
+        // End -----------------------------------------------------------------------------------------------------
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Open Save Menu Screen					   
+        ------------------------------------------------------------------------------------------------------------
+          - Inherited class method. Derived from GameScreen class. Callback method utilized by the OptionsBar
+            UI class's button for opening the SaveGameScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void OpenSaveGameScreen() => LoadNextScreen(_game.GameScreenManager.NewGame); // TODO change later to GameMapScreen
+                                                                                             // End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                 Open Quit Prompt					   
+        ------------------------------------------------------------------------------------------------------------
+          - Inherited class method. Derived from GameScreen class. Callback method utilized by the OptionsBar
+            UI class's button for opening the QuitGamePrompt.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void OpenQuitPrompt() => LoadNextScreen(_game.GameScreenManager.NewGame); // TODO change later to GameMapScreen
+        // End -----------------------------------------------------------------------------------------------------
+
 
         /*----------------------------------------------------------------------------------------------------------
                                                Debug Screen				   
@@ -399,7 +450,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             bool showMousePos = false;
 
-            bool showAllPositions = true;
+            bool showAllPositions = false;
 
             bool showMovementData = false;
 
@@ -409,9 +460,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             bool displayCardData = false;
 
-            bool displayRoomTileData = true;
+            bool displayRoomTileData = false;
 
-            bool displayRoomTile = true;
+            bool displayRoomTile = false;
+
+            bool playerInCombat = false;
 
             if (showContentLoaded)
             {
@@ -424,7 +477,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 spriteBatch.DrawString(_ui.DebugText, $"PrevMouse: [{_game.PrevMouseState}]",
                    new Vector2(25, 25), Color.Yellow);
 
-                spriteBatch.DrawString(_ui.DebugText, $"CurrMouse: [{_game.currentMouseState}]",
+                spriteBatch.DrawString(_ui.DebugText, $"CurrMouse: [{_game.CurrentMouseState}]",
                    new Vector2(25, 50), Color.White);
             }
 
@@ -485,12 +538,16 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 _currentRoom.DisplayRoomTileData(spriteBatch, new Point(400, 100), _ui.RectangleTexture, _ui.DebugText);
 
             if (displayCardData && _currentCard != null)
+            {
                 _currentCard.DisplayCardData(spriteBatch, new Point(900, 300), _ui.RectangleTexture, _ui.DebugText);
-
-            spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
-
+                spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
+            }
+                
             if (displayRoomTile && _currentRoom.TileImage != null)
                 _currentRoom.Draw(spriteBatch);
+
+            if (playerInCombat)
+                spriteBatch.DrawString(_ui.DebugText, $"Player is in combat: {_gameSession.PlayerInCombat}", new Vector2(_game.CenterX, 250), Color.Orange);
 
         }// End -----------------------------------------------------------------------------------------------------
         #endregion

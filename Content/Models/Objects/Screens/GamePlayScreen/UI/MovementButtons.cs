@@ -18,6 +18,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
 
     :: DONE ---------------------------
+        v.001c (10/31) Added textures to buttons.
         v.001b (10/30) Rework and addition of code to support new RoomTile rotated exits behavior.
         v.001a (10/23) Setup of basic core properties and methods.
 
@@ -27,8 +28,6 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         //========================================== PROPERTIES ==================================================//
 
         // DATA
-        private MainGame _game;
-
         private UiManager _ui;
 
         private GameSession _session;
@@ -54,23 +53,24 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
         private int _buttonSize;
 
-        private Texture2D _imgGoUp;
-        
-        private Texture2D _imgGoDown;
-        
-        private Texture2D _imgGoLeft;
-        
-        private Texture2D _imgGoRight;
+        private Texture2D _uiTextures;                  // Reference to texture of UI icon/ button images
 
+        private Rectangle _upSourceRect;                // Snapshot rectangle of UiTexture for the button image.
 
+        private Rectangle _rightSourceRect;
+
+        private Rectangle _downSourceRect;
+
+        private Rectangle _leftSourceRect;
+        
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public MovementButtons(MainGame game, UiManager ui, GameSession session)
+        public MovementButtons(UiManager ui, GameSession session, Texture2D uiTextures)
         { 
-            _game = game;
-
             _ui = ui;
 
             _session = session;
+
+            _uiTextures = uiTextures;
         
         }
 
@@ -91,7 +91,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
 
             _buttonSize = 50;
 
-            LoadTextures(_game);
+            LoadTextures();
 
             LoadButtons(_position, _buttonSize);
 
@@ -192,15 +192,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             if (_playerCanMove)
             {
-                BtnGoUp.Draw(spriteBatch);
+                BtnGoUp.Draw(spriteBatch, _upSourceRect);
 
-                BtnGoDown.Draw(spriteBatch);
+                BtnGoDown.Draw(spriteBatch, _downSourceRect);
 
-                BtnGoLeft.Draw(spriteBatch);
+                BtnGoLeft.Draw(spriteBatch, _leftSourceRect);
 
-                BtnGoRight.Draw(spriteBatch);
+                BtnGoRight.Draw(spriteBatch, _rightSourceRect);
 
-                spriteBatch.Draw(_ui.RectangleTexture, new Rectangle(_position.X, _position.Y, 5, 5), Color.LimeGreen);
+                //spriteBatch.Draw(_ui.RectangleTexture, new Rectangle(_position.X, _position.Y, 5, 5), Color.LimeGreen);
             }
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -210,15 +210,18 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         ------------------------------------------------------------------------------------------------------------
          - Class support method for loading the textures for the buttons.
         ----------------------------------------------------------------------------------------------------------*/
-        public void LoadTextures(MainGame game)
+        public void LoadTextures()
         {
-            _imgGoUp = _ui.RectangleTexture;    //_game.Content.Load<Texture2D>("");    //TODO
-            
-            _imgGoDown = _ui.RectangleTexture;  //_game.Content.Load<Texture2D>("");    //TODO
-            
-            _imgGoLeft = _ui.RectangleTexture;  //_game.Content.Load<Texture2D>("");    //TODO
-            
-            _imgGoRight = _ui.RectangleTexture; //_game.Content.Load<Texture2D>("");    //TODO
+
+            _upSourceRect = new Rectangle(1,0, _buttonSize, _buttonSize);
+
+            _rightSourceRect = new Rectangle(54, 0, _buttonSize, _buttonSize);
+
+            _downSourceRect = new Rectangle(104, 0, _buttonSize, _buttonSize);
+
+            _leftSourceRect = new Rectangle(155, 0, _buttonSize, _buttonSize);
+
+
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -232,19 +235,23 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             Point posUP = new Point(position.X - (btnSize/2), position.Y - (btnSize + (btnSize/2) ));
             BtnGoUp = new ClickButton(_ui, new Rectangle(posUP.X, posUP.Y, btnSize, btnSize), true);
-            BtnGoUp.Initialize(Color.White, "U", Color.Black, new Vector2(posUP.X + 10, posUP.Y + 5), false, 0);
+            BtnGoUp.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            BtnGoUp.Background = _uiTextures;
 
             Point posDown = new Point(position.X - (btnSize / 2), position.Y + (btnSize/2));
             BtnGoDown = new ClickButton(_ui, new Rectangle(posDown.X, posDown.Y, btnSize, btnSize), true);
-            BtnGoDown.Initialize(Color.White, "D", Color.Black, new Vector2(posDown.X + 15, posDown.Y + 5), false, 0);
+            BtnGoDown.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            BtnGoDown.Background = _uiTextures;
 
             Point posLeft = new Point(position.X - (btnSize + (btnSize / 2)), position.Y - (btnSize/2));
             BtnGoLeft = new ClickButton(_ui, new Rectangle(posLeft.X, posLeft.Y, btnSize, btnSize), true);
-            BtnGoLeft.Initialize(Color.White, "L", Color.Black, new Vector2(posLeft.X  + 10, posLeft.Y + 10), false, 0);
+            BtnGoLeft.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            BtnGoLeft.Background = _uiTextures;
 
             Point posRight = new Point(position.X + (btnSize/2), position.Y - (btnSize / 2));
             BtnGoRight = new ClickButton(_ui, new Rectangle(posRight.X, posRight.Y, btnSize, btnSize), true);
-            BtnGoRight.Initialize(Color.White, "R", Color.Black, new Vector2(posRight.X + 10, posRight.Y + 10), false, 0);
+            BtnGoRight.Initialize(Color.White, "", null, Color.Black, Vector2.Zero, false, 0);
+            BtnGoRight.Background = _uiTextures;
         }// End -----------------------------------------------------------------------------------------------------
 
 

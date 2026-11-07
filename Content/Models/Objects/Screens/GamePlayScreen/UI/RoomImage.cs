@@ -30,24 +30,24 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
     {
         //========================================== PROPERTIES ==================================================//
 
-        private MainGame _game;
-
+        // DATA
         public int Width { get; private set; }
         
         public int Height { get; private set; }
 
-        private Rectangle _imageBox;
 
-
+        // GRAPHICS
         private Point _position;
+
+        private Rectangle _imageBox;
 
         public Texture2D CurrentImage { get; private set; }
 
-        //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
-        public RoomImage(MainGame game)
-        {
-            _game = game;
+       
 
+        //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
+        public RoomImage()
+        {
             Width = 307;
 
             Height = 461;
@@ -58,14 +58,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         #region methods
 
         /*----------------------------------------------------------------------------------------------------------
-                                                 Initialize				   
+                                                 Load				   
         ------------------------------------------------------------------------------------------------------------
-          - Class specific method. Loads all the necessary textures and delegates the creation of the stack of
-            RoomTiles to sub-method.
+          - Class specific method. Loads all the necessary textures and sets up the visual representation 
+            of the RoomImage object. This includes setting the position, size, and any other relevant properties.
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize(Point position)
+        public void Load(Point position)
         {
             _position = position;
+
             _imageBox = new Rectangle(position.X, position.Y, Width, Height);
 
         }// End -----------------------------------------------------------------------------------------------------
@@ -98,6 +99,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen.UI
         {
             if(CurrentImage != null)
                 spriteBatch.Draw(CurrentImage, _imageBox, Color.White);
+
         }// End -----------------------------------------------------------------------------------------------------
 
         #endregion

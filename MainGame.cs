@@ -23,12 +23,15 @@ namespace dragon_hoard
 
     :: TODO ---------------------------
 
-                v0.001d (10/25) Implementation of database with Data Access- and service layer.
-        
+               
+        * Add all cards to database
+        * Add all items to databas
+        * Add all characters to database
         
 
     :: DONE ---------------------------
         (2026)
+        v0.001d (10/25) Implementation of database with Data Access- and service layer.
         v0.001c (10/07) Setup of core basic game loop (Game Session management)
         v0.001b (09/26) Basic screen management finished.
         v0.001a (09/24) Setup system for (basic) Game Screen management & handling (Game Screen Manager)
@@ -91,8 +94,11 @@ namespace dragon_hoard
         public RoomCardService RoomCardService { get; private set; } = null!;
 
         // DEVICES
-        public MouseState currentMouseState { get; private set; }
+        public MouseState CurrentMouseState { get; private set; }
         public MouseState PrevMouseState { get; private set; }
+
+        public KeyboardState CurrentKeyboardState { get; private set; }
+        public KeyboardState PrevKeyboardState { get; private set; }
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         public MainGame()
@@ -195,7 +201,8 @@ namespace dragon_hoard
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            currentMouseState = ReadMouseState(gameTime);
+            CurrentMouseState = ReadMouseState(gameTime);
+            CurrentKeyboardState = ReadKeyboardState(gameTime);
 
             base.Update(gameTime);
             GameScreenManager.Update(gameTime);
@@ -286,18 +293,27 @@ namespace dragon_hoard
         private MouseState ReadMouseState(GameTime gameTime)
         {
             // Get current state of mouse
-            PrevMouseState = currentMouseState;
+            PrevMouseState = CurrentMouseState;
 
             MouseState mouseState = Mouse.GetState();
             
 
             // Get X and Y coordinates
-            int mouseX = currentMouseState.X;
-            int mouseY = currentMouseState.Y;
+            int mouseX = CurrentMouseState.X;
+            int mouseY = CurrentMouseState.Y;
 
             return mouseState;
         }
 
+        private KeyboardState ReadKeyboardState(GameTime gameTime)
+        {
+            // Get current state of keyboard
+            PrevKeyboardState = CurrentKeyboardState;
+            
+            KeyboardState keyboardState = Keyboard.GetState();
+           
+            return keyboardState;
+        }
 
         /*----------------------------------------------------------------------------------------------------------
                                                    Set Debug Mode					   

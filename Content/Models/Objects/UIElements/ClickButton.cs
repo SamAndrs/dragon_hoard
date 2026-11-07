@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.BitmapFonts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,7 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
          * bool Clickable
          * bool IsVisible
          * UiManager _ui 
+         * BitmapFont Font
         */
 
         private Vector2 _textPos;
@@ -72,11 +74,12 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
         ------------------------------------------------------------------------------------------------------------
             - Class specific method for setting additional property values
         ----------------------------------------------------------------------------------------------------------*/
-        public void Initialize(Color bgColor, string text, Color fontColor, Vector2 fontPos, bool clickable, float animTimer)
+        public void Initialize(Color bgColor, string text, BitmapFont font, Color fontColor, Vector2 fontPos, bool clickable, float animTimer)
         {
             BackgroundColor = bgColor;
 
             _text = text;
+            Font = font;
             FontColor = fontColor;
             _textPos = fontPos;
 
@@ -130,6 +133,33 @@ namespace dragon_hoard.Content.Models.Objects.UIElements
                 }
             }
         }// End -----------------------------------------------------------------------------------------------------
+
+
+
+
+        public override void Draw(SpriteBatch spriteBatch, Rectangle sourceRect)
+        {
+            if (IsVisible)
+            {
+                if (IsClickable)
+                {
+                    spriteBatch.Draw(Background, BoundingBox, sourceRect, Color.White);
+                    if (Font != null)
+                        spriteBatch.DrawString(Font, _text, _textPos, FontColor);
+                    else
+                        spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+                }
+                else
+                {
+                    spriteBatch.Draw(Background, BoundingBox, sourceRect, Color.DarkGray);
+                    if(Font != null)
+                        spriteBatch.DrawString(Font, _text, _textPos, FontColor);
+                    else
+                        spriteBatch.DrawString(_ui.DebugText, _text, _textPos, FontColor);
+                }
+            }
+        }// End -----------------------------------------------------------------------------------------------------
+
 
 
 
