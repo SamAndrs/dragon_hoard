@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Models\Interfaces\" />
+    <Folder Include="Content\Models\Objects\Screens\GameMapScreen\UI\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Content\Images\dragonhoard_title.png">

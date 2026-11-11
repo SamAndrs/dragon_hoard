@@ -1,8 +1,6 @@
 ﻿using dragon_hoard.Content.Models.Enums;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Reflection.Metadata.Ecma335;
-using System.Xml.Linq;
 
 namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 {
@@ -65,13 +63,19 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         public int Col { get; set; }                                // Column-position on gamemap grid
 
-        private readonly RoomTile[,] _mapGrid;
+        private readonly GameMap _map;
 
         private int _quarterTurns;                                  // The amount of times to rotate the RoomTile (for GameMap).
 
         private float _rotation => _quarterTurns * MathHelper.PiOver2;  // Rotation in radians
 
-        
+
+        private Vector2 _origin;                                    //The point around which the texture rotates.Using the center makes the room rotate around its middle.
+
+        private Vector2 _position;
+
+        private Vector2 _center;
+
 
         // GRAPHICS
         public Texture2D TileImage { get; set; }                    // Tile visual representation on gamemap      
@@ -82,15 +86,18 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
         private int _size = 256;                                    // Size of TileImage and LargeSquare
 
+        public  int Size { get { return _size; } }
+
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
         #region Constructors
         // For RoomTile-placement
         public RoomTile() { }
 
         // For gamemap
-        public RoomTile(RoomTile[,] mapGrid, RoomType roomType, int row, int col)
+        public RoomTile(GameMap map, RoomType roomType, int row, int col)
         {
-            _mapGrid = mapGrid;
+
+            _map = map;
 
             RoomType = roomType;
             
@@ -112,23 +119,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
                                                        Draw					   
         ------------------------------------------------------------------------------------------------------------
           - Class method. Draws the rotated TileImage texture onto the GameMapScreen.
+            The position of the TileImage is adjusted by that of the Map position (on the GameMap screen)
         ----------------------------------------------------------------------------------------------------------*/
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, Vector2 mapPosition)
         {
-            // origin: The point around which the texture rotates. Using the center makes the room rotate around its middle.
-            Vector2 origin = new Vector2(TileImage.Width / 2f, TileImage.Height / 2f);
-
-            Vector2 position = new Vector2(LargeSquare.X, LargeSquare.Y);
-
-            Vector2 center = position + new Vector2(_size / 2f, _size / 2f);
-
             spriteBatch.Draw(
                 TileImage,
-                center,
+                _center + mapPosition,
                 null,
                 Color.White,
                 _rotation,
-                origin,
+                _origin,
                 1.0f,
                 SpriteEffects.None,
                 0f
@@ -182,7 +183,10 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             TileRoomImage = roomTile.TileRoomImage;
 
-            LargeSquare = new Rectangle(800, 400, _size, _size);
+            // We adjust the position of the tile image by the position of the map (on the GameMapScreen)
+            LargeSquare = new Rectangle((Col - 1) * _size, (Row - 1) * _size, _size, _size);
+
+            SetRotationValues();
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -213,7 +217,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
             for (int i = 0; i < _quarterTurns; i++)
                 exits = RotateClockWise(exits);
 
-            return CheckConnectedExits(_mapGrid, Row, Col, exits);
+            return CheckConnectedExits(_map.MiniMap, Row, Col, exits);
             //return exits;
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -241,6 +245,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities.Cards
 
             return rotated;
         }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        public void SetRotationValues()
+        {
+            _origin = new Vector2(TileImage.Width / 2f, TileImage.Height / 2f);
+
+            _position = new Vector2(LargeSquare.X, LargeSquare.Y);
+
+            _center = _position + new Vector2(_size / 2f, _size / 2f);
+        }
 
 
 

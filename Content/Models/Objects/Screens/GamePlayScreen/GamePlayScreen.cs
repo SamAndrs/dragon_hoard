@@ -31,7 +31,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class GamePlayScreen : GameScreen
+    public sealed class GamePlayScreen : GameScreen
     {
         //========================================== PROPERTIES ==================================================//
 
@@ -293,7 +293,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         private void LoadTextures()
         {
 
-           
+           // TODO
                        
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -340,11 +340,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
         ----------------------------------------------------------------------------------------------------------*/
         private void SetPositions()
         {
-            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 300), 210);
+            _miniMapPosition = new Point((_game.GraphicsDevice.Viewport.Width - 350), 210);
 
-            _moveButtonPosition = new Point((int)_game.CenterX, (int)_game.CenterY + 250);
+            _moveButtonPosition = new Point((int)_game.CenterX - 50, (int)_game.CenterY + 250);
 
-            _healthBarPosition = new Point((int)_game.CenterX - 150, (int)_game.CenterY + 200);
+            _healthBarPosition = new Point((int)_game.CenterX - 200, (int)_game.CenterY + 200);
 
             _sunDialPosition = new Point((int)_game.CenterX - 486, 35);
 
@@ -354,15 +354,15 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             _charStatsPosition = new Point(_miniMapPosition.X, _miniMapPosition.Y + 250);
 
-            _eventMessagePosition = new Point((int)_game.CenterX + 25, 115);
+            _eventMessagePosition = new Point((int)_game.CenterX - 25, 115);
 
-            _imageDisplayPosition = new Point(150, 120);
+            _imageDisplayPosition = new Point(100, 120);
 
-            _combatOptPosition = new Point(_imageDisplayPosition.X + _imageDisplay.Width / 2, (int)_imageDisplayPosition.Y + (_imageDisplay.Height / 2 - 25));
+            _combatOptPosition = new Point(_imageDisplayPosition.X + (_imageDisplay.Width / 2) - 50, (int)_imageDisplayPosition.Y + (_imageDisplay.Height / 2 - 25));
 
-            _attackButtonPosition = new Point((int)_game.CenterX - 150, 300);
+            _attackButtonPosition = new Point((int)_game.CenterX - 200, 300);
 
-            _roomActsPosition = new Point(150, 600); // DEBUG // TODO
+            _roomActsPosition = new Point(100, 600); // DEBUG // TODO
         }// End -----------------------------------------------------------------------------------------------------
 
         /*----------------------------------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
           - Inherited class method. Derived from GameScreen class. Callback method utilized by the OptionsBar
             UI class's button for opening the GameMapScreen.
         ----------------------------------------------------------------------------------------------------------*/
-        public void OpenGameMapScreen() => LoadNextScreen(_game.GameScreenManager.NewGame); // TODO change later to GameMapScreen
+        public void OpenGameMapScreen() => LoadNextScreen(_game.GameScreenManager.GameMap);
         // End -----------------------------------------------------------------------------------------------------
 
 
@@ -462,7 +462,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
 
             bool displayRoomTileData = false;
 
-            bool displayRoomTile = false;
+            //bool displayRoomTile = false;
 
             bool playerInCombat = false;
 
@@ -542,9 +542,9 @@ namespace dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen
                 _currentCard.DisplayCardData(spriteBatch, new Point(900, 300), _ui.RectangleTexture, _ui.DebugText);
                 spriteBatch.DrawString(_ui.DebugText, $"Timer: {_eventMessageDisplay.MessageTimer}", new Vector2(_game.CenterX, 250), Color.Orange);
             }
-                
-            if (displayRoomTile && _currentRoom.TileImage != null)
-                _currentRoom.Draw(spriteBatch);
+
+            //if (displayRoomTile && _currentRoom.TileImage != null)
+            //    _currentRoom.Draw(spriteBatch);
 
             if (playerInCombat)
                 spriteBatch.DrawString(_ui.DebugText, $"Player is in combat: {_gameSession.PlayerInCombat}", new Vector2(_game.CenterX, 250), Color.Orange);

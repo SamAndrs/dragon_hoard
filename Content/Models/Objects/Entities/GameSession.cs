@@ -244,6 +244,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             DisplayFlavorMessage = false;
             CurrentRoom = GameMap.PickRandomStartPosition();
+
+            PlayerCharacter.SetMapPosition(CurrentRoom.Col, CurrentRoom.Row, CurrentRoom.Size);
         }
 
         public void CreateTestRound()
@@ -292,6 +294,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                 ResetRoomStats();
                 SetCurrentRoom(nextTile);
             }
+
+            PlayerCharacter.SetMapPosition(CurrentRoom.Col, CurrentRoom.Row, CurrentRoom.Size);
 
             GameTurn++;
             DisplayFlavorMessage = true;

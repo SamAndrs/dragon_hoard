@@ -49,6 +49,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // GRAPHICS
         public Point MapPosition { get; set; }
 
+
         private Texture2D _exitImg;
 
         private Texture2D _exitTileImg;
@@ -100,6 +101,8 @@ namespace dragon_hoard.Content.Models.Objects.Entities
                     _mapGrid[row, col] = CreateRoom(row, col);
                 }
             }
+
+            MapPosition = new Point(80, 80);
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -114,17 +117,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        /*----------------------------------------------------------------------------------------------------------
-                                               Draw Game Map			   
-        ------------------------------------------------------------------------------------------------------------
-        - Main public method to draw game map on the screen.
-        ----------------------------------------------------------------------------------------------------------*/
-        public void DrawGameMap(SpriteBatch spriteBatch)
-        {
-          
-          
-
-        }// End -----------------------------------------------------------------------------------------------------
+        
 
 
 
@@ -138,7 +131,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         private RoomTile CreateRoom(int row, int col)
         {
             // Default room for every position.
-            RoomTile newRoom = new RoomTile(_mapGrid, RoomType.Undiscovered, row, col);
+            RoomTile newRoom = new RoomTile(this, RoomType.Undiscovered, row, col);
 
             // The position of the treasure hoard (i.e. center of castle).
             int hoard1Row = (Rows / 2) - 1;
@@ -147,31 +140,17 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             // Outer walls.
             if (row == 0 || row == Rows - 1 || col == 0 || col == Columns - 1)
-                newRoom = new RoomTile(_mapGrid, RoomType.OuterWall, row, col);
+                newRoom = new RoomTile(this, RoomType.OuterWall, row, col);
 
             // Exits - If room is a corner, make it an exit;
-            else if ((row == 1 || row == Rows - 2) && (col == 1 || col == Columns -2 ) )
-            {
-                newRoom = new RoomTile(_mapGrid, RoomType.Exit, row, col);
-                newRoom.EventName = "Castle entrance";
-                newRoom.EventText = "A set of stairs leads up into the darkness.You may leave the castle this way.";
-                newRoom.TileImage = _exitTileImg;
-                newRoom.TileRoomImage = _exitImg;
-                CreateExitDoors(newRoom);
-            }
+            else if ((row == 1 || row == Rows - 2) && (col == 1 || col == Columns -2 )) 
+                newRoom = CreateExitRoomTile(row, col);
 
             // Treasure Room.
             else if (row == hoard1Row || row == hoard2Row)
             {
-                if (col == hoardCol)
-                {
-                    newRoom = new RoomTile(_mapGrid, RoomType.TreasureRoom, row, col);
-                    CreateTreasureExits(newRoom);
-                    newRoom.EventName = "Treasure Room!";
-                    newRoom.EventText = "You have found your way to the hoard. Wealth beyond measure is yours for the taking!";
-                    newRoom.TileImage = _treasureTileImg;
-                    newRoom.TileRoomImage = _treasureRoomImg;
-                }
+                if (col == hoardCol) 
+                    newRoom = CreateTreasureRoomTile(row, col);
             }
 
             return newRoom;
@@ -198,6 +177,31 @@ namespace dragon_hoard.Content.Models.Objects.Entities
             }
 
              return _mapGrid[newRow, newCol];
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+        /*----------------------------------------------------------------------------------------------------------
+                                              Create Exit Room Tile					   
+       ------------------------------------------------------------------------------------------------------------
+       - Class support method creating a given GameMap Exit RoomTile upon request.
+       ----------------------------------------------------------------------------------------------------------*/
+        private RoomTile CreateExitRoomTile(int row, int col)
+        {
+            RoomTile exitRoom = new RoomTile(this, RoomType.Exit, row, col);
+
+            int size = exitRoom.Size;
+
+            exitRoom.EventName = "Castle entrance";
+            exitRoom.EventText = "A set of stairs leads up into the darkness.You may leave the castle this way.";
+            exitRoom.TileImage = _exitTileImg;
+            exitRoom.TileRoomImage = _exitImg;
+
+            // Subtract 1 Column and 1 Row to better align the visuals on the GameMapScreen
+            exitRoom.LargeSquare = new Rectangle((col - 1) * size, (row - 1) * size, size, size);
+            exitRoom.SetRotationValues();
+            CreateExitDoors(exitRoom);
+
+            return exitRoom;
         }// End -----------------------------------------------------------------------------------------------------
 
 
@@ -239,16 +243,33 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         }// End -----------------------------------------------------------------------------------------------------
 
 
+
         /*----------------------------------------------------------------------------------------------------------
-                                             Create Treasure Exits					   
+                                             Create Treasure Room Tile					   
         ------------------------------------------------------------------------------------------------------------
-           - Class specific method assigning exits/ entrances in all directions to a Treasure Room.
+           - Class support method creating a given GameMap Treasure hoard RoomTile upon request.
         ----------------------------------------------------------------------------------------------------------*/
-        private void CreateTreasureExits(RoomTile roomTile)
+        private RoomTile CreateTreasureRoomTile(int row, int col)
         {
-            roomTile.Exits = RoomExits.Up | RoomExits.Right | RoomExits.Down | RoomExits.Left;
+            RoomTile treasureRoom = new RoomTile(this, RoomType.TreasureRoom, row, col);
+
+            int size = treasureRoom.Size;
+
+            treasureRoom.Exits = RoomExits.Up | RoomExits.Right | RoomExits.Down | RoomExits.Left;
+            treasureRoom.EventName = "Treasure Room!";
+            treasureRoom.EventText = "You have found your way to the hoard. Wealth beyond measure is yours for the taking!";
+            treasureRoom.TileImage = _treasureTileImg;
+            treasureRoom.TileRoomImage = _treasureRoomImg;
+
+            // Subtract 1 Column and 1 Row to better align the visuals on the GameMapScreen
+            treasureRoom.LargeSquare = new Rectangle((col - 1) * size, (row - 1) * size, size, size);
+            treasureRoom.SetRotationValues();
+            
+            return treasureRoom;
         }// End -----------------------------------------------------------------------------------------------------
 
+
+       
         /*----------------------------------------------------------------------------------------------------------
                                                Create Random Start Position					   
         ------------------------------------------------------------------------------------------------------------
@@ -260,7 +281,7 @@ namespace dragon_hoard.Content.Models.Objects.Entities
 
             int result = rand.Next(3);
 
-            //int result = 2;
+            //int result = 1;
 
             int maxRows = Rows - 2;
             int maxCols = Columns - 2;

@@ -63,7 +63,7 @@ namespace dragon_hoard
         public float CenterX { get; private set; }
         public float CenterY { get; private set; }
 
-        public int[] vpSize { get; private set; }
+        //public int[] vpSize { get; private set; }
 
         private bool _isResizing;
 
@@ -280,7 +280,7 @@ namespace dragon_hoard
                 CenterX = _resolutionWidth / 2;
                 CenterY = _resolutionHeight / 2;
 
-                vpSize = new int[2] { _virtualWidth, _virtualHeight };
+                //vpSize = new int[2] { _virtualWidth, _virtualHeight };
             }
             catch (Exception ex)
             {

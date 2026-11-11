@@ -2,6 +2,7 @@
 using dragon_hoard.Content.Models.Objects.UIElements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Screens;
 
 namespace dragon_hoard.Content.Models.Objects.Screens
 {
@@ -25,6 +26,7 @@ namespace dragon_hoard.Content.Models.Objects.Screens
     :: DONE ---------------------------
 
         (2026)
+        v.001b (11/08) Added method for screen exit transition
         v.001a (09/24) Core methods and properties
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,11 +34,11 @@ namespace dragon_hoard.Content.Models.Objects.Screens
     {
 
         //========================================== PROPERTIES ==================================================//
-        internal MainGame _game = game;
+        internal readonly MainGame _game = game;
 
-        internal GameScreenManager _screenManager = screenManager;
+        internal readonly GameScreenManager _screenManager = screenManager;
 
-        internal UiManager _ui = ui;
+        internal readonly UiManager _ui = ui;
 
         internal bool IsContentLoaded { get; set; } = false;
 
@@ -84,10 +86,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         protected internal virtual void LoadNextScreen(GameScreen nextScreen)
         {
             _screenManager.SetNextScreen(nextScreen);
-            _screenManager.ScreenTransition = true; 
+            _screenManager.LoadScreenTransition = true; 
             //_screenManager.LoadScreen(nextScreen);
-            
         }
+
+        
+
+        protected internal virtual void ExitThisScreen() => _screenManager.ExitScreenTransition = true;
+       
 
 
         /*----------------------------------------------------------------------------------------------------------

@@ -129,12 +129,14 @@ namespace dragon_hoard.Content.Models.Objects.Screens
         ----------------------------------------------------------------------------------------------------------*/
         public override void LoadContent()
         {
-            int sidebarSize = _game.vpSize[0] / 4; // Calculate size of the sidebar.
+            //int sidebarSize = _game.vpSize[0] / 4; // Calculate size of the sidebar.
+            int sidebarSize = _game.VirtualView.Width / 4;
             _sidebar = new Rectangle(_game.VirtualView.Width - (sidebarSize * (int)_game.ScaleX), 0, sidebarSize, _game.VirtualView.Height);
 
             LoadHeroImages();
 
-            int buttonWidth = (_game.vpSize[0] - (sidebarSize +50))/4 * (int)_game.ScaleX;
+            //int buttonWidth = (_game.vpSize[0] - (sidebarSize +50))/4 * (int)_game.ScaleX;
+            int buttonWidth = (_game.VirtualView.Width - (sidebarSize + 50)) / 4 * (int)_game.ScaleX;
             int buttonHeight = 341 * (int)_game.ScaleY;
             int row1Pos = 100;
 
@@ -229,7 +231,8 @@ namespace dragon_hoard.Content.Models.Objects.Screens
                 string titleString = "CHOOSE YOUR HERO";
                 Vector2 titleLength = _ui.HeadLine.MeasureString(titleString)/2;
                 float titleScale = 1.5f;
-                int titlePos = (_game.vpSize[0] - (sidebarSize + 20));
+                //int titlePos = (_game.vpSize[0] - (sidebarSize + 20));
+                int titlePos = (_game.VirtualView.Width - (sidebarSize + 20));
                 spriteBatch.DrawString(_ui.HeadLine, titleString, new Vector2(titlePos/2 - (titleLength.X * titleScale), 20), Color.Red,
                     rotation: 0f, origin: Vector2.Zero, titleScale, effects: SpriteEffects.None, layerDepth: 0f);
 

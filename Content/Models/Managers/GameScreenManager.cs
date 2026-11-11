@@ -1,4 +1,6 @@
-﻿using dragon_hoard.Content.Models.Objects.Screens;
+﻿using dragon_hoard.Content.Models.Objects.Entities;
+using dragon_hoard.Content.Models.Objects.Screens;
+using dragon_hoard.Content.Models.Objects.Screens.GameMapScreen;
 using dragon_hoard.Content.Models.Objects.Screens.GamePlayScreen;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -39,13 +41,14 @@ namespace dragon_hoard.Content.Models.Managers
     :: DONE ---------------------------
 
         (2026)
+        v.001b (11/08) Additions to facilitate exitscreen transition.
          v.001a (09/24) Core class setup. Initialization of first Game Screen and basic Stack functionality and  
             subclass-delegation.
 
     *//////////////////////////////////////////////////////////////////////////////////////////////////////////////
     #endregion
 
-    public class GameScreenManager
+    public sealed class GameScreenManager
     {
         //========================================== PROPERTIES ==================================================//
 
@@ -61,9 +64,11 @@ namespace dragon_hoard.Content.Models.Managers
         
         private GameScreen _nextScreen;
         
-        public bool ScreenTransition { get; set; } = false;
+        public bool LoadScreenTransition { get; set; } = false;
 
-        private float countDown = 1.0f;
+        public bool ExitScreenTransition { get; set; } = false;
+
+        private float _countDown = 1.0f;
 
 
         // GAME SCREENS       
@@ -73,11 +78,11 @@ namespace dragon_hoard.Content.Models.Managers
 
         public GamePlayScreen GamePlay { get; private set; }
 
+        public GameMapScreen GameMap { get; private set; }
+
 
         // DEBUG
         public List<string> ScreensInStack { get; private set; }
-
-        private string _timer = string.Empty;
 
 
         //------------------------------------------- CONSTRUCTOR/ -S -------------------------------------------//
@@ -108,6 +113,8 @@ namespace dragon_hoard.Content.Models.Managers
             NewGame = new NewGameScreen(_game, this, _ui);
 
             GamePlay = new GamePlayScreen(_game, this, _ui);
+
+            GameMap = new GameMapScreen(_game, this, _ui);
 
             // Push MainMenu onto stack, load content & set to active
             //_gameScreens.Push(MainMenu);
@@ -153,11 +160,20 @@ namespace dragon_hoard.Content.Models.Managers
             _ui.Update(gameTime);
 
             // When a screen tranition is called; run the "load screen" process.
-            if (ScreenTransition)
-                countDown = DoScreenTransition(_nextScreen, gameTime, countDown);
+            if (LoadScreenTransition)
+            {
+                LoadScreen(_nextScreen);    
+                _countDown = DoScreenTransition(_nextScreen, gameTime, _countDown);
+            }
+            // If a loaded screen is being exited from, run the "exit screen" process.
+            else if (ExitScreenTransition)
+            {
+                ExitScreen();
+                _countDown = DoScreenTransition(_nextScreen, gameTime, _countDown);
+            }
+            // Otherwise keep updating the currently active one
             else
                 _gameScreens.Peek().Update(gameTime);
-
 
         }// End -----------------------------------------------------------------------------------------------------
 
@@ -170,19 +186,11 @@ namespace dragon_hoard.Content.Models.Managers
         ----------------------------------------------------------------------------------------------------------*/
         public void Draw(SpriteBatch spriteBatch)
         {
-            if(ScreenTransition)
+            if(LoadScreenTransition || ExitScreenTransition)
                 _game.GraphicsDevice.Clear(Color.Black);
 
             else
-            {
-                //foreach(var screen in _gameScreens)
-                //{
-                //    if(screen.RenderOnPause)
-                //        screen.Draw(spriteBatch);
-                //}
-                
                 _gameScreens.Peek().Draw(spriteBatch);
-            }
 
             if (_debugMode)
                 DebugGame(spriteBatch);
@@ -207,9 +215,10 @@ namespace dragon_hoard.Content.Models.Managers
             }
             
             _gameScreens.Push(newScreen);
-            
+
+
             // If the screen content has been removed or not yet been loaded into memory, run load method.
-            if(!newScreen.IsContentLoaded)
+            if (!newScreen.IsContentLoaded)
             {
                 newScreen.LoadContent();
             }
@@ -218,36 +227,64 @@ namespace dragon_hoard.Content.Models.Managers
 
 
         /*----------------------------------------------------------------------------------------------------------
+                                                 Exit Screen					   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method of exiting a Game Screen and returning to the previous one.
+               The current Game Screen object is popped from the stack and set to 'Inactive'.
+               The previous Game Screen object is set to 'Active' again.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void ExitScreen()
+        {
+            if (_gameScreens.Count > 0)
+                _gameScreens.Pop().SetInactive();
+
+            _nextScreen = _gameScreens.Peek();
+        }// End -----------------------------------------------------------------------------------------------------
+
+
+
+        /*----------------------------------------------------------------------------------------------------------
                                                   Do Screen Transition					   
        ------------------------------------------------------------------------------------------------------------
-           - Class specific method to transition between different game screens.
+           - Class support method to transition between different game screens.
                 A countdown is utilized to give impression of a loading sequence and to prevent
                 'instant screen swap'.  
        ----------------------------------------------------------------------------------------------------------*/
         private float DoScreenTransition(GameScreen nextScreen, GameTime gameTime, float countdown)
         {
-            LoadScreen(nextScreen);    // Run method for loading next screen
+            //LoadScreen(nextScreen);    // Run method for loading next screen
 
             if (countdown > 0)      // Countdown to give impression of loading screen
             {
                 countdown -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                _timer = countdown.ToString("n2");
+                                
                 return countdown;
             }
             else
             {
-                ScreenTransition = false; // End transition state
+                if (LoadScreenTransition)
+                    ScreensInStack.Add(_nextScreen.Description);     // DEBUG: Add some debug info.
 
-                _nextScreen.SetActive(); // Activate new screen
+                if (ExitScreenTransition)
+                    ScreensInStack.RemoveAt(ScreensInStack.Count - 1); // DEBUG
 
-                
-                ScreensInStack.Add(_nextScreen.Description); // Add some debug info.
+
+
+                LoadScreenTransition = false; // End transition state
+                ExitScreenTransition = false;
+
+                nextScreen.SetActive(); // Activate new screen
 
                 // Reset and return timer value.
                 countdown = 1.0f;
                 return countdown;
             }
+
         }// End -----------------------------------------------------------------------------------------------------
+
+
+       
+
 
 
         /*----------------------------------------------------------------------------------------------------------
@@ -288,17 +325,20 @@ namespace dragon_hoard.Content.Models.Managers
         private void DebugGame(SpriteBatch spriteBatch)
         {
             //_game.SetDebugMode();
-            bool showTransitionTimer = false;
+            bool showTransitionTimer = true;
             bool showStackContents = false;
 
             if(showTransitionTimer)
-                spriteBatch.DrawString(_ui.DebugText, $"Transition in: {_timer}s", new Vector2(100, 10), Color.White);
+                spriteBatch.DrawString(_ui.DebugText, $"Transition in: {_countDown.ToString("n2")}s", new Vector2(100, 10), Color.White);
 
             if (showStackContents)
             {
                 Rectangle stackBG = new Rectangle(_game.GraphicsDevice.Viewport.Width - 150, 50, 130, 200);
+                
                 spriteBatch.Draw(_ui.RectangleTexture, stackBG, Color.DarkBlue);
+                
                 spriteBatch.DrawString(_ui.DebugText, "Screens in stack:", new Vector2(stackBG.X + 10, stackBG.Y + 5), Color.Yellow);
+                
                 for (int i = 0; i < ScreensInStack.Count; i++)
                 {
                     spriteBatch.DrawString(_ui.DebugText, $"{ScreensInStack[i]}", new Vector2(stackBG.X + 10, stackBG.Y + 25 + (i * 20)), Color.White);

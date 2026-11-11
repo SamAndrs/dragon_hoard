@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,12 +59,16 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         // MISC
         public bool TorchIsOn { get; set; }
 
+        public Vector2 MapPosition { get; private set; }
+
         // public List<Room> ExploredRooms {get; private set; }
 
         // GRAPHICS
         public Texture2D CharacterPortrait { get; private set; }                // Character select screen portrait image
 
         public Texture2D MapPin { get; private set; }                           // Game map pin image for the character
+
+        public Rectangle MapPinRect { get; set; }                               // Position rectangle for the Game map pin image
 
         public Texture2D CombatCardA { get; private set; }                      // Combat attack option (A) image for the character
 
@@ -108,7 +113,21 @@ namespace dragon_hoard.Content.Models.Objects.Entities
         }// End -----------------------------------------------------------------------------------------------------
 
 
-        
+
+        /*----------------------------------------------------------------------------------------------------------
+                                                  Set Map Position				   
+        ------------------------------------------------------------------------------------------------------------
+          - Class specific method. Sets and adjusts the character map pin on the GameMapScreen.
+        ----------------------------------------------------------------------------------------------------------*/
+        public void SetMapPosition(int col, int row, int tileSize)
+        {
+            MapPinRect = new Rectangle(0, 0, 50, 50);
+
+            Vector2 pos = new Vector2(col * tileSize - (tileSize / 2),
+                row * tileSize - (tileSize / 2));
+
+            MapPosition = new Vector2(pos.X - MapPinRect.Width / 2, pos.Y - MapPinRect.Height / 2);
+        }// End -----------------------------------------------------------------------------------------------------
 
 
         /*----------------------------------------------------------------------------------------------------------
